@@ -1,0 +1,27 @@
+<?php
+
+return [
+    'loading' => 'Đang tải...',
+    'error' => 'Lỗi',
+    'success' => 'Thành công',
+    'cancel' => 'Hủy',
+    'save' => 'Lưu',
+    'edit' => 'Chỉnh sửa',
+    'delete' => 'Xóa',
+    'close' => 'Đóng',
+    'submit' => 'Gửi',
+    'search' => 'Tìm kiếm',
+    'filter' => 'Lọc',
+    'sort' => 'Sắp xếp',
+    'back' => 'Quay lại',
+    'next' => 'Tiếp theo',
+    'previous' => 'Trước đó',
+    'yes' => 'Có',
+    'no' => 'Không',
+    'ok' => 'OK',
+    'welcome' => 'Chào mừng',
+    'hello' => 'Xin chào',
+    'goodbye' => 'Tạm biệt',
+    'language' => 'Ngôn ngữ',
+    'completed' => 'Đã hoàn thành',
+];

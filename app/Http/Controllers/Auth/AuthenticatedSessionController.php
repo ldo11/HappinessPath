@@ -30,7 +30,24 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->route('profile.settings.edit');
+        $user = Auth::user();
+
+        if ($user->role === 'admin') {
+            return redirect()->route('admin.dashboard');
+        }
+
+        if ($user->role === 'translator') {
+            return redirect()->route('translator.dashboard');
+        }
+        
+        // Redirect based on onboarding status
+        switch ($user->onboarding_status) {
+            case 'new':
+                return redirect()->route('assessment');
+            case 'test_completed':
+            default:
+                return redirect()->route('dashboard');
+        }
     }
 
     public function destroy(Request $request)

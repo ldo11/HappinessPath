@@ -11,10 +11,9 @@ use Illuminate\Validation\Rule;
 
 class SolutionController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('admin');
-    }
+    protected $middleware = [
+        'admin'
+    ];
 
     public function index(Request $request)
     {

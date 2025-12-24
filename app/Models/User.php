@@ -19,6 +19,8 @@ class User extends Authenticatable implements MustVerifyEmailContract
         'name',
         'email',
         'password',
+        'dob',
+        'disc_type',
         'role',
         'spiritual_preference',
         'onboarding_status',
@@ -27,6 +29,7 @@ class User extends Authenticatable implements MustVerifyEmailContract
         'district',
         'country',
         'geo_privacy',
+        'locale',
     ];
 
     protected $hidden = [
@@ -38,8 +41,24 @@ class User extends Authenticatable implements MustVerifyEmailContract
     {
         return [
             'email_verified_at' => 'datetime',
+            'dob' => 'date',
             'geo_privacy' => 'boolean',
             'password' => 'hashed',
         ];
+    }
+
+    public function userTree()
+    {
+        return $this->hasOne(UserTree::class);
+    }
+
+    public function userJourney()
+    {
+        return $this->hasOne(UserJourney::class);
+    }
+
+    public function numerology()
+    {
+        return $this->hasOne(UserNumerology::class);
     }
 }

@@ -7,9 +7,9 @@
     <!-- Header -->
     <div class="bg-white shadow-sm">
         <div class="px-4 py-4">
-            <div class="flex items-center justify-between">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                 <div>
-                    <h1 class="text-2xl font-bold text-gray-900">Meditation</h1>
+                    <h1 class="text-xl sm:text-2xl font-bold text-gray-900">Meditation</h1>
                     <p class="text-sm text-gray-600">Find your inner peace</p>
                 </div>
                 <div class="flex items-center space-x-3">
@@ -30,24 +30,24 @@
         @if(!session('meditation_session.started'))
             <!-- Meditation Type Selection -->
             <div id="typeSelection" class="space-y-4">
-                <h2 class="text-lg font-semibold text-gray-900 mb-4">Choose Your Meditation</h2>
+                <h2 class="text-lg sm:text-xl font-semibold text-gray-900 mb-4">Choose Your Meditation</h2>
                 
                 @foreach($meditationTypes as $type)
-                    <div class="bg-white rounded-2xl shadow-lg p-6 cursor-pointer hover:shadow-xl transition-all duration-200"
+                    <div class="bg-white rounded-2xl shadow-lg p-4 sm:p-6 cursor-pointer hover:shadow-xl transition-all duration-200"
                          onclick="selectMeditationType('{{ $type['id'] }}')">
                         <div class="flex items-center">
-                            <div class="w-16 h-16 bg-{{ $type['color'] }}-100 rounded-full flex items-center justify-center mr-4">
-                                <i class="fas {{ $type['icon'] }} text-{{ $type['color'] }}-600 text-2xl"></i>
+                            <div class="w-12 h-12 sm:w-16 sm:h-16 bg-{{ $type['color'] }}-100 rounded-full flex items-center justify-center mr-3 sm:mr-4 flex-shrink-0">
+                                <i class="fas {{ $type['icon'] }} text-{{ $type['color'] }}-600 text-lg sm:text-2xl"></i>
                             </div>
-                            <div class="flex-1">
-                                <h3 class="text-lg font-semibold text-gray-900">{{ $type['name'] }}</h3>
-                                <p class="text-gray-600 text-sm">{{ $type['description'] }}</p>
+                            <div class="flex-1 min-w-0">
+                                <h3 class="text-base sm:text-lg font-semibold text-gray-900 truncate">{{ $type['name'] }}</h3>
+                                <p class="text-gray-600 text-sm line-clamp-2">{{ $type['description'] }}</p>
                                 <div class="flex items-center mt-2 text-xs text-gray-500">
                                     <i class="fas fa-clock mr-1"></i>
-                                    Available durations: {{ implode(', ', array_map(fn($d) => $d . ' min', $type['duration'])) }}
+                                    <span class="truncate">{{ implode(', ', array_map(fn($d) => $d . ' min', $type['duration'])) }}</span>
                                 </div>
                             </div>
-                            <i class="fas fa-chevron-right text-gray-400"></i>
+                            <i class="fas fa-chevron-right text-gray-400 ml-2 flex-shrink-0"></i>
                         </div>
                     </div>
                 @endforeach
@@ -55,58 +55,61 @@
 
             <!-- Duration Selection (Hidden initially) -->
             <div id="durationSelection" class="hidden">
-                <div class="bg-white rounded-2xl shadow-lg p-6">
+                <div class="bg-white rounded-2xl shadow-lg p-4 sm:p-6">
                     <div class="flex items-center mb-4">
-                        <button onclick="backToTypeSelection()" class="mr-4 text-gray-600 hover:text-gray-900">
+                        <button onclick="backToTypeSelection()" class="mr-4 text-gray-600 hover:text-gray-900 p-2">
                             <i class="fas fa-arrow-left text-xl"></i>
                         </button>
                         <div>
-                            <h2 class="text-lg font-semibold text-gray-900">Select Duration</h2>
+                            <h2 class="text-lg sm:text-xl font-semibold text-gray-900">Select Duration</h2>
                             <p class="text-sm text-gray-600" id="selectedTypeName">Mindfulness</p>
                         </div>
                     </div>
                     
-                    <div class="grid grid-cols-2 gap-4 mb-6" id="durationOptions">
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-6" id="durationOptions">
                         <!-- Duration options will be populated by JavaScript -->
                     </div>
                 </div>
             </div>
         @else
             <!-- Active Meditation Session -->
-            <div id="activeSession" class="flex flex-col items-center justify-center py-8">
+            <div id="activeSession" class="flex flex-col items-center justify-center py-6 sm:py-8">
                 <!-- Timer Circle -->
-                <div class="relative w-64 h-64 mb-8">
+                <div class="relative w-56 h-56 sm:w-64 sm:h-64 mb-6 sm:mb-8">
                     <svg class="w-full h-full transform -rotate-90">
-                        <circle cx="128" cy="128" r="120" stroke="#e5e7eb" stroke-width="8" fill="none" />
+                        <circle cx="112" cy="112" r="104" stroke="#e5e7eb" stroke-width="8" fill="none" />
                         <circle id="progressCircle" 
-                                cx="128" cy="128" r="120" 
+                                cx="112" cy="112" r="104" 
                                 stroke="#8b5cf6" 
                                 stroke-width="8" 
                                 fill="none"
                                 stroke-linecap="round"
                                 class="timer-circle"
-                                style="stroke-dasharray: 754; stroke-dashoffset: 754;" />
+                                style="stroke-dasharray: 653; stroke-dashoffset: 653;" />
                     </svg>
                     
                     <div class="absolute inset-0 flex flex-col items-center justify-center">
-                        <div id="timerDisplay" class="text-5xl font-bold text-gray-900">00:00</div>
+                        <div id="timerDisplay" class="text-4xl sm:text-5xl font-bold text-gray-900">00:00</div>
                         <div id="sessionType" class="text-sm text-gray-600 mt-2">Mindfulness</div>
-                        <div class="flex items-center mt-4 space-x-4">
-                            <button onclick="togglePlayPause()" id="playPauseBtn"
-                                    class="w-12 h-12 bg-purple-600 hover:bg-purple-700 text-white rounded-full flex items-center justify-center transition-colors">
-                                <i class="fas fa-pause text-lg"></i>
-                            </button>
-                            <button onclick="stopMeditation()" 
-                                    class="w-12 h-12 bg-red-600 hover:bg-red-700 text-white rounded-full flex items-center justify-center transition-colors">
-                                <i class="fas fa-stop text-lg"></i>
-                            </button>
-                        </div>
                     </div>
                 </div>
+                
+                <!-- Control Buttons -->
+                <div class="flex items-center space-x-4 sm:space-x-6">
+                    <button onclick="togglePlayPause()" id="playPauseBtn"
+                            class="w-14 h-14 sm:w-16 sm:h-16 bg-purple-600 hover:bg-purple-700 text-white rounded-full flex items-center justify-center transition-colors shadow-lg">
+                        <i class="fas fa-pause text-lg sm:text-xl"></i>
+                    </button>
+                    <button onclick="stopMeditation()" 
+                            class="w-14 h-14 sm:w-16 sm:h-16 bg-red-600 hover:bg-red-700 text-white rounded-full flex items-center justify-center transition-colors shadow-lg">
+                        <i class="fas fa-stop text-lg sm:text-xl"></i>
+                    </button>
+                </div>
+            </div>
 
-                <!-- Audio Controls -->
-                <div class="bg-white rounded-2xl shadow-lg p-6 w-full max-w-md">
-                    <div class="flex items-center justify-between mb-4">
+            <!-- Audio Controls -->
+            <div class="bg-white rounded-2xl shadow-lg p-4 sm:p-6 w-full max-w-md mt-6">
+                <div class="flex items-center justify-between mb-4">
                         <h3 class="font-semibold text-gray-900">Guided Audio</h3>
                         <button onclick="toggleAudio()" id="audioToggle"
                                 class="text-purple-600 hover:text-purple-700">

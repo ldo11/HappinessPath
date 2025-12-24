@@ -1,370 +1,416 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>@yield('title', 'Happiness Path') - Path to Happiness</title>
-    
-    <!-- PWA Meta Tags -->
-    <meta name="theme-color" content="#22c55e">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="apple-mobile-web-app-title" content="Happiness Path">
-    <meta name="application-name" content="Happiness Path">
-    <meta name="description" content="A compassionate mobile app for mental healing, meditation, and personal growth">
-    <meta name="keywords" content="meditation, mindfulness, mental health, wellness, happiness, self-care">
-    <meta name="author" content="Happiness Path">
-    
-    <!-- PWA Manifest -->
-    <link rel="manifest" href="/manifest.json">
-    
-    <!-- Apple Touch Icons -->
-    <link rel="apple-touch-icon" href="/icons/icon-152x152.png">
-    <link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-152x152.png">
-    <link rel="apple-touch-icon" sizes="192x192" href="/icons/icon-192x192.png">
-    
-    <!-- Favicon -->
-    <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon-16x16.png">
-    
-    <!-- Fonts and Styles -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>@yield('title', 'Dashboard') - Con Đường Hạnh Phúc</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700;800&family=Merriweather:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: {
-                            50: '#f0fdf4',
-                            100: '#dcfce7',
-                            200: '#bbf7d0',
-                            300: '#86efac',
-                            400: '#4ade80',
-                            500: '#22c55e',
-                            600: '#16a34a',
-                            700: '#15803d',
-                            800: '#166534',
-                            900: '#14532d',
-                        },
-                        heart: {
-                            50: '#fef2f2',
-                            100: '#fee2e2',
-                            200: '#fecaca',
-                            300: '#fca5a5',
-                            400: '#f87171',
-                            500: '#ef4444',
-                            600: '#dc2626',
-                            700: '#b91c1c',
-                            800: '#991b1b',
-                            900: '#7f1d1d',
-                        },
-                        grit: {
-                            50: '#fefce8',
-                            100: '#fef9c3',
-                            200: '#fef08a',
-                            300: '#fde047',
-                            400: '#facc15',
-                            500: '#eab308',
-                            600: '#ca8a04',
-                            700: '#a16207',
-                            800: '#854d0e',
-                            900: '#713f12',
-                        },
-                        wisdom: {
-                            50: '#eff6ff',
-                            100: '#dbeafe',
-                            200: '#bfdbfe',
-                            300: '#93c5fd',
-                            400: '#60a5fa',
-                            500: '#3b82f6',
-                            600: '#2563eb',
-                            700: '#1d4ed8',
-                            800: '#1e40af',
-                            900: '#1e3a8a',
-                        }
-                    },
-                    fontFamily: {
-                        'inter': ['Inter', 'sans-serif'],
-                    },
-                    animation: {
-                        'float': 'float 3s ease-in-out infinite',
-                        'pulse-slow': 'pulse 3s ease-in-out infinite',
-                        'bounce-slow': 'bounce 2s ease-in-out infinite',
-                    },
-                    keyframes: {
-                        float: {
-                            '0%, 100%': { transform: 'translateY(0px)' },
-                            '50%': { transform: 'translateY(-10px)' },
-                        }
-                    }
-                }
-            }
-        }
-    </script>
     <style>
-        /* Mobile-first responsive utilities */
-        .mobile-container {
-            max-width: 100vw;
-            min-height: 100vh;
-            font-family: 'Inter', sans-serif;
+        .spiritual-font {
+            font-family: 'Merriweather', serif;
+        }
+        .body-font {
+            font-family: 'Nunito', sans-serif;
+        }
+        .hero-bg {
+            background-image: url('/images/home-bg.png');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+        .glassmorphism {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+        .emerald-gradient {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+        .emerald-gradient:hover {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        .animate-float {
+            animation: float 3s ease-in-out infinite;
         }
         
-        /* Custom scrollbar for mobile */
-        ::-webkit-scrollbar {
-            width: 4px;
+        /* Responsive Typography */
+        .text-responsive-xs { font-size: 0.75rem; }
+        .text-responsive-sm { font-size: 0.875rem; }
+        .text-responsive-base { font-size: 1rem; }
+        .text-responsive-lg { font-size: 1.125rem; }
+        .text-responsive-xl { font-size: 1.25rem; }
+        .text-responsive-2xl { font-size: 1.5rem; }
+        .text-responsive-3xl { font-size: 1.875rem; }
+        .text-responsive-4xl { font-size: 2.25rem; }
+        .text-responsive-5xl { font-size: 3rem; }
+        
+        @media (min-width: 640px) {
+            .text-responsive-xs { font-size: 0.75rem; }
+            .text-responsive-sm { font-size: 0.875rem; }
+            .text-responsive-base { font-size: 1rem; }
+            .text-responsive-lg { font-size: 1.125rem; }
+            .text-responsive-xl { font-size: 1.25rem; }
+            .text-responsive-2xl { font-size: 1.5rem; }
+            .text-responsive-3xl { font-size: 1.875rem; }
+            .text-responsive-4xl { font-size: 2.25rem; }
+            .text-responsive-5xl { font-size: 3rem; }
         }
         
-        ::-webkit-scrollbar-track {
-            background: #f1f1f1;
+        @media (min-width: 768px) {
+            .text-responsive-xs { font-size: 0.75rem; }
+            .text-responsive-sm { font-size: 0.875rem; }
+            .text-responsive-base { font-size: 1rem; }
+            .text-responsive-lg { font-size: 1.125rem; }
+            .text-responsive-xl { font-size: 1.25rem; }
+            .text-responsive-2xl { font-size: 1.5rem; }
+            .text-responsive-3xl { font-size: 2rem; }
+            .text-responsive-4xl { font-size: 2.5rem; }
+            .text-responsive-5xl { font-size: 3.5rem; }
         }
         
-        ::-webkit-scrollbar-thumb {
-            background: #888;
-            border-radius: 2px;
+        @media (min-width: 1024px) {
+            .text-responsive-xs { font-size: 0.75rem; }
+            .text-responsive-sm { font-size: 0.875rem; }
+            .text-responsive-base { font-size: 1rem; }
+            .text-responsive-lg { font-size: 1.125rem; }
+            .text-responsive-xl { font-size: 1.25rem; }
+            .text-responsive-2xl { font-size: 1.5rem; }
+            .text-responsive-3xl { font-size: 2.25rem; }
+            .text-responsive-4xl { font-size: 3rem; }
+            .text-responsive-5xl { font-size: 4rem; }
         }
         
-        /* Touch-friendly tap targets */
-        .touch-target {
-            min-height: 44px;
-            min-width: 44px;
-        }
-        
-        /* Safe area padding for mobile */
-        .safe-area-top {
-            padding-top: env(safe-area-inset-top);
-        }
-        
-        .safe-area-bottom {
-            padding-bottom: env(safe-area-inset-bottom);
-        }
-        
-        /* Tree health bar animation */
-        .health-bar {
-            transition: width 0.5s ease-in-out;
-        }
-        
-        /* Meditation timer styles */
-        .timer-circle {
-            stroke-dasharray: 754;
-            stroke-dashoffset: 0;
-            transition: stroke-dashoffset 1s linear;
-        }
-        
-        /* Smooth transitions */
-        * {
-            -webkit-tap-highlight-color: transparent;
-        }
-        
-        /* Prevent text selection on mobile */
-        .no-select {
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            user-select: none;
+        /* Mobile responsiveness improvements */
+        @media (max-width: 768px) {
+            .hero-bg {
+                background-attachment: scroll;
+            }
+            
+            .glassmorphism {
+                background: rgba(255, 255, 255, 0.15);
+            }
+            
+            .mobile-menu-hidden {
+                display: none;
+            }
+            
+            .mobile-menu-show {
+                display: block;
+            }
         }
     </style>
 </head>
-<body class="mobile-container bg-gradient-to-br from-green-50 to-blue-50 safe-area-top safe-area-bottom">
-    <!-- Mobile Navigation (if logged in) -->
-    @auth
-        @if(!request()->routeIs('onboarding.*') && !request()->routeIs('meditate'))
-            <nav class="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-40 safe-area-top">
-                <div class="flex items-center justify-between px-4 py-3">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-8 h-8 bg-primary-500 rounded-full flex items-center justify-center">
-                            <i class="fas fa-tree text-white text-sm"></i>
-                        </div>
-                        <span class="font-semibold text-gray-900">Happiness Path</span>
-                    </div>
-                    <div class="flex items-center space-x-3">
-                        @if(Auth::user()->userTree)
-                            <div class="flex items-center space-x-1">
-                                <i class="fas fa-star text-yellow-500 text-sm"></i>
-                                <span class="text-sm font-medium text-gray-700">{{ Auth::user()->userTree->exp }}</span>
+<body class="body-font antialiased">
+    <!-- Hero Background with Dark Overlay -->
+    <div class="hero-bg min-h-screen relative">
+        <div class="absolute inset-0 bg-slate-900/80"></div>
+        
+        <!-- Navigation -->
+        <nav class="relative z-20 glassmorphism border-b border-white/10">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between h-16">
+                    <!-- Logo -->
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0 flex items-center">
+                            <div class="w-8 h-8 md:w-10 md:h-10 bg-emerald-600/20 backdrop-blur-sm rounded-full flex items-center justify-center mr-2 md:mr-3 border border-emerald-400/30">
+                                <i class="fas fa-tree text-emerald-400 text-sm md:text-lg"></i>
                             </div>
-                        @endif
-                        <button onclick="toggleMobileMenu()" class="touch-target text-gray-600 hover:text-gray-900">
-                            <i class="fas fa-bars text-xl"></i>
-                        </button>
+                            <span class="font-bold text-lg md:text-xl text-white spiritual-font hidden sm:block">Con Đường Hạnh Phúc</span>
+                            <span class="font-bold text-lg md:text-xl text-white spiritual-font sm:hidden">Hạnh Phúc</span>
+                        </div>
                     </div>
+                    
+                    <!-- Right Side Navigation -->
+                    <div class="flex items-center space-x-2 md:space-x-6">
+                        <!-- Mobile Menu Toggle -->
+                        <button onclick="toggleMobileMenu()" class="md:hidden text-white/80 hover:text-white p-2 rounded-lg hover:bg-white/10 transition-colors">
+                            <i class="fas fa-bars text-lg"></i>
+                        </button>
+                        
+                        <!-- Language Switcher - Desktop Only -->
+                        <div class="relative hidden md:block">
+                            <button onclick="toggleLanguageDropdown()" class="flex items-center text-white/80 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                                <span class="text-lg mr-2">{{ app()->getLocale() === 'vi' ? '🇻🇳' : '🇺🇸' }}</span>
+                                <span class="hidden lg:block">{{ app()->getLocale() === 'vi' ? 'Tiếng Việt' : 'English' }}</span>
+                                <i class="fas fa-chevron-down ml-1 text-xs"></i>
+                            </button>
+                            
+                            <!-- Language Dropdown -->
+                            <div id="languageDropdown" class="hidden absolute right-0 mt-2 w-52 glassmorphism rounded-lg shadow-lg z-50">
+                                <div class="py-1">
+                                    <a href="{{ route('language.switch', 'vi') }}" class="flex items-center px-4 py-3 text-sm text-white hover:bg-white/10 transition-colors">
+                                        <span class="text-xl mr-3">🇻🇳</span>
+                                        <div>
+                                            <div class="font-medium">Tiếng Việt</div>
+                                            <div class="text-xs text-emerald-200">Vietnamese</div>
+                                        </div>
+                                        @if(app()->getLocale() === 'vi')
+                                            <i class="fas fa-check text-emerald-400 ml-auto"></i>
+                                        @endif
+                                    </a>
+                                    <a href="{{ route('language.switch', 'en') }}" class="flex items-center px-4 py-3 text-sm text-white hover:bg-white/10 transition-colors">
+                                        <span class="text-xl mr-3">🇺🇸</span>
+                                        <div>
+                                            <div class="font-medium">English</div>
+                                            <div class="text-xs text-emerald-200">United States</div>
+                                        </div>
+                                        @if(app()->getLocale() === 'en')
+                                            <i class="fas fa-check text-emerald-400 ml-auto"></i>
+                                        @endif
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Profile Dropdown -->
+                        <div class="relative">
+                            <button onclick="toggleProfileDropdown()" class="flex items-center text-white hover:text-white px-2 md:px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                                <div class="w-8 h-8 bg-emerald-600/30 rounded-full flex items-center justify-center mr-2">
+                                    <i class="fas fa-user text-emerald-300 text-sm"></i>
+                                </div>
+                                <span class="hidden md:block">{{ Auth::user()->name }}</span>
+                                <i class="fas fa-chevron-down ml-1 text-xs"></i>
+                            </button>
+                            
+                            <!-- Profile Dropdown Menu -->
+                            <div id="profileDropdown" class="hidden absolute right-0 mt-2 w-56 glassmorphism rounded-lg shadow-lg z-50">
+                                <div class="py-1">
+                                    <div class="px-4 py-2 border-b border-white/10">
+                                        <p class="text-sm font-medium text-white">{{ Auth::user()->name }}</p>
+                                        <p class="text-xs text-emerald-200">{{ Auth::user()->email }}</p>
+                                        <p class="text-xs text-emerald-300 mt-1">
+                                            <i class="fas fa-shield-alt mr-1"></i>
+                                            {{ ucfirst(Auth::user()->role) }}
+                                        </p>
+                                    </div>
+                                    
+                                    <a href="{{ route('dashboard') }}" class="block px-4 py-2 text-sm text-white hover:bg-white/10 transition-colors">
+                                        <i class="fas fa-home mr-2"></i>Dashboard
+                                    </a>
+                                    <a href="{{ route('profile.settings.edit') }}" class="block px-4 py-2 text-sm text-white hover:bg-white/10 transition-colors">
+                                        <i class="fas fa-user-edit mr-2"></i>Hồ sơ cá nhân
+                                    </a>
+                                    <a href="{{ route('profile.settings.edit') }}" class="block px-4 py-2 text-sm text-white hover:bg-white/10 transition-colors">
+                                        <i class="fas fa-cog mr-2"></i>Cài đặt
+                                    </a>
+                                    
+                                    @if(Auth::user()->role === 'admin')
+                                        <a href="{{ route('admin.dashboard') }}" class="block px-4 py-2 text-sm text-white hover:bg-white/10 transition-colors">
+                                            <i class="fas fa-crown mr-2"></i>Quản trị viên
+                                        </a>
+                                    @endif
+                                    
+                                    @if(Auth::user()->role === 'volunteer')
+                                        <a href="{{ route('volunteer.dashboard') }}" class="block px-4 py-2 text-sm text-white hover:bg-white/10 transition-colors">
+                                            <i class="fas fa-hands-helping mr-2"></i>Tình nguyện viên
+                                        </a>
+                                    @endif
+                                    
+                                    <div class="border-t border-white/10">
+                                        <form method="POST" action="{{ route('logout') }}">
+                                            @csrf
+                                            <button type="submit" class="w-full text-left px-4 py-2 text-sm text-red-300 hover:bg-white/10 transition-colors">
+                                                <i class="fas fa-sign-out-alt mr-2"></i>Đăng xuất
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Mobile Menu -->
+        <div id="mobileMenu" class="hidden md:hidden relative z-20 glassmorphism border-b border-white/10">
+            <div class="px-4 py-4 space-y-1">
+                <!-- Main Navigation -->
+                <div class="space-y-1">
+                    <a href="{{ route('dashboard') }}" class="flex items-center px-4 py-3 rounded-lg text-white hover:bg-white/10 transition-colors">
+                        <i class="fas fa-home mr-3 text-lg"></i>
+                        <span class="font-medium">{{ __('navigation.dashboard') }}</span>
+                    </a>
+                    <a href="{{ route('meditate') }}" class="flex items-center px-4 py-3 rounded-lg text-white hover:bg-white/10 transition-colors">
+                        <i class="fas fa-spa mr-3 text-lg"></i>
+                        <span class="font-medium">{{ __('navigation.meditation') }}</span>
+                    </a>
+                    <a href="{{ route('profile.settings.edit') }}" class="flex items-center px-4 py-3 rounded-lg text-white hover:bg-white/10 transition-colors">
+                        <i class="fas fa-user-edit mr-3 text-lg"></i>
+                        <span class="font-medium">{{ __('navigation.profile') }}</span>
+                    </a>
+                    <a href="{{ route('profile.settings.edit') }}" class="flex items-center px-4 py-3 rounded-lg text-white hover:bg-white/10 transition-colors">
+                        <i class="fas fa-cog mr-3 text-lg"></i>
+                        <span class="font-medium">{{ __('navigation.settings') }}</span>
+                    </a>
                 </div>
                 
-                <!-- Mobile Menu -->
-                <div id="mobileMenu" class="hidden border-t border-gray-200">
-                    <div class="px-4 py-2 space-y-1">
-                        <a href="{{ route('dashboard') }}" class="block px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100">
-                            <i class="fas fa-home mr-2"></i>Dashboard
-                        </a>
-                        <a href="{{ route('meditate') }}" class="block px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100">
-                            <i class="fas fa-spa mr-2"></i>Meditate
-                        </a>
-                        <a href="{{ route('profile.settings.edit') }}" class="block px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100">
-                            <i class="fas fa-user mr-2"></i>Profile
-                        </a>
-                        @if(Auth::user()->role === 'admin' || Auth::user()->role === 'volunteer')
-                            <a href="{{ route(Auth::user()->role === 'admin' ? 'admin.dashboard' : 'volunteer.dashboard') }}" 
-                               class="block px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100">
-                                <i class="fas fa-cog mr-2"></i>{{ ucfirst(Auth::user()->role) }} Panel
-                            </a>
+                <!-- Language Switcher -->
+                <div class="border-t border-white/10 pt-2 mt-2 space-y-1">
+                    <p class="px-4 py-2 text-xs text-emerald-200 font-medium uppercase tracking-wider">{{ __('common.language') }}</p>
+                    <a href="{{ route('language.switch', 'vi') }}" class="flex items-center px-4 py-3 rounded-lg text-white hover:bg-white/10 transition-colors">
+                        <span class="text-xl mr-3">🇻🇳</span>
+                        <div>
+                            <div class="font-medium">Tiếng Việt</div>
+                            <div class="text-xs text-emerald-200">Vietnamese</div>
+                        </div>
+                        @if(app()->getLocale() === 'vi')
+                            <i class="fas fa-check text-emerald-400 ml-auto"></i>
                         @endif
-                        <form method="POST" action="{{ route('logout') }}" class="block">
-                            @csrf
-                            <button type="submit" class="w-full text-left px-3 py-2 rounded-lg text-red-600 hover:bg-red-50">
-                                <i class="fas fa-sign-out-alt mr-2"></i>Logout
-                            </button>
-                        </form>
+                    </a>
+                    <a href="{{ route('language.switch', 'en') }}" class="flex items-center px-4 py-3 rounded-lg text-white hover:bg-white/10 transition-colors">
+                        <span class="text-xl mr-3">🇺🇸</span>
+                        <div>
+                            <div class="font-medium">English</div>
+                            <div class="text-xs text-emerald-200">United States</div>
+                        </div>
+                        @if(app()->getLocale() === 'en')
+                            <i class="fas fa-check text-emerald-400 ml-auto"></i>
+                        @endif
+                    </a>
+                </div>
+                
+                <!-- Role-specific Links -->
+                @if(Auth::user()->role === 'admin')
+                    <div class="border-t border-white/10 pt-2 mt-2">
+                        <a href="{{ route('admin.dashboard') }}" class="flex items-center px-4 py-3 rounded-lg text-white hover:bg-white/10 transition-colors">
+                            <i class="fas fa-crown mr-3 text-lg text-yellow-400"></i>
+                            <span class="font-medium">{{ __('navigation.admin') }}</span>
+                        </a>
                     </div>
+                @endif
+                
+                @if(Auth::user()->role === 'volunteer')
+                    <div class="border-t border-white/10 pt-2 mt-2">
+                        <a href="{{ route('volunteer.dashboard') }}" class="flex items-center px-4 py-3 rounded-lg text-white hover:bg-white/10 transition-colors">
+                            <i class="fas fa-hands-helping mr-3 text-lg text-green-400"></i>
+                            <span class="font-medium">{{ __('navigation.volunteer') }}</span>
+                        </a>
+                    </div>
+                @endif
+                
+                <!-- Logout -->
+                <div class="border-t border-white/10 pt-2 mt-2">
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button type="submit" class="w-full flex items-center px-4 py-3 rounded-lg text-red-300 hover:bg-white/10 transition-colors">
+                            <i class="fas fa-sign-out-alt mr-3 text-lg"></i>
+                            <span class="font-medium">{{ __('auth.logout') }}</span>
+                        </button>
+                    </form>
                 </div>
-            </nav>
-        @endif
-    @endauth
+            </div>
+        </div>
 
-    <!-- Main Content -->
-    <main class="flex-1">
-        @yield('content')
-    </main>
+        <!-- Main Content -->
+        <main class="relative z-10">
+            @yield('content')
+        </main>
+    </div>
 
-    <!-- Mobile Bottom Navigation (if logged in and not onboarding) -->
-    @auth
-        @if(!request()->routeIs('onboarding.*') && !request()->routeIs('meditate'))
-            <nav class="bg-white border-t border-gray-200 sticky bottom-0 z-40 safe-area-bottom">
-                <div class="flex justify-around py-2">
-                    <a href="{{ route('dashboard') }}" 
-                       class="flex flex-col items-center p-2 touch-target {{ request()->routeIs('dashboard') ? 'text-primary-600' : 'text-gray-600' }}">
-                        <i class="fas fa-home text-xl mb-1"></i>
-                        <span class="text-xs">Home</span>
-                    </a>
-                    <a href="{{ route('meditate') }}" 
-                       class="flex flex-col items-center p-2 touch-target {{ request()->routeIs('meditate') ? 'text-primary-600' : 'text-gray-600' }}">
-                        <i class="fas fa-spa text-xl mb-1"></i>
-                        <span class="text-xs">Meditate</span>
-                    </a>
-                    <button onclick="openDonateModal()" 
-                            class="flex flex-col items-center p-2 touch-target text-gray-600">
-                        <i class="fas fa-heart text-xl mb-1"></i>
-                        <span class="text-xs">Give</span>
-                    </button>
-                    <a href="{{ route('profile.settings.edit') }}" 
-                       class="flex flex-col items-center p-2 touch-target {{ request()->routeIs('profile.settings.*') ? 'text-primary-600' : 'text-gray-600' }}">
-                        <i class="fas fa-user text-xl mb-1"></i>
-                        <span class="text-xs">Profile</span>
-                    </a>
+    <!-- Flash Messages -->
+    @if(session('status'))
+        <div class="fixed top-20 right-4 z-50 glassmorphism rounded-lg px-6 py-4 text-white max-w-sm">
+            <div class="flex items-center">
+                <i class="fas fa-check-circle text-emerald-400 mr-3"></i>
+                <span>{{ session('status') }}</span>
+            </div>
+        </div>
+    @endif
+
+    @if(session('success'))
+        <div class="fixed top-20 right-4 z-50 glassmorphism rounded-lg px-6 py-4 text-white max-w-sm">
+            <div class="flex items-center">
+                <i class="fas fa-check-circle text-emerald-400 mr-3"></i>
+                <span>{{ session('success') }}</span>
+            </div>
+        </div>
+    @endif
+
+    @if(session('error'))
+        <div class="fixed top-20 right-4 z-50 glassmorphism rounded-lg px-6 py-4 text-red-200 max-w-sm">
+            <div class="flex items-center">
+                <i class="fas fa-exclamation-circle text-red-400 mr-3"></i>
+                <span>{{ session('error') }}</span>
+            </div>
+        </div>
+    @endif
+
+    @if ($errors->any())
+        <div class="fixed top-20 right-4 z-50 glassmorphism rounded-lg px-6 py-4 text-red-200 max-w-sm">
+            <div class="flex items-start">
+                <i class="fas fa-exclamation-circle text-red-400 mr-3 mt-1"></i>
+                <div>
+                    <p class="font-semibold mb-1">Vui lòng sửa các lỗi sau:</p>
+                    <ul class="text-sm space-y-1">
+                        @foreach ($errors->all() as $error)
+                            <li>• {{ $error }}</li>
+                        @endforeach
+                    </ul>
                 </div>
-            </nav>
-        @endif
-    @endauth
+            </div>
+        </div>
+    @endif
 
     <!-- Scripts -->
     <script>
+        function toggleLanguageDropdown() {
+            const dropdown = document.getElementById('languageDropdown');
+            const profileDropdown = document.getElementById('profileDropdown');
+            
+            profileDropdown.classList.add('hidden');
+            dropdown.classList.toggle('hidden');
+        }
+        
+        function toggleProfileDropdown() {
+            const dropdown = document.getElementById('profileDropdown');
+            const languageDropdown = document.getElementById('languageDropdown');
+            
+            languageDropdown.classList.add('hidden');
+            dropdown.classList.toggle('hidden');
+        }
+        
         function toggleMobileMenu() {
-            const menu = document.getElementById('mobileMenu');
-            menu.classList.toggle('hidden');
+            const mobileMenu = document.getElementById('mobileMenu');
+            const languageDropdown = document.getElementById('languageDropdown');
+            const profileDropdown = document.getElementById('profileDropdown');
+            
+            languageDropdown.classList.add('hidden');
+            profileDropdown.classList.add('hidden');
+            mobileMenu.classList.toggle('hidden');
         }
         
-        function openDonateModal() {
-            // Will be implemented later
-            console.log('Donate modal to be implemented');
-        }
-        
-        // Close mobile menu when clicking outside
+        // Close dropdowns when clicking outside
         document.addEventListener('click', function(event) {
-            const menu = document.getElementById('mobileMenu');
-            const menuButton = event.target.closest('button[onclick="toggleMobileMenu()"]');
+            const languageDropdown = document.getElementById('languageDropdown');
+            const profileDropdown = document.getElementById('profileDropdown');
+            const mobileMenu = document.getElementById('mobileMenu');
             
-            if (!menuButton && !menu.contains(event.target)) {
-                menu.classList.add('hidden');
+            if (!event.target.closest('.relative') && !event.target.closest('button')) {
+                languageDropdown.classList.add('hidden');
+                profileDropdown.classList.add('hidden');
+            }
+            
+            // Close mobile menu when clicking outside
+            if (!event.target.closest('#mobileMenu') && !event.target.closest('button[onclick="toggleMobileMenu()"]')) {
+                mobileMenu.classList.add('hidden');
             }
         });
-        
-        // Prevent zoom on double tap for mobile
-        let lastTouchEnd = 0;
-        document.addEventListener('touchend', function(event) {
-            const now = Date.now();
-            if (now - lastTouchEnd <= 300) {
-                event.preventDefault();
-            }
-            lastTouchEnd = now;
-        }, false);
-    </script>
-
-    <!-- PWA Service Worker Registration -->
-    <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', function() {
-                navigator.serviceWorker.register('/sw.js')
-                    .then(function(registration) {
-                        console.log('ServiceWorker registration successful with scope: ', registration.scope);
-                        
-                        // Check for updates
-                        registration.addEventListener('updatefound', function() {
-                            const newWorker = registration.installing;
-                            newWorker.addEventListener('statechange', function() {
-                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                                    // New version available, show update notification
-                                    if (confirm('A new version of Happiness Path is available. Would you like to update?')) {
-                                        window.location.reload();
-                                    }
-                                }
-                            });
-                        });
-                    })
-                    .catch(function(error) {
-                        console.log('ServiceWorker registration failed: ', error);
-                    });
-            });
-        }
-
-        // PWA Install Prompt
-        let deferredPrompt;
-        window.addEventListener('beforeinstallprompt', function(e) {
-            e.preventDefault();
-            deferredPrompt = e;
-            
-            // Show install button or banner (optional)
-            showInstallButton();
-        });
-
-        function showInstallButton() {
-            // You can customize this to show an install banner
-            const installBtn = document.createElement('button');
-            installBtn.innerHTML = '<i class="fas fa-download mr-2"></i>Install App';
-            installBtn.className = 'fixed bottom-20 right-4 bg-primary-600 text-white px-4 py-2 rounded-full shadow-lg z-50';
-            installBtn.onclick = function() {
-                if (deferredPrompt) {
-                    deferredPrompt.prompt();
-                    deferredPrompt.userChoice.then(function(choiceResult) {
-                        if (choiceResult.outcome === 'accepted') {
-                            console.log('User accepted the install prompt');
-                        } else {
-                            console.log('User dismissed the install prompt');
-                        }
-                        deferredPrompt = null;
-                        installBtn.remove();
-                    });
-                }
-            };
-            document.body.appendChild(installBtn);
-        }
-
-        // Handle app installed event
-        window.addEventListener('appinstalled', function(evt) {
-            console.log('Happiness Path was installed');
-            // Track installation or show success message
-        });
-
-        // Request notification permission for PWA
-        if ('Notification' in window && Notification.permission === 'default') {
-            Notification.requestPermission().then(function(permission) {
-                if (permission === 'granted') {
-                    console.log('Notification permission granted');
-                }
-            });
-        }
     </script>
     
     @yield('scripts')

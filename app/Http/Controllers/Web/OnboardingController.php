@@ -13,11 +13,10 @@ use Illuminate\Support\Facades\Log;
 
 class OnboardingController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('guest')->except(['assessment', 'submitAssessment', 'results']);
-        $this->middleware('auth')->only(['assessment', 'submitAssessment', 'results']);
-    }
+    protected $middleware = [
+        'guest' => ['except' => ['assessment', 'submitAssessment', 'results']],
+        'auth' => ['only' => ['assessment', 'submitAssessment', 'results']]
+    ];
 
     public function step1()
     {

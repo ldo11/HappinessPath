@@ -6,165 +6,93 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\UserTree;
 use App\Models\UserJourney;
-use App\Models\DailyTask;
 use App\Models\Donation;
+use App\Services\JourneyService;
 use App\Services\CommunityService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
-    public function __construct()
+    protected $journeyService;
+
+    protected $middleware = [
+        'auth',
+        'verified'
+    ];
+
+    public function __construct(JourneyService $journeyService)
     {
-        $this->middleware(['auth', 'verified']);
+        $this->journeyService = $journeyService;
     }
 
     public function index()
     {
         $user = Auth::user();
         
-        // Redirect to onboarding if not completed
-        if (!$user->onboarding_completed) {
-            return redirect()->route('onboarding.step1');
+        // Redirect based on onboarding status
+        if ($user->onboarding_status === 'new') {
+            return redirect()->route('assessment');
         }
 
-        $userTree = $user->userTree;
-        $userJourney = $user->userJourney;
+        // Get user data
+        $userTree = $user->userTree ?? $this->createDefaultTree($user);
+        $userJourney = $user->userJourney ?? $this->createDefaultJourney($user);
 
-        // Get today's daily task
-        $todayTask = $this->getTodayTask($user, $userJourney);
+        // Get today's task using JourneyService
+        $todayTask = $this->journeyService->getTodayTask($user);
 
-        // Get nearby users for fruit donation
-        $communityService = new CommunityService();
-        $nearbyUsers = $communityService->findNearbyBuddies($user);
-
-        // Get recent donations
-        $recentDonations = Donation::with('receiver')
-            ->where('giver_id', $user->id)
-            ->latest()
-            ->take(3)
-            ->get();
-
-        // Calculate tree status
-        $treeStatus = $this->getTreeStatus($userTree);
+        // Get tree status using JourneyService
+        $treeStatus = $this->journeyService->getTreeStatus($user);
 
         return view('dashboard', compact(
             'user',
             'userTree', 
             'userJourney',
             'todayTask',
-            'nearbyUsers',
-            'recentDonations',
             'treeStatus'
         ));
     }
 
-    private function getTodayTask(User $user, UserJourney $journey)
+    private function createDefaultTree(User $user)
     {
-        // Get task for current day
-        $task = DailyTask::where('day_number', $journey->current_day)
-            ->where('difficulty', $this->getTaskDifficulty($user))
-            ->first();
-
-        if (!$task) {
-            // Create a default task if none exists
-            $task = DailyTask::create([
-                'day_number' => $journey->current_day,
-                'title' => 'Take 5 deep breaths',
-                'description' => 'Find a quiet moment and take 5 deep, mindful breaths. Focus on the sensation of air entering and leaving your body.',
-                'type' => 'mindfulness',
-                'difficulty' => 'easy',
-                'estimated_minutes' => 2,
-            ]);
-        }
-
-        return $task;
+        return UserTree::create([
+            'user_id' => $user->id,
+            'season' => 'spring',
+            'health' => 50,
+            'exp' => 0,
+            'fruits_balance' => 0,
+            'total_fruits_given' => 0,
+        ]);
     }
 
-    private function getTaskDifficulty(User $user)
+    private function createDefaultJourney(User $user)
     {
-        // Base difficulty on user's tree health and quiz results
-        $treeHealth = $user->userTree->health ?? 50;
-        
-        if ($treeHealth >= 80) {
-            return 'hard';
-        } elseif ($treeHealth >= 50) {
-            return 'medium';
-        } else {
-            return 'easy';
-        }
-    }
-
-    private function getTreeStatus(UserTree $tree)
-    {
-        $health = $tree->health ?? 20;
-        
-        if ($health >= 80) {
-            return [
-                'status' => 'thriving',
-                'icon' => 'fa-tree',
-                'color' => 'text-green-600',
-                'bg_color' => 'bg-green-100',
-                'message' => 'Your tree is thriving! 🌳',
-                'next_level' => 100 - $health,
-                'level' => 'Flourishing'
-            ];
-        } elseif ($health >= 50) {
-            return [
-                'status' => 'growing',
-                'icon' => 'fa-seedling',
-                'color' => 'text-green-500',
-                'bg_color' => 'bg-green-50',
-                'message' => 'Your tree is growing! 🌱',
-                'next_level' => 80 - $health,
-                'level' => 'Growing'
-            ];
-        } else {
-            return [
-                'status' => 'withered',
-                'icon' => 'fa-tree',
-                'color' => 'text-yellow-600',
-                'bg_color' => 'bg-yellow-50',
-                'message' => 'Your tree needs care 🍂',
-                'next_level' => 50 - $health,
-                'level' => 'Withered'
-            ];
-        }
+        return UserJourney::create([
+            'user_id' => $user->id,
+            'current_day' => 1,
+            'last_activity_at' => now(),
+        ]);
     }
 
     public function completeTask(Request $request)
     {
         $user = Auth::user();
-        $userJourney = $user->userJourney;
-        $userTree = $user->userTree;
-
-        // Award EXP for completing task
-        $expGained = 10;
-        $userTree->exp += $expGained;
         
-        // Improve tree health slightly
-        $userTree->health = min(100, $userTree->health + 2);
+        // Use JourneyService to complete task
+        $success = $this->journeyService->completeTodayTask($user);
         
-        // Check for level up
-        if ($userTree->exp >= ($userTree->season * 100)) {
-            $userTree->season += 1;
-            $userTree->health = min(100, $userTree->health + 5);
+        if ($success) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Tuyệt vời! Bạn đã hoàn thành nhiệm vụ hôm nay và nhận được 10 EXP!'
+            ]);
+        } else {
+            return response()->json([
+                'success' => false,
+                'message' => 'Bạn đã hoàn thành tất cả 30 ngày của hành trình!'
+            ]);
         }
-
-        $userTree->save();
-
-        // Move to next day
-        $userJourney->current_day += 1;
-        $userJourney->last_activity_at = now();
-        $userJourney->save();
-
-        return response()->json([
-            'success' => true,
-            'exp_gained' => $expGained,
-            'new_health' => $userTree->health,
-            'new_level' => $userTree->season,
-            'message' => "Great job! You earned {$expGained} EXP and your tree is healthier!"
-        ]);
     }
 
     public function donateFruit(Request $request)

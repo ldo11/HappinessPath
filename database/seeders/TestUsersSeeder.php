@@ -11,7 +11,7 @@ class TestUsersSeeder extends Seeder
     public function run(): void
     {
         // Create admin user
-        User::create([
+        User::firstOrCreate(['email' => 'admin@happiness.test'], [
             'name' => 'Admin User',
             'email' => 'admin@happiness.test',
             'password' => Hash::make('123456'),
@@ -25,11 +25,11 @@ class TestUsersSeeder extends Seeder
         ]);
 
         // Create regular user (member)
-        User::create([
+        User::updateOrCreate(['email' => 'user@happiness.test'], [
             'name' => 'Regular User',
             'email' => 'user@happiness.test',
             'password' => Hash::make('123456'),
-            'role' => 'member',
+            'role' => 'user',
             'city' => 'Hanoi',
             'spiritual_preference' => 'secular',
             'start_pain_level' => 7,
@@ -38,15 +38,15 @@ class TestUsersSeeder extends Seeder
             'onboarding_completed' => true,
         ]);
 
-        // Create volunteer user
-        User::create([
-            'name' => 'Volunteer User',
-            'email' => 'volunteer@happiness.test',
+        // Create translator user (volunteer role)
+        User::updateOrCreate(['email' => 'translator@happiness.test'], [
+            'name' => 'Translator User',
+            'email' => 'translator@happiness.test',
             'password' => Hash::make('123456'),
-            'role' => 'volunteer',
-            'city' => 'Da Nang',
-            'spiritual_preference' => 'christianity',
-            'start_pain_level' => 5,
+            'role' => 'translator',
+            'city' => 'Remote',
+            'spiritual_preference' => 'secular',
+            'start_pain_level' => 1,
             'geo_privacy' => false,
             'email_verified_at' => now(),
             'onboarding_completed' => true,
@@ -54,8 +54,8 @@ class TestUsersSeeder extends Seeder
 
         $this->command->info('Test users created successfully!');
         $this->command->info('Login credentials:');
-        $this->command->info('Admin: admin@test.com / 123456');
-        $this->command->info('User: user@test.com / 123456');
-        $this->command->info('Volunteer: volunteer@test.com / 123456');
+        $this->command->info('Admin: admin@happiness.test / 123456');
+        $this->command->info('User: user@happiness.test / 123456');
+        $this->command->info('Translator: translator@happiness.test / 123456');
     }
 }

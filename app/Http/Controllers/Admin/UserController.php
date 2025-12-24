@@ -4,20 +4,20 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\UserQuizResult;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 
 class UserController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('admin');
-    }
+    protected $middleware = [
+        'admin'
+    ];
 
     public function index(Request $request)
     {
-        $query = User::query();
+        $query = User::with(['userTree', 'userJourney']);
 
         if ($request->filled('search')) {
             $search = $request->search;
@@ -47,7 +47,7 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
-            'role' => ['required', Rule::in(['user', 'volunteer', 'admin'])],
+            'role' => ['required', Rule::in(['user', 'translator', 'admin'])],
             'city' => 'nullable|string|max:255',
             'spiritual_preference' => 'nullable|string|max:255',
             'geo_privacy' => 'boolean',
@@ -72,7 +72,7 @@ class UserController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
-            'role' => ['required', Rule::in(['user', 'volunteer', 'admin'])],
+            'role' => ['required', Rule::in(['user', 'translator', 'admin'])],
             'city' => 'nullable|string|max:255',
             'spiritual_preference' => 'nullable|string|max:255',
             'geo_privacy' => 'boolean',
@@ -102,5 +102,21 @@ class UserController extends Controller
 
         return redirect()->route('admin.users.index')
             ->with('success', 'User deleted successfully.');
+    }
+
+    public function resetAssessment(User $user)
+    {
+        if ($user->role !== 'user') {
+            return redirect()->route('admin.users.index')
+                ->with('error', 'Only users can have their assessment reset.');
+        }
+
+        $user->onboarding_status = 'new';
+        $user->save();
+
+        UserQuizResult::where('user_id', $user->id)->delete();
+
+        return redirect()->route('admin.users.index')
+            ->with('success', 'Assessment reset. User will see the assessment again on next login.');
     }
 }

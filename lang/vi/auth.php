@@ -1,0 +1,27 @@
+<?php
+
+return [
+    'login' => 'Đăng nhập',
+    'register' => 'Đăng ký',
+    'logout' => 'Đăng xuất',
+    'email' => 'Email',
+    'password' => 'Mật khẩu',
+    'confirm_password' => 'Xác nhận mật khẩu',
+    'remember_me' => 'Ghi nhớ đăng nhập',
+    'forgot_password' => 'Quên mật khẩu?',
+    'name' => 'Họ và tên',
+    'city' => 'Thành phố',
+    'spiritual_preference' => 'Xu hướng tâm linh',
+    'buddhism' => 'Phật giáo',
+    'christianity' => 'Cơ đốc giáo',
+    'secular' => 'Thế tục',
+    'geo_privacy' => 'Ẩn vị trí địa lý của tôi',
+    'geo_privacy_desc' => 'Bật tính năng này để ẩn vị trí của bạn khỏi người dùng khác',
+    'create_account' => 'Đăng ký tài khoản',
+    'welcome_back' => 'Chào mừng trở lại',
+    'start_healing_journey' => 'Bắt đầu hành trình chữa lành của bạn',
+    'login_quick_test' => 'Đăng nhập nhanh để thử nghiệm',
+    'login_admin' => 'Đăng nhập với tài khoản Admin',
+    'login_user' => 'Đăng nhập với tài khoản Người dùng',
+    'login_volunteer' => 'Đăng nhập với tài khoản Tình nguyện viên',
+];

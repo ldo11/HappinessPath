@@ -11,10 +11,9 @@ use Illuminate\Support\Facades\DB;
 
 class TranslationController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('volunteer');
-    }
+    protected $middleware = [
+        'volunteer'
+    ];
 
     public function index(Request $request)
     {

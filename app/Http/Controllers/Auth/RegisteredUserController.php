@@ -28,12 +28,14 @@ class RegisteredUserController extends Controller
             'city' => $data['city'],
             'spiritual_preference' => $data['spiritual_preference'],
             'geo_privacy' => true,
+            'onboarding_status' => 'new', // New users start with assessment
         ]);
 
         event(new Registered($user));
 
         Auth::login($user);
 
-        return redirect()->route('verification.notice');
+        // Redirect based on onboarding status
+        return redirect()->route('assessment');
     }
 }

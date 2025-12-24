@@ -11,10 +11,14 @@ class MeditationController extends Controller
 {
     protected $treeService;
 
+    protected $middleware = [
+        'auth',
+        'verified'
+    ];
+
     public function __construct(TreeService $treeService)
     {
         $this->treeService = $treeService;
-        $this->middleware(['auth', 'verified']);
     }
 
     public function index()

@@ -1,0 +1,27 @@
+<?php
+
+return [
+    'login' => 'Login',
+    'register' => 'Register',
+    'logout' => 'Logout',
+    'email' => 'Email',
+    'password' => 'Password',
+    'confirm_password' => 'Confirm Password',
+    'remember_me' => 'Remember me',
+    'forgot_password' => 'Forgot password?',
+    'name' => 'Name',
+    'city' => 'City',
+    'spiritual_preference' => 'Spiritual preference',
+    'buddhism' => 'Buddhism',
+    'christianity' => 'Christianity',
+    'secular' => 'Secular',
+    'geo_privacy' => 'Hide my geographic location',
+    'geo_privacy_desc' => 'Enable this to hide your location from other users',
+    'create_account' => 'Create Account',
+    'welcome_back' => 'Welcome back',
+    'start_healing_journey' => 'Start your healing journey',
+    'login_quick_test' => 'Quick login for testing',
+    'login_admin' => 'Login with Admin account',
+    'login_user' => 'Login with User account',
+    'login_volunteer' => 'Login with Volunteer account',
+];

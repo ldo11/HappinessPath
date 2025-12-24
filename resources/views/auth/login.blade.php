@@ -1,44 +1,128 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Login</title>
-</head>
-<body class="bg-gray-50">
-    <div class="max-w-md mx-auto p-6">
-        <h1 class="text-2xl font-semibold text-gray-900">Login</h1>
+@extends('layouts.guest')
 
-        <form class="mt-6 space-y-4" method="POST" action="{{ route('login') }}">
-            @csrf
+@section('title', __('auth.login'))
+@section('auth-subtitle', __('auth.welcome_back'))
 
-            <div>
-                <label class="block text-sm font-medium text-gray-700" for="email">Email</label>
-                <input id="email" type="email" name="email" value="{{ old('email') }}" class="mt-1 block w-full rounded-md border-gray-300" required>
-                @error('email')
-                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                @enderror
-            </div>
+@section('content')
+<form method="POST" action="{{ route('login') }}" class="space-y-6">
+    @csrf
 
-            <div>
-                <label class="block text-sm font-medium text-gray-700" for="password">Password</label>
-                <input id="password" type="password" name="password" class="mt-1 block w-full rounded-md border-gray-300" required>
-                @error('password')
-                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                @enderror
-            </div>
-
-            <div>
-                <label class="inline-flex items-center gap-2">
-                    <input type="checkbox" name="remember" value="1" class="rounded border-gray-300" @checked(old('remember'))>
-                    <span class="text-sm text-gray-700">Remember me</span>
-                </label>
-            </div>
-
-            <div class="pt-2">
-                <button type="submit" class="inline-flex items-center rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white">Login</button>
-            </div>
-        </form>
+    <!-- Email Input -->
+    <div>
+        <label for="email" class="block text-sm font-medium text-emerald-200 mb-2">
+            <i class="fas fa-envelope mr-2"></i>{{ __('auth.email') }}
+        </label>
+        <input id="email" 
+               type="email" 
+               name="email" 
+               value="{{ old('email') }}" 
+               class="glass-input w-full px-3 sm:px-4 py-3 text-white placeholder-emerald-200/50 rounded-lg focus:outline-none transition-all duration-300 text-base" 
+               placeholder="{{ __('validation.email') }}"
+               required>
+        @error('email')
+            <p class="mt-2 text-sm text-red-300 flex items-center">
+                <i class="fas fa-exclamation-triangle mr-1"></i>
+                {{ is_string($message) ? $message : (is_array($message) ? implode(' ', $message) : 'Invalid email') }}
+            </p>
+        @enderror
     </div>
-</body>
-</html>
+
+    <!-- Password Input -->
+    <div>
+        <label for="password" class="block text-sm font-medium text-emerald-200 mb-2">
+            <i class="fas fa-lock mr-2"></i>{{ __('auth.password') }}
+        </label>
+        <input id="password" 
+               type="password" 
+               name="password" 
+               class="glass-input w-full px-3 sm:px-4 py-3 text-white placeholder-emerald-200/50 rounded-lg focus:outline-none transition-all duration-300 text-base" 
+               placeholder="{{ __('validation.password') }}"
+               required>
+        @error('password')
+            <p class="mt-2 text-sm text-red-300 flex items-center">
+                <i class="fas fa-exclamation-triangle mr-1"></i>
+                {{ is_string($message) ? $message : (is_array($message) ? implode(' ', $message) : 'Invalid password') }}
+            </p>
+        @enderror
+    </div>
+
+    <!-- Remember Me & Forgot Password -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
+        <label class="flex items-center">
+            <input type="checkbox" 
+                   name="remember" 
+                   value="1" 
+                   class="rounded border-emerald-400 bg-emerald-600/20 text-emerald-500 focus:ring-emerald-500 focus:ring-offset-emerald-500/20"
+                   @checked(old('remember'))>
+            <span class="ml-2 text-sm text-emerald-200">{{ __('auth.remember_me') }}</span>
+        </label>
+        
+        @if (Route::has('password.request'))
+            <a href="{{ route('password.request') }}" 
+               class="text-sm text-emerald-300 hover:text-emerald-200 transition-colors">
+                {{ __('auth.forgot_password') }}
+            </a>
+        @endif
+    </div>
+
+    <!-- Submit Button -->
+    <div class="pt-2">
+        <button type="submit" 
+                class="w-full emerald-gradient text-white font-semibold py-3 sm:py-4 px-4 rounded-lg transition-all duration-200 transform hover:scale-[1.02] shadow-lg text-base sm:text-lg">
+            <i class="fas fa-sign-in-alt mr-2"></i>
+            {{ __('auth.login') }}
+        </button>
+    </div>
+
+    <!-- Test Login Options -->
+    <div class="border-t border-emerald-400/20 pt-6">
+        <p class="text-center text-emerald-200 text-sm mb-4">
+            <i class="fas fa-flask mr-2"></i>{{ __('auth.login_quick_test') }}
+        </p>
+        
+        <div class="space-y-2">
+            <button type="button" 
+                    onclick="fillTestCredentials('admin@happiness.test', '123456')"
+                    class="w-full glassmorphism text-white py-2 px-4 rounded-lg text-sm hover:bg-white/20 transition-all duration-200 border border-emerald-400/30">
+                <i class="fas fa-crown mr-2 text-yellow-400"></i>
+                {{ __('auth.login_admin') }}
+            </button>
+            
+            <button type="button" 
+                    onclick="fillTestCredentials('user@happiness.test', '123456')"
+                    class="w-full glassmorphism text-white py-2 px-4 rounded-lg text-sm hover:bg-white/20 transition-all duration-200 border border-emerald-400/30">
+                <i class="fas fa-user mr-2 text-blue-400"></i>
+                {{ __('auth.login_user') }}
+            </button>
+
+            <button type="button" 
+                    onclick="fillTestCredentials('translator@happiness.test', '123456')"
+                    class="w-full glassmorphism text-white py-2 px-4 rounded-lg text-sm hover:bg-white/20 transition-all duration-200 border border-emerald-400/30">
+                <i class="fas fa-language mr-2 text-indigo-300"></i>
+                Translator
+            </button>
+        </div>
+    </div>
+</form>
+
+@section('scripts')
+<script>
+function fillTestCredentials(email, password) {
+    document.getElementById('email').value = email;
+    document.getElementById('password').value = password;
+    
+    // Add a subtle animation
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    
+    emailInput.classList.add('ring-2', 'ring-emerald-400');
+    passwordInput.classList.add('ring-2', 'ring-emerald-400');
+    
+    setTimeout(() => {
+        emailInput.classList.remove('ring-2', 'ring-emerald-400');
+        passwordInput.classList.remove('ring-2', 'ring-emerald-400');
+    }, 1000);
+}
+</script>
+@endsection
+@endsection

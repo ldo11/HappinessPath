@@ -9,10 +9,9 @@ use Illuminate\Validation\Rule;
 
 class LanguageController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('admin');
-    }
+    protected $middleware = [
+        'admin'
+    ];
 
     public function index()
     {
