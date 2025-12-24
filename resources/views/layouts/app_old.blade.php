@@ -206,8 +206,8 @@
                         <a href="{{ route('profile.settings.edit') }}" class="block px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100">
                             <i class="fas fa-user mr-2"></i>Profile
                         </a>
-                        @if(Auth::user()->role === 'admin' || Auth::user()->role === 'volunteer')
-                            <a href="{{ route(Auth::user()->role === 'admin' ? 'admin.dashboard' : 'volunteer.dashboard') }}" 
+                        @if(Auth::user()->role === 'admin' || Auth::user()->role === 'translator')
+                            <a href="{{ route(Auth::user()->role === 'admin' ? 'admin.dashboard' : 'translator.dashboard') }}" 
                                class="block px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100">
                                 <i class="fas fa-cog mr-2"></i>{{ ucfirst(Auth::user()->role) }} Panel
                             </a>

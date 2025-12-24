@@ -32,11 +32,20 @@ class AuthenticatedSessionController extends Controller
 
         $user = Auth::user();
 
-        if ($user->role === 'admin') {
+        $legacyRole = $user->role;
+        $roleLower = is_string($legacyRole) ? strtolower($legacyRole) : $legacyRole;
+        $effectiveRole = match ($roleLower) {
+            null, '' => 'user',
+            'member' => 'user',
+            'volunteer' => 'translator',
+            default => $roleLower,
+        };
+
+        if ($effectiveRole === 'admin') {
             return redirect()->route('admin.dashboard');
         }
 
-        if ($user->role === 'translator') {
+        if ($effectiveRole === 'translator') {
             return redirect()->route('translator.dashboard');
         }
         

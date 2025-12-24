@@ -25,6 +25,7 @@ class RegisteredUserController extends Controller
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
+            'role' => 'user',
             'city' => $data['city'],
             'spiritual_preference' => $data['spiritual_preference'],
             'geo_privacy' => true,

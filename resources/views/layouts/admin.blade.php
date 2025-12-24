@@ -30,8 +30,8 @@
                     <i class="fas fa-video mr-3"></i>Solutions
                 </a>
                 <div class="border-t border-gray-700 mt-4 pt-4">
-                    <a href="{{ route('volunteer.dashboard') }}" class="block px-4 py-3 hover:bg-gray-800">
-                        <i class="fas fa-hands-helping mr-3"></i>Volunteer Portal
+                    <a href="{{ route('translator.dashboard') }}" class="block px-4 py-3 hover:bg-gray-800">
+                        <i class="fas fa-language mr-3"></i>Translator Portal
                     </a>
                     <a href="{{ route('home') }}" class="block px-4 py-3 hover:bg-gray-800">
                         <i class="fas fa-arrow-left mr-3"></i>Back to Site

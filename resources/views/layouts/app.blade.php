@@ -190,132 +190,25 @@
                             <!-- Profile Dropdown Menu -->
                             <div id="profileDropdown" class="hidden absolute right-0 mt-2 w-56 glassmorphism rounded-lg shadow-lg z-50">
                                 <div class="py-1">
-                                    <div class="px-4 py-2 border-b border-white/10">
-                                        <p class="text-sm font-medium text-white">{{ Auth::user()->name }}</p>
-                                        <p class="text-xs text-emerald-200">{{ Auth::user()->email }}</p>
-                                        <p class="text-xs text-emerald-300 mt-1">
-                                            <i class="fas fa-shield-alt mr-1"></i>
-                                            {{ ucfirst(Auth::user()->role) }}
-                                        </p>
-                                    </div>
-                                    
-                                    <a href="{{ route('dashboard') }}" class="block px-4 py-2 text-sm text-white hover:bg-white/10 transition-colors">
-                                        <i class="fas fa-home mr-2"></i>Dashboard
+                                    <a href="{{ route('profile.settings.edit') }}" class="block px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100">
+                                        <i class="fas fa-user mr-2"></i>Profile
                                     </a>
-                                    <a href="{{ route('profile.settings.edit') }}" class="block px-4 py-2 text-sm text-white hover:bg-white/10 transition-colors">
-                                        <i class="fas fa-user-edit mr-2"></i>Hồ sơ cá nhân
-                                    </a>
-                                    <a href="{{ route('profile.settings.edit') }}" class="block px-4 py-2 text-sm text-white hover:bg-white/10 transition-colors">
-                                        <i class="fas fa-cog mr-2"></i>Cài đặt
-                                    </a>
-                                    
-                                    @if(Auth::user()->role === 'admin')
-                                        <a href="{{ route('admin.dashboard') }}" class="block px-4 py-2 text-sm text-white hover:bg-white/10 transition-colors">
-                                            <i class="fas fa-crown mr-2"></i>Quản trị viên
+                                    @if(Auth::user()->role === 'admin' || Auth::user()->role === 'translator')
+                                        <a href="{{ route(Auth::user()->role === 'admin' ? 'admin.dashboard' : 'translator.dashboard') }}" 
+                                           class="block px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100">
+                                            <i class="fas fa-cog mr-2"></i>{{ ucfirst(Auth::user()->role) }} Panel
                                         </a>
                                     @endif
-                                    
-                                    @if(Auth::user()->role === 'volunteer')
-                                        <a href="{{ route('volunteer.dashboard') }}" class="block px-4 py-2 text-sm text-white hover:bg-white/10 transition-colors">
-                                            <i class="fas fa-hands-helping mr-2"></i>Tình nguyện viên
-                                        </a>
-                                    @endif
-                                    
-                                    <div class="border-t border-white/10">
-                                        <form method="POST" action="{{ route('logout') }}">
-                                            @csrf
-                                            <button type="submit" class="w-full text-left px-4 py-2 text-sm text-red-300 hover:bg-white/10 transition-colors">
-                                                <i class="fas fa-sign-out-alt mr-2"></i>Đăng xuất
-                                            </button>
-                                        </form>
-                                    </div>
+                                    <form method="POST" action="{{ route('logout') }}" class="block">
+                                        @csrf
+                                        <button type="submit" class="w-full text-left px-3 py-2 rounded-lg text-red-600 hover:bg-red-50">
+                                            <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                                        </button>
+                                    </form>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
-        </nav>
-
-        <!-- Mobile Menu -->
-        <div id="mobileMenu" class="hidden md:hidden relative z-20 glassmorphism border-b border-white/10">
-            <div class="px-4 py-4 space-y-1">
-                <!-- Main Navigation -->
-                <div class="space-y-1">
-                    <a href="{{ route('dashboard') }}" class="flex items-center px-4 py-3 rounded-lg text-white hover:bg-white/10 transition-colors">
-                        <i class="fas fa-home mr-3 text-lg"></i>
-                        <span class="font-medium">{{ __('navigation.dashboard') }}</span>
-                    </a>
-                    <a href="{{ route('meditate') }}" class="flex items-center px-4 py-3 rounded-lg text-white hover:bg-white/10 transition-colors">
-                        <i class="fas fa-spa mr-3 text-lg"></i>
-                        <span class="font-medium">{{ __('navigation.meditation') }}</span>
-                    </a>
-                    <a href="{{ route('profile.settings.edit') }}" class="flex items-center px-4 py-3 rounded-lg text-white hover:bg-white/10 transition-colors">
-                        <i class="fas fa-user-edit mr-3 text-lg"></i>
-                        <span class="font-medium">{{ __('navigation.profile') }}</span>
-                    </a>
-                    <a href="{{ route('profile.settings.edit') }}" class="flex items-center px-4 py-3 rounded-lg text-white hover:bg-white/10 transition-colors">
-                        <i class="fas fa-cog mr-3 text-lg"></i>
-                        <span class="font-medium">{{ __('navigation.settings') }}</span>
-                    </a>
-                </div>
-                
-                <!-- Language Switcher -->
-                <div class="border-t border-white/10 pt-2 mt-2 space-y-1">
-                    <p class="px-4 py-2 text-xs text-emerald-200 font-medium uppercase tracking-wider">{{ __('common.language') }}</p>
-                    <a href="{{ route('language.switch', 'vi') }}" class="flex items-center px-4 py-3 rounded-lg text-white hover:bg-white/10 transition-colors">
-                        <span class="text-xl mr-3">🇻🇳</span>
-                        <div>
-                            <div class="font-medium">Tiếng Việt</div>
-                            <div class="text-xs text-emerald-200">Vietnamese</div>
-                        </div>
-                        @if(app()->getLocale() === 'vi')
-                            <i class="fas fa-check text-emerald-400 ml-auto"></i>
-                        @endif
-                    </a>
-                    <a href="{{ route('language.switch', 'en') }}" class="flex items-center px-4 py-3 rounded-lg text-white hover:bg-white/10 transition-colors">
-                        <span class="text-xl mr-3">🇺🇸</span>
-                        <div>
-                            <div class="font-medium">English</div>
-                            <div class="text-xs text-emerald-200">United States</div>
-                        </div>
-                        @if(app()->getLocale() === 'en')
-                            <i class="fas fa-check text-emerald-400 ml-auto"></i>
-                        @endif
-                    </a>
-                </div>
-                
-                <!-- Role-specific Links -->
-                @if(Auth::user()->role === 'admin')
-                    <div class="border-t border-white/10 pt-2 mt-2">
-                        <a href="{{ route('admin.dashboard') }}" class="flex items-center px-4 py-3 rounded-lg text-white hover:bg-white/10 transition-colors">
-                            <i class="fas fa-crown mr-3 text-lg text-yellow-400"></i>
-                            <span class="font-medium">{{ __('navigation.admin') }}</span>
-                        </a>
-                    </div>
-                @endif
-                
-                @if(Auth::user()->role === 'volunteer')
-                    <div class="border-t border-white/10 pt-2 mt-2">
-                        <a href="{{ route('volunteer.dashboard') }}" class="flex items-center px-4 py-3 rounded-lg text-white hover:bg-white/10 transition-colors">
-                            <i class="fas fa-hands-helping mr-3 text-lg text-green-400"></i>
-                            <span class="font-medium">{{ __('navigation.volunteer') }}</span>
-                        </a>
-                    </div>
-                @endif
-                
-                <!-- Logout -->
-                <div class="border-t border-white/10 pt-2 mt-2">
-                    <form method="POST" action="{{ route('logout') }}">
-                        @csrf
-                        <button type="submit" class="w-full flex items-center px-4 py-3 rounded-lg text-red-300 hover:bg-white/10 transition-colors">
-                            <i class="fas fa-sign-out-alt mr-3 text-lg"></i>
-                            <span class="font-medium">{{ __('auth.logout') }}</span>
-                        </button>
-                    </form>
-                </div>
-            </div>
-        </div>
 
         <!-- Main Content -->
         <main class="relative z-10">

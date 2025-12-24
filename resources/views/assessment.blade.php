@@ -102,7 +102,7 @@ function __(key) {
 }
 
 // Assessment questions data
-const questions = [
+let questions = [
     {
         id: 1,
         question: "Bạn thường cảm thấy lo lắng về tương lai như thế nào?",
@@ -187,11 +187,6 @@ for (let i = 6; i <= 30; i++) {
 
 let currentQuestion = 0;
 const answers = {};
-
-// Initialize assessment
-document.addEventListener('DOMContentLoaded', function() {
-    showQuestion(0);
-});
 
 function showQuestion(index) {
     const question = questions[index];
@@ -279,6 +274,10 @@ function selectAnswer(questionId, value) {
     
     // Update navigation to reflect answered state
     initializeQuestionNav();
+
+    // Update submit visibility immediately (important for last question)
+    updateProgress();
+    updateButtons();
     
     // Auto-advance to next question after selection
     setTimeout(() => {

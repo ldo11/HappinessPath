@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\UserQuizResult;
+use App\Services\AdminService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
@@ -106,15 +107,13 @@ class UserController extends Controller
 
     public function resetAssessment(User $user)
     {
-        if ($user->role !== 'user') {
+        $role = is_string($user->role) ? strtolower($user->role) : $user->role;
+        if (!in_array($role, ['user', 'member', null, ''], true)) {
             return redirect()->route('admin.users.index')
                 ->with('error', 'Only users can have their assessment reset.');
         }
 
-        $user->onboarding_status = 'new';
-        $user->save();
-
-        UserQuizResult::where('user_id', $user->id)->delete();
+        app(AdminService::class)->resetAssessment($user->id);
 
         return redirect()->route('admin.users.index')
             ->with('success', 'Assessment reset. User will see the assessment again on next login.');

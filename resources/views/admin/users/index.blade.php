@@ -141,7 +141,10 @@
                         <a href="{{ route('admin.users.edit', $user) }}" class="text-blue-600 hover:text-blue-900 mr-3">
                             <i class="fas fa-edit"></i> Edit
                         </a>
-                        @if($user->role === 'user')
+                        @php
+                            $roleLower = is_string($user->role) ? strtolower($user->role) : $user->role;
+                        @endphp
+                        @if(in_array($roleLower, ['user', 'member', null, ''], true))
                             <form method="POST" action="{{ route('admin.users.reset-assessment', $user) }}" class="inline mr-3"
                                   onsubmit="return confirm('Reset assessment for this user? They will be required to take it again on next login.')">
                                 @csrf

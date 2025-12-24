@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'Volunteer Portal') - Happiness Path</title>
+    <title>@yield('title', 'Translator Portal') - Happiness Path</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -13,21 +13,18 @@
         <div class="w-64 bg-blue-900 text-white">
             <div class="p-4">
                 <h1 class="text-2xl font-bold text-green-400">
-                    <i class="fas fa-hands-helping mr-2"></i>Volunteer Portal
+                    <i class="fas fa-language mr-2"></i>Translator Portal
                 </h1>
             </div>
             <nav class="mt-8">
-                <a href="{{ route('volunteer.dashboard') }}" class="block px-4 py-3 hover:bg-blue-800 {{ request()->routeIs('volunteer.dashboard') ? 'bg-blue-800 border-l-4 border-green-400' : '' }}">
+                <a href="{{ route('translator.dashboard') }}" class="block px-4 py-3 hover:bg-blue-800 {{ request()->routeIs('translator.dashboard') ? 'bg-blue-800 border-l-4 border-green-400' : '' }}">
                     <i class="fas fa-tachometer-alt mr-3"></i>Dashboard
                 </a>
-                <a href="{{ route('volunteer.translations.index') }}" class="block px-4 py-3 hover:bg-blue-800 {{ request()->routeIs('volunteer.translations.*') ? 'bg-blue-800 border-l-4 border-green-400' : '' }}">
+                <a href="{{ route('translator.translations.index') }}" class="block px-4 py-3 hover:bg-blue-800 {{ request()->routeIs('translator.translations.*') ? 'bg-blue-800 border-l-4 border-green-400' : '' }}">
                     <i class="fas fa-language mr-3"></i>Translation Review
                     @if($pendingCount ?? 0 > 0)
                         <span class="ml-2 px-2 py-1 text-xs bg-red-500 rounded-full">{{ $pendingCount }}</span>
                     @endif
-                </a>
-                <a href="{{ route('volunteer.profile') }}" class="block px-4 py-3 hover:bg-blue-800 {{ request()->routeIs('volunteer.profile') ? 'bg-blue-800 border-l-4 border-green-400' : '' }}">
-                    <i class="fas fa-user mr-3"></i>My Profile
                 </a>
                 <div class="border-t border-blue-700 mt-4 pt-4">
                     <a href="{{ route('admin.dashboard') }}" class="block px-4 py-3 hover:bg-blue-800">
