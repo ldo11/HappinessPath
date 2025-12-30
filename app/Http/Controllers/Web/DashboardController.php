@@ -35,11 +35,14 @@ class DashboardController extends Controller
 
         $dailyMissionCompleted = false;
         if (isset($todayTask->id) && $todayTask->id) {
-            $dailyMissionCompleted = UserDailyTask::query()
-                ->where('user_id', $user->id)
-                ->where('daily_task_id', (int) $todayTask->id)
-                ->whereNotNull('completed_at')
-                ->exists();
+            // Only check completion for real database tasks (numeric IDs)
+            if (is_numeric($todayTask->id)) {
+                $dailyMissionCompleted = UserDailyTask::query()
+                    ->where('user_id', $user->id)
+                    ->where('daily_task_id', (int) $todayTask->id)
+                    ->whereNotNull('completed_at')
+                    ->exists();
+            }
         }
 
         // Get tree status using JourneyService

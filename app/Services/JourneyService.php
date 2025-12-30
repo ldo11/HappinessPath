@@ -43,7 +43,7 @@ class JourneyService
     private function createFallbackTask(int $day)
     {
         return (object) [
-            'id' => null,
+            'id' => 'fallback_' . $day, // Use a string ID to identify fallback tasks
             'day_number' => $day,
             'title' => "Ngày {$day} - Thực hành chánh niệm",
             'description' => "Dành thời gian 5-10 phút để tập trung vào hơi thở và quan sát cảm xúc trong lòng. Đây là bước đầu tiên trên hành trình chữa lành.",

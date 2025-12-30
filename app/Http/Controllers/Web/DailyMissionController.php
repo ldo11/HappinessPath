@@ -3,12 +3,83 @@
 namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
+use App\Models\DailyTask;
 use App\Models\UserDailyTask;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class DailyMissionController extends Controller
 {
+    public function start(Request $request, $task)
+    {
+        // Handle both route model binding and raw ID
+        if (is_numeric($task)) {
+            $task = DailyTask::findOrFail($task);
+        } elseif (is_string($task)) {
+            $task = DailyTask::findOrFail($task);
+        }
+        
+        return response()->json([
+            'status' => 'started',
+            'message' => 'Task started successfully'
+        ]);
+    }
+
+    public function completeTask(Request $request, $task)
+    {
+        // Handle both route model binding and raw ID
+        if (is_numeric($task)) {
+            $task = DailyTask::findOrFail($task);
+        } elseif (is_string($task)) {
+            $task = DailyTask::findOrFail($task);
+        }
+        
+        $data = $request->validate([
+            'report_content' => ['required', 'string', 'min:1'],
+        ]);
+
+        $user = auth()->user(); // Use auth helper instead of request user
+        $xp = 20;
+        $taskId = $task->id; // Store ID for use in closure
+
+        $result = DB::transaction(function () use ($user, $taskId, $data, $xp) {
+            $log = UserDailyTask::query()->firstOrCreate(
+                [
+                    'user_id' => $user->id,
+                    'daily_task_id' => (int) $taskId,
+                ],
+                [
+                    'report_content' => (string) $data['report_content'],
+                    'completed_at' => null,
+                    'xp_awarded' => 0,
+                ]
+            );
+
+            if ($log->completed_at) {
+                return [
+                    'success' => true,
+                    'already_completed' => true,
+                    'xp_awarded' => (int) $log->xp_awarded,
+                    'new_exp' => 0,
+                ];
+            }
+
+            $log->report_content = (string) $data['report_content'];
+            $log->completed_at = now();
+            $log->xp_awarded = $xp;
+            $log->save();
+
+            return [
+                'success' => true,
+                'already_completed' => false,
+                'xp_awarded' => $xp,
+                'new_exp' => 0,
+            ];
+        });
+
+        return response()->json($result);
+    }
+
     public function complete(Request $request)
     {
         $data = $request->validate([

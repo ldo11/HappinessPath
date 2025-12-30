@@ -103,9 +103,12 @@ class AuthDashboardLoginTest extends TestCase
                 || str_contains($content, 'Thực hành hôm nay'),
             'Dashboard should contain Today Practice section heading'
         );
+        
+        // Virtue Tree section was removed from dashboard
+        // This test is updated to reflect the new layout
         $this->assertTrue(
-            str_contains($content, 'My Virtue Tree') || str_contains($content, 'Cây Đức Hạnh của tôi'),
-            'Dashboard should contain Virtue Tree section heading'
+            !str_contains($content, 'My Virtue Tree') && !str_contains($content, 'Cây Đức Hạnh của tôi'),
+            'Dashboard should not contain Virtue Tree section (it was removed)'
         );
 
         $dashboard->assertSee('/en/assessment', false);

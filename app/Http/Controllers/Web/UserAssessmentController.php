@@ -45,9 +45,14 @@ class UserAssessmentController extends Controller
         return view('web.assessments.index', compact('allAvailableAssessments', 'userResults'));
     }
 
-    public function show($assessmentId, $token = null)
+    public function show($assessment, $token = null)
     {
-        $assessment = Assessment::findOrFail($assessmentId);
+        // Handle both route model binding and raw ID
+        if (is_numeric($assessment)) {
+            $assessment = Assessment::findOrFail($assessment);
+        } elseif (is_string($assessment)) {
+            $assessment = Assessment::findOrFail($assessment);
+        }
         
         // Check if user can access this assessment
         $user = Auth::user();

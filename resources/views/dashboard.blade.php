@@ -177,8 +177,8 @@
                                 </div>
 
                                 @php
-                                    $taskId = (int) ($todayTask->id ?? 0);
-                                    $canStartMission = $taskId > 0;
+                                    $taskId = $todayTask->id ?? 0;
+                                    $canStartMission = !empty($taskId); // Start mission if ID exists (numeric or string)
                                 @endphp
 
                                 @if($dailyMissionCompleted)
@@ -242,8 +242,9 @@
 @section('scripts')
 <script>
 (function () {
-    const taskId = @json((int) ($todayTask->id ?? 0));
+    const taskId = @json($todayTask->id ?? 0);
     const isCompletedInitially = @json((bool) ($dailyMissionCompleted ?? false));
+    const isFallbackTask = typeof taskId === 'string' && taskId.startsWith('fallback_');
     const startBtn = document.getElementById('startMissionBtn');
     const timerEl = document.getElementById('missionTimer');
     const modal = document.getElementById('dailyMissionReportModal');
@@ -329,7 +330,13 @@
 
             if (remaining <= 0) {
                 stopTimer();
-                openModal();
+                if (isFallbackTask) {
+                    // For fallback tasks, just mark as completed without showing modal
+                    setCompletedUI(0);
+                    toast('{{ __('dashboard.mission_completed_message') }}', 'success');
+                } else {
+                    openModal();
+                }
             }
         }
 
@@ -337,7 +344,7 @@
         intervalId = setInterval(tick, 1000);
     }
 
-    if (!isCompletedInitially && taskId > 0) {
+    if (!isCompletedInitially && taskId) {
         const stored = localStorage.getItem(STORAGE_KEY);
         if (stored) {
             const startEpochMs = parseInt(stored, 10);
@@ -346,7 +353,11 @@
                 if (elapsed < DURATION_SECONDS) {
                     startTimer(startEpochMs);
                 } else {
-                    openModal();
+                    if (isFallbackTask) {
+                        setCompletedUI(0);
+                    } else {
+                        openModal();
+                    }
                 }
             }
         }
@@ -354,7 +365,7 @@
 
     if (startBtn) {
         startBtn.addEventListener('click', function () {
-            if (taskId <= 0) return;
+            if (!taskId) return;
             const startEpochMs = Date.now();
             localStorage.setItem(STORAGE_KEY, String(startEpochMs));
             startTimer(startEpochMs);
@@ -366,7 +377,7 @@
 
     if (submitBtn) {
         submitBtn.addEventListener('click', async function () {
-            if (taskId <= 0) return;
+            if (!taskId || isFallbackTask) return; // Disable submission for fallback tasks
             const content = (reportInput.value || '').trim();
             if (!content) {
                 toast('{{ __('dashboard.report_required') }}', 'error');
