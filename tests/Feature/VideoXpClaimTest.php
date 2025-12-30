@@ -3,7 +3,6 @@
 namespace Tests\Feature;
 
 use App\Models\User;
-use App\Models\UserTree;
 use App\Models\UserVideoLog;
 use App\Models\Video;
 use Database\Seeders\TestUsersSeeder;
@@ -21,15 +20,6 @@ class VideoXpClaimTest extends TestCase
         $user = User::where('email', 'user@happiness.test')->firstOrFail();
         $user->email_verified_at = $user->email_verified_at ?: now();
         $user->save();
-
-        $tree = UserTree::create([
-            'user_id' => $user->id,
-            'season' => 'spring',
-            'health' => 50,
-            'exp' => 0,
-            'fruits_balance' => 0,
-            'total_fruits_given' => 0,
-        ]);
 
         $video = Video::create([
             'title' => 'Test Video',
@@ -54,18 +44,12 @@ class VideoXpClaimTest extends TestCase
             'xp_awarded' => 50,
         ]);
 
-        $tree->refresh();
-        $this->assertSame(50, (int) $tree->exp);
-
         $second = $this->actingAs($user)->postJson(route('videos.claim', ['locale' => 'en', 'videoId' => $video->id]));
         $this->assertSame(200, $second->getStatusCode(), $second->getContent());
         $second->assertJson([
             'claimed' => false,
             'xp_awarded' => 50,
         ]);
-
-        $tree->refresh();
-        $this->assertSame(50, (int) $tree->exp);
 
         $this->assertDatabaseCount('user_video_logs', 1);
 

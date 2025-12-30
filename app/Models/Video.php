@@ -74,4 +74,40 @@ class Video extends Model
     {
         return $this->hasMany(UserVideoLog::class);
     }
+
+    /**
+     * Scope to filter videos by various criteria
+     */
+    public function scopeFilter($query, array $filters)
+    {
+        // Filter by pillar tags (JSON column)
+        if (isset($filters['pillar_tags']) && is_array($filters['pillar_tags'])) {
+            $query->where(function ($q) use ($filters) {
+                foreach ($filters['pillar_tags'] as $tag) {
+                    $q->orWhereJsonContains('pillar_tags', $tag);
+                }
+            });
+        }
+
+        // Filter by source tags (JSON column)
+        if (isset($filters['source_tags']) && is_array($filters['source_tags'])) {
+            $query->where(function ($q) use ($filters) {
+                foreach ($filters['source_tags'] as $tag) {
+                    $q->orWhereJsonContains('source_tags', $tag);
+                }
+            });
+        }
+
+        // Filter by language
+        if (isset($filters['language'])) {
+            $query->where('language', $filters['language']);
+        }
+
+        // Filter by active status
+        if (isset($filters['is_active'])) {
+            $query->where('is_active', $filters['is_active']);
+        }
+
+        return $query;
+    }
 }

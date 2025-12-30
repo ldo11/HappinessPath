@@ -5,14 +5,37 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Hash;
 
 class AssessmentSeeder extends Seeder
 {
     public function run(): void
     {
         // Clear existing data
-        DB::table('assessment_answers')->delete();
+        DB::table('assessment_options')->delete();
         DB::table('assessment_questions')->delete();
+        DB::table('assessments')->delete();
+
+        // Create a user for the assessment
+        $userId = DB::table('users')->insertGetId([
+            'name' => 'System Admin',
+            'email' => 'admin@happiness.test',
+            'password' => Hash::make('password'),
+            'role' => 'admin',
+            'email_verified_at' => now(),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        // Create a default assessment
+        $assessmentId = DB::table('assessments')->insertGetId([
+            'title' => json_encode(['vi' => 'Bài kiểm tra Nhân - Cần - Trí', 'en' => 'Heart - Grit - Wisdom Assessment']),
+            'description' => json_encode(['vi' => 'Bài kiểm tra toàn diện về 3 phương diện: Nhân (Tình cảm), Cần (Ý chí) và Trí (Trí tuệ)', 'en' => 'Comprehensive assessment of 3 aspects: Heart (Emotions), Grit (Willpower), and Wisdom (Intellect)']),
+            'status' => 'active',
+            'created_by' => $userId,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
 
         $frequencyAnswers = [
             [
@@ -713,6 +736,7 @@ class AssessmentSeeder extends Seeder
 
             // Insert question
             $questionInsert = [
+                'assessment_id' => $assessmentId,
                 'content' => json_encode($questionData['content']),
                 'pillar_group' => $pillar,
                 'order' => $questionData['order'],
@@ -735,13 +759,14 @@ class AssessmentSeeder extends Seeder
 
             $questionId = DB::table('assessment_questions')->insertGetId($questionInsert);
 
-            // Insert standardized 5-point frequency answers for this question
-            foreach ($frequencyAnswers as $index => $answerData) {
-                DB::table('assessment_answers')->insert([
+            // Insert answers for this question
+            $answersToInsert = isset($questionData['answers']) ? $questionData['answers'] : $frequencyAnswers;
+            
+            foreach ($answersToInsert as $index => $answerData) {
+                DB::table('assessment_options')->insert([
                     'question_id' => $questionId,
                     'content' => json_encode($answerData['content']),
                     'score' => $answerData['score'],
-                    'order' => $index + 1,
                     'created_at' => now(),
                     'updated_at' => now(),
                 ]);

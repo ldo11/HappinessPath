@@ -101,24 +101,7 @@
                         @endif
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
-                        @if($user->userTree)
-                            <div class="space-y-1 text-sm">
-                                <div class="flex items-center">
-                                    <i class="fas fa-star text-yellow-500 mr-1"></i>
-                                    <span class="text-gray-900">{{ $user->userTree->exp }} EXP</span>
-                                </div>
-                                <div class="flex items-center">
-                                    <i class="fas fa-heart text-red-500 mr-1"></i>
-                                    <span class="text-gray-900">{{ $user->userTree->fruits_balance }} fruits</span>
-                                </div>
-                                <div class="flex items-center">
-                                    <i class="fas fa-seedling text-green-500 mr-1"></i>
-                                    <span class="text-gray-900">{{ $user->userTree->season_label }}</span>
-                                </div>
-                            </div>
-                        @else
-                            <span class="text-sm text-gray-400">No tree data</span>
-                        @endif
+                        <span class="text-sm text-gray-400">No tree data</span>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
                         @if($user->userJourney)
@@ -217,11 +200,11 @@
     <div class="bg-white rounded-lg shadow p-4">
         <div class="flex items-center">
             <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
-                <i class="fas fa-tree text-purple-600"></i>
+                <i class="fas fa-users text-purple-600"></i>
             </div>
             <div class="ml-4">
-                <div class="text-2xl font-bold text-gray-900">{{ $users->filter(fn($u) => $u->userTree)->sum('userTree.exp') }}</div>
-                <div class="text-sm text-gray-600">Total EXP</div>
+                <div class="text-2xl font-bold text-gray-900">{{ $users->count() }}</div>
+                <div class="text-sm text-gray-600">Total Users</div>
             </div>
         </div>
     </div>

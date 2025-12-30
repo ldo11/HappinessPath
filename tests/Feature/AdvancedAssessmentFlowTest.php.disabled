@@ -1,0 +1,348 @@
+<?php
+
+namespace Tests\Feature;
+
+use Tests\TestCase;
+use App\Models\User;
+use App\Models\Assessment;
+use App\Models\AssessmentQuestion;
+use App\Models\AssessmentOption;
+use App\Models\UserAssessment;
+use App\Models\ConsultationThread;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+
+class AdvancedAssessmentFlowTest extends TestCase
+{
+    use RefreshDatabase;
+
+    private User $admin;
+    private User $translator;
+    private User $user;
+    private User $consultant;
+    private Assessment $assessment;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->admin = User::factory()->create(['role' => 'admin']);
+        $this->translator = User::factory()->create(['role' => 'translator']);
+        $this->user = User::factory()->create(['role' => 'user']);
+        $this->consultant = User::factory()->create(['role' => 'consultant']);
+    }
+
+    /** @test */
+    public function admin_creates_assessment_translator_updates_it_admin_activates_it()
+    {
+        // Step 1: Admin creates assessment
+        $assessmentData = [
+            'title' => ['en' => 'Life Balance Assessment', 'vi' => 'Đánh giá Cân bằng Cuộc sống'],
+            'description' => ['en' => 'Assessment for life balance', 'vi' => 'Đánh giá cho cân bằng cuộc sống'],
+            'status' => 'created',
+            'is_special' => false,
+        ];
+
+        $response = $this->actingAs($this->admin)
+            ->post('/en/admin/assessments', $assessmentData);
+
+        $response->assertRedirect();
+        $this->assertDatabaseHas('assessments', [
+            'title' => json_encode($assessmentData['title']),
+            'status' => 'created',
+        ]);
+
+        $assessment = Assessment::first();
+        $this->assertEquals('created', $assessment->status);
+
+        // Step 2: Add questions to assessment
+        $question = AssessmentQuestion::factory()->create([
+            'assessment_id' => $assessment->id,
+            'order' => 1,
+            'pillar_group_new' => 'body',
+            'type' => 'single_choice',
+            'content' => [
+                'en' => 'How do you feel about your life balance?',
+                'vi' => 'Bạn cảm thấy thế nào về sự cân bằng cuộc sống?'
+            ]
+        ]);
+
+        // Create options for the question
+        for ($i = 1; $i <= 5; $i++) {
+            AssessmentOption::factory()->create([
+                'question_id' => $question->id,
+                'score' => $i,
+                'content' => [
+                    'en' => "Option {$i}",
+                    'vi' => "Lựa chọn {$i}"
+                ]
+            ]);
+        }
+
+        // Step 3: Translator updates the assessment
+        $translationData = [
+            'title' => ['en' => 'Life Balance Assessment', 'vi' => 'Đánh giá Cân bằng Cuộc sống - Cập nhật'],
+            'description' => ['en' => 'Assessment for life balance', 'vi' => 'Đánh giá cho cân bằng cuộc sống - Đã dịch'],
+        ];
+
+        $response = $this->actingAs($this->translator)
+            ->post("/en/translator/assessments/{$assessment->id}/submit-translation", $translationData);
+
+        $response->assertRedirect();
+
+        // Step 4: Admin activates the assessment
+        $response = $this->actingAs($this->admin)
+            ->patch("/en/admin/assessments/{$assessment->id}/publish");
+
+        $response->assertRedirect();
+        $assessment->refresh();
+        $this->assertEquals('active', $assessment->status);
+    }
+
+    /** @test */
+    public function user_submits_assessment_in_self_review_mode()
+    {
+        // Create and publish assessment
+        $this->createPublishedAssessment();
+
+        // User submits in self_review mode
+        $answers = $this->generateAnswersForAssessment($this->assessment);
+
+        $response = $this->actingAs($this->user)
+            ->post("/en/assessments/{$this->assessment->id}", [
+                'answers' => $answers,
+                'submission_mode' => 'self_review'
+            ]);
+
+        $response->assertJson(['message' => 'Submitted successfully']);
+
+        // Assert UserAssessment is created with correct mode
+        $this->assertDatabaseHas('user_assessments', [
+            'user_id' => $this->user->id,
+            'assessment_id' => $this->assessment->id,
+            'submission_mode' => 'self_review',
+            'consultation_thread_id' => null,
+        ]);
+
+        $userAssessment = UserAssessment::where('user_id', $this->user->id)
+            ->where('assessment_id', $this->assessment->id)
+            ->first();
+
+        $this->assertTrue($userAssessment->isSelfReview());
+        $this->assertFalse($userAssessment->isSubmittedForConsultation());
+        $this->assertFalse($userAssessment->hasConsultationThread());
+    }
+
+    /** @test */
+    public function user_submits_assessment_in_consultation_mode_creates_thread()
+    {
+        // Create and publish assessment
+        $this->createPublishedAssessment();
+
+        // User submits in submitted_for_consultation mode
+        $answers = $this->generateAnswersForAssessment($this->assessment);
+
+        $response = $this->actingAs($this->user)
+            ->post("/en/assessments/{$this->assessment->id}", [
+                'answers' => $answers,
+                'submission_mode' => 'submitted_for_consultation'
+            ]);
+
+        $response->assertJson(['message' => 'Submitted successfully']);
+
+        // Assert UserAssessment is created with correct mode
+        $this->assertDatabaseHas('user_assessments', [
+            'user_id' => $this->user->id,
+            'assessment_id' => $this->assessment->id,
+            'submission_mode' => 'submitted_for_consultation',
+        ]);
+
+        $userAssessment = UserAssessment::where('user_id', $this->user->id)
+            ->where('assessment_id', $this->assessment->id)
+            ->first();
+
+        $this->assertFalse($userAssessment->isSelfReview());
+        $this->assertTrue($userAssessment->isSubmittedForConsultation());
+        $this->assertTrue($userAssessment->hasConsultationThread());
+
+        // Assert ConsultationThread is created
+        $this->assertDatabaseHas('consultation_threads', [
+            'user_id' => $this->user->id,
+            'status' => 'open',
+        ]);
+
+        $consultationThread = ConsultationThread::where('user_id', $this->user->id)
+            ->where('status', 'open')
+            ->first();
+
+        $this->assertEquals($consultationThread->id, $userAssessment->consultation_thread_id);
+    }
+
+    /** @test */
+    public function consultant_cannot_view_self_review_assessment_details()
+    {
+        // Create and publish assessment
+        $this->createPublishedAssessment();
+
+        // User submits in self_review mode
+        $answers = $this->generateAnswersForAssessment($this->assessment);
+
+        $response = $this->actingAs($this->user)
+            ->post("/en/assessments/{$this->assessment->id}", [
+                'answers' => $answers,
+                'submission_mode' => 'self_review'
+            ]);
+
+        $userAssessment = UserAssessment::where('user_id', $this->user->id)
+            ->where('assessment_id', $this->assessment->id)
+            ->first();
+
+        // Consultant tries to view the assessment result
+        $response = $this->actingAs($this->consultant)
+            ->get("/en/consultant/threads/{$userAssessment->id}");
+
+        // Should return 404 or forbidden since there's no consultation thread
+        $response->assertStatus(404);
+    }
+
+    /** @test */
+    public function consultant_can_view_consultation_assessment_details()
+    {
+        // Create and publish assessment
+        $this->createPublishedAssessment();
+
+        // User submits in consultation mode
+        $answers = $this->generateAnswersForAssessment($this->assessment);
+
+        $response = $this->actingAs($this->user)
+            ->post("/en/assessments/{$this->assessment->id}", [
+                'answers' => $answers,
+                'submission_mode' => 'submitted_for_consultation'
+            ]);
+
+        $userAssessment = UserAssessment::where('user_id', $this->user->id)
+            ->where('assessment_id', $this->assessment->id)
+            ->first();
+
+        // Consultant can view the consultation thread
+        $response = $this->actingAs($this->consultant)
+            ->get("/en/consultant/threads/{$userAssessment->consultation_thread_id}");
+
+        $response->assertStatus(200);
+    }
+
+    /** @test */
+    public function user_can_convert_self_review_to_consultation()
+    {
+        // Create and publish assessment
+        $this->createPublishedAssessment();
+
+        // User submits in self_review mode first
+        $answers = $this->generateAnswersForAssessment($this->assessment);
+
+        $response = $this->actingAs($this->user)
+            ->post("/en/assessments/{$this->assessment->id}", [
+                'answers' => $answers,
+                'submission_mode' => 'self_review'
+            ]);
+
+        $userAssessment = UserAssessment::where('user_id', $this->user->id)
+            ->where('assessment_id', $this->assessment->id)
+            ->first();
+
+        $this->assertNotNull($userAssessment, 'UserAssessment should be created');
+        $this->assertTrue($userAssessment->canBeConvertedToConsultation());
+
+        // Convert to consultation
+        $response = $this->actingAs($this->user)
+            ->post("/en/assessments/result/{$userAssessment->id}/convert-to-consultation");
+
+        $userAssessment->refresh();
+        $this->assertFalse($userAssessment->canBeConvertedToConsultation());
+        $this->assertTrue($userAssessment->isSubmittedForConsultation());
+        $this->assertTrue($userAssessment->hasConsultationThread());
+    }
+
+    /** @test */
+    public function assessment_workflow_permissions_are_enforced()
+    {
+        // Create assessment in created status
+        $assessment = Assessment::factory()->create(['status' => 'created']);
+        
+        // Make sure the assessment exists in the database
+        $this->assertDatabaseHas('assessments', ['id' => $assessment->id]);
+
+        // User cannot access created assessment
+        $response = $this->actingAs($this->user)
+            ->get("/en/assessments/{$assessment->id}");
+
+        $response->assertStatus(404);
+
+        // Translator can translate created assessment
+        $response = $this->actingAs($this->translator)
+            ->get("/en/translator/assessments/{$assessment->id}/translate");
+
+        $response->assertStatus(200);
+
+        // Admin can edit created assessment
+        $response = $this->actingAs($this->admin)
+            ->get("/en/admin/assessments/{$assessment->id}/edit");
+
+        $response->assertStatus(200);
+
+        // Publish the assessment
+        $assessment->update(['status' => 'active']);
+
+        // Now user can access it
+        $response = $this->actingAs($this->user)
+            ->get("/en/assessments/{$assessment->id}");
+
+        $response->assertStatus(200);
+    }
+
+    private function createPublishedAssessment(): void
+    {
+        $this->assessment = Assessment::factory()->create([
+            'title' => ['en' => 'Test Assessment', 'vi' => 'Kiểm tra'],
+            'description' => ['en' => 'Test Description', 'vi' => 'Mô tả kiểm tra'],
+            'status' => 'active'
+        ]);
+
+        // Create questions and options
+        for ($i = 1; $i <= 5; $i++) {
+            $question = AssessmentQuestion::factory()->create([
+                'assessment_id' => $this->assessment->id,
+                'order' => $i,
+                'pillar_group_new' => 'body',
+                'type' => 'single_choice',
+                'content' => [
+                    'en' => "Question {$i}",
+                    'vi' => "Câu hỏi {$i}"
+                ]
+            ]);
+
+            for ($score = 1; $score <= 5; $score++) {
+                AssessmentOption::factory()->create([
+                    'question_id' => $question->id,
+                    'score' => $score,
+                    'content' => [
+                        'en' => "Option {$score}",
+                        'vi' => "Lựa chọn {$score}"
+                    ]
+                ]);
+            }
+        }
+    }
+
+    private function generateAnswersForAssessment(Assessment $assessment): array
+    {
+        $answers = [];
+        
+        foreach ($assessment->questions as $question) {
+            // Select a random option for each question
+            $randomOption = $question->options->random();
+            $answers[$question->id] = $randomOption->id;
+        }
+
+        return $answers;
+    }
+}

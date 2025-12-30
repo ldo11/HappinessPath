@@ -177,17 +177,11 @@
                 <div class="flex items-center justify-between px-4 py-3">
                     <div class="flex items-center space-x-3">
                         <div class="w-8 h-8 bg-primary-500 rounded-full flex items-center justify-center">
-                            <i class="fas fa-tree text-white text-sm"></i>
+                            <i class="fas fa-route text-white text-sm"></i>
                         </div>
                         <span class="font-semibold text-gray-900">Happiness Path</span>
                     </div>
                     <div class="flex items-center space-x-3">
-                        @if(Auth::user()->userTree)
-                            <div class="flex items-center space-x-1">
-                                <i class="fas fa-star text-yellow-500 text-sm"></i>
-                                <span class="text-sm font-medium text-gray-700">{{ Auth::user()->userTree->exp }}</span>
-                            </div>
-                        @endif
                         <button onclick="toggleMobileMenu()" class="touch-target text-gray-600 hover:text-gray-900">
                             <i class="fas fa-bars text-xl"></i>
                         </button>

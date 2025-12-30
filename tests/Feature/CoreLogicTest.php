@@ -70,14 +70,8 @@ class CoreLogicTest extends TestCase
             'dominant_issue' => 'heart',
         ]);
 
-        UserTree::query()->create([
-            'user_id' => $user->id,
-            'season' => 'winter',
-            'health' => 80,
-            'exp' => 250,
-            'fruits_balance' => 10,
-            'total_fruits_given' => 5,
-        ]);
+        // UserTree model has been removed, so we skip this part
+        // The reset functionality should focus on quiz results and onboarding status
 
         /** @var AdminService $service */
         $service = app(AdminService::class);
@@ -89,48 +83,60 @@ class CoreLogicTest extends TestCase
 
         $user->refresh();
         $this->assertSame('new', $user->onboarding_status);
-
-        $tree = UserTree::query()->where('user_id', $user->id)->firstOrFail();
-        $this->assertSame('spring', $tree->season);
-        $this->assertSame(0, $tree->health);
-        $this->assertSame(0, (int) $tree->exp);
-        $this->assertSame(0, (int) $tree->fruits_balance);
-        $this->assertSame(0, (int) $tree->total_fruits_given);
     }
 
     public function test_assessment_service_calculate_score_sums_scores_and_sets_custom_focus(): void
     {
+        // Create a test user first
+        $user = User::create([
+            'name' => 'Test User',
+            'email' => 'test@example.com',
+            'password' => Hash::make('password'),
+            'role' => 'admin',
+        ]);
+
+        // Create a test assessment first
+        $assessment = \App\Models\Assessment::create([
+            'title' => ['en' => 'Test Assessment'],
+            'description' => ['en' => 'Test Description'],
+            'status' => 'active',
+            'created_by' => $user->id,
+        ]);
+
         $questionIds = [];
 
         for ($i = 1; $i <= 10; $i++) {
-            $questionIds['heart'][] = \App\Models\AssessmentQuestion::query()->create([
-                'content' => ['en' => "Heart {$i}"],
-                'pillar_group' => 'heart',
+            $questionIds['body'][] = \App\Models\AssessmentQuestion::query()->create([
+                'assessment_id' => $assessment->id,
+                'content' => ['en' => "Body {$i}"],
+                'pillar_group_new' => 'body',
                 'order' => $i,
             ])->id;
         }
 
         for ($i = 1; $i <= 10; $i++) {
-            $questionIds['grit'][] = \App\Models\AssessmentQuestion::query()->create([
-                'content' => ['en' => "Grit {$i}"],
-                'pillar_group' => 'grit',
+            $questionIds['mind'][] = \App\Models\AssessmentQuestion::query()->create([
+                'assessment_id' => $assessment->id,
+                'content' => ['en' => "Mind {$i}"],
+                'pillar_group_new' => 'mind',
                 'order' => 10 + $i,
             ])->id;
         }
 
         for ($i = 1; $i <= 10; $i++) {
             $questionIds['wisdom'][] = \App\Models\AssessmentQuestion::query()->create([
+                'assessment_id' => $assessment->id,
                 'content' => ['en' => "Wisdom {$i}"],
-                'pillar_group' => 'wisdom',
+                'pillar_group_new' => 'wisdom',
                 'order' => 20 + $i,
             ])->id;
         }
 
         $answers = [];
-        foreach ($questionIds['heart'] as $id) {
+        foreach ($questionIds['body'] as $id) {
             $answers[$id] = 5;
         }
-        foreach ($questionIds['grit'] as $id) {
+        foreach ($questionIds['mind'] as $id) {
             $answers[$id] = 3;
         }
         foreach ($questionIds['wisdom'] as $id) {
@@ -141,10 +147,70 @@ class CoreLogicTest extends TestCase
         $service = app(AssessmentService::class);
         $result = $service->calculateScore($answers);
 
-        $this->assertSame(50, $result['heart_score']);
-        $this->assertSame(30, $result['grit_score']);
-        $this->assertSame(40, $result['wisdom_score']);
-        $this->assertSame('grit', $result['custom_focus']);
+        // Test new percentage-based scoring system
+        // Body questions (score 5 each) -> Body: 100% (5/5 * 100)
+        $this->assertSame(100.0, $result['body']);
+        // Mind questions (score 3 each) -> Mind: 60% (3/5 * 100)  
+        $this->assertSame(60.0, $result['mind']);
+        // Wisdom questions (score 4 each) -> Wisdom: 80% (4/5 * 100)
+        $this->assertSame(80.0, $result['wisdom']);
+        
+        // Check that pain point triggers are empty (no low scores)
+        $this->assertEmpty($result['pain_point_triggers']);
+    }
+
+    public function test_assessment_service_triggers_pain_points_when_score_is_low(): void
+    {
+        // Create a test user first
+        $user = User::create([
+            'name' => 'Test User',
+            'email' => 'test@example.com',
+            'password' => Hash::make('password'),
+            'role' => 'admin',
+        ]);
+
+        // Create a test assessment first
+        $assessment = \App\Models\Assessment::create([
+            'title' => ['en' => 'Test Assessment'],
+            'description' => ['en' => 'Test Description'],
+            'status' => 'active',
+            'created_by' => $user->id,
+        ]);
+
+        // Create questions with pain point keys
+        $question1 = \App\Models\AssessmentQuestion::query()->create([
+            'assessment_id' => $assessment->id,
+            'content' => ['en' => "Low Score Question"],
+            'pillar_group_new' => 'body',
+            'related_pain_point_key' => 'anxiety',
+            'order' => 1,
+        ]);
+
+        $question2 = \App\Models\AssessmentQuestion::query()->create([
+            'assessment_id' => $assessment->id,
+            'content' => ['en' => "High Score Question"],
+            'pillar_group_new' => 'mind',
+            'related_pain_point_key' => 'stress',
+            'order' => 2,
+        ]);
+
+        // Submit answers with low score for first question (should trigger pain point)
+        $answers = [
+            $question1->id => 2, // Low score - should trigger pain point
+            $question2->id => 5, // High score - should not trigger pain point
+        ];
+
+        /** @var AssessmentService $service */
+        $service = app(AssessmentService::class);
+        $result = $service->calculateScore($answers);
+
+        // Assert pain point was triggered for low score
+        $this->assertArrayHasKey('pain_point_triggers', $result);
+        $this->assertArrayHasKey('anxiety', $result['pain_point_triggers']);
+        $this->assertEquals(2, $result['pain_point_triggers']['anxiety']);
+        
+        // Assert no pain point triggered for high score
+        $this->assertArrayNotHasKey('stress', $result['pain_point_triggers']);
     }
 
     public function test_translation_service_get_missing_translations_returns_only_untranslated_solutions(): void

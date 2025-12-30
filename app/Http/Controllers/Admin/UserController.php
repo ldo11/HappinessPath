@@ -19,7 +19,7 @@ class UserController extends Controller
 
     public function index(Request $request)
     {
-        $query = User::with(['userTree', 'userJourney']);
+        $query = User::with(['userJourney']);
 
         if ($request->filled('search')) {
             $search = $request->search;

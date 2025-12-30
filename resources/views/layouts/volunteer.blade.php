@@ -52,29 +52,42 @@
                             </button>
                             <div id="languageDropdown" class="hidden absolute right-0 mt-2 w-52 bg-white rounded-lg shadow-lg z-50 border">
                                 <div class="py-1">
-                                    <a href="#" data-locale-switch="vi" class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                                    <a href="{{ route('language.switch', 'vi') }}" class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
                                         <span class="text-xl mr-3">🇻🇳</span>
                                         <div class="font-medium">Tiếng Việt</div>
                                         @if(app()->getLocale() === 'vi')
                                             <i class="fas fa-check text-green-600 ml-auto"></i>
                                         @endif
                                     </a>
-                                    <a href="#" data-locale-switch="en" class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                                    <a href="{{ route('language.switch', 'en') }}" class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
                                         <span class="text-xl mr-3">🇺🇸</span>
                                         <div class="font-medium">English</div>
                                         @if(app()->getLocale() === 'en')
                                             <i class="fas fa-check text-green-600 ml-auto"></i>
                                         @endif
                                     </a>
+                                    <a href="{{ route('language.switch', 'de') }}" class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                                        <span class="text-xl mr-3">🇩🇪</span>
+                                        <div class="font-medium">Deutsch</div>
+                                        @if(app()->getLocale() === 'de')
+                                            <i class="fas fa-check text-green-600 ml-auto"></i>
+                                        @endif
+                                    </a>
+                                    <a href="{{ route('language.switch', 'kr') }}" class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                                        <span class="text-xl mr-3">🇰🇷</span>
+                                        <div class="font-medium">한국어</div>
+                                        @if(app()->getLocale() === 'kr')
+                                            <i class="fas fa-check text-green-600 ml-auto"></i>
+                                        @endif
+                                    </a>
                                 </div>
                             </div>
                         </div>
-                        <!-- User Tree Status -->
                         <div class="flex items-center space-x-2 text-sm text-gray-600">
-                            <i class="fas fa-tree text-green-600"></i>
-                            <span>Level {{ Auth::user()->userTree?->season ?? 1 }}</span>
+                            <i class="fas fa-star text-yellow-600"></i>
+                            <span>Level 1</span>
                             <span class="text-yellow-600">
-                                <i class="fas fa-star"></i> {{ Auth::user()->userTree?->exp ?? 0 }} EXP
+                                0 EXP
                             </span>
                         </div>
                         <span class="text-sm text-gray-600">

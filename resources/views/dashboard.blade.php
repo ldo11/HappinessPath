@@ -93,8 +93,8 @@
 
     <!-- Responsive Grid Layout -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        <!-- Left Column (Task) -->
-        <div class="lg:col-span-8">
+        <!-- Main Content (Full Width) -->
+        <div class="lg:col-span-12">
             <div class="glass-card rounded-2xl shadow-xl p-6 md:p-8">
                 <div class="flex items-center justify-between mb-6">
                     <div>
@@ -184,7 +184,7 @@
                                 @if($dailyMissionCompleted)
                                     <div class="text-emerald-600 font-medium" id="dailyMissionCompletedState">
                                         <i class="fas fa-check-circle mr-2"></i>
-                                        Bạn đã hoàn thành nhiệm vụ hôm nay. Hãy quay lại vào ngày mai!
+                                        {{ __('dashboard.mission_completed_message') }}
                                     </div>
                                 @else
                                     <div class="flex items-center gap-3">
@@ -192,7 +192,7 @@
                                                 class="emerald-gradient text-white px-6 py-3 rounded-lg hover:shadow-lg transition-all duration-200 transform hover:scale-105 text-base sm:text-lg disabled:opacity-50 disabled:cursor-not-allowed"
                                                 @disabled(! $canStartMission)>
                                             <i class="fas fa-play mr-2"></i>
-                                            Bắt đầu thực hiện
+                                            {{ __('dashboard.start_mission') }}
                                         </button>
 
                                         <div id="missionTimer" class="hidden px-4 py-2 rounded-lg bg-white/70 border border-white/40 text-gray-800 font-semibold">
@@ -201,7 +201,7 @@
                                     </div>
 
                                     @if(! $canStartMission)
-                                        <div class="mt-3 text-sm text-gray-600">Nhiệm vụ hôm nay chưa sẵn sàng. Vui lòng thử lại sau.</div>
+                                        <div class="mt-3 text-sm text-gray-600">{{ __('dashboard.mission_not_ready') }}</div>
                                     @endif
                                 @endif
                             </div>
@@ -211,75 +211,6 @@
             </div>
         </div>
 
-        <!-- Right Column (Tree + Wheel) -->
-        <div class="lg:col-span-4 space-y-8">
-            <div id="my-tree" class="glass-card rounded-2xl shadow-xl p-6 md:p-8">
-                <div class="text-center mb-6">
-                    <h2 class="text-xl md:text-2xl font-bold text-gray-800 spiritual-font mb-2">
-                        {{ __('dashboard.my_virtue_tree') }}
-                    </h2>
-                    <p class="text-gray-600 text-sm">{{ __('dashboard.healing_journey') }}</p>
-                </div>
-
-                <!-- Tree Visual Representation -->
-                <div class="flex flex-col items-center justify-center space-y-6 mb-6">
-                    <!-- Tree Icon -->
-                    <div class="relative">
-                        <div class="w-32 h-32 sm:w-40 sm:h-40 rounded-full flex items-center justify-center 
-                                    {{ $treeStatus['health'] < 30 ? 'bg-gray-100' : 
-                                       ($treeStatus['health'] >= 50 ? 'bg-emerald-100' : 'bg-yellow-100') }}">
-                            <i class="fas {{ $treeStatus['icon'] ?? 'fa-tree' }} text-5xl sm:text-6xl 
-                                      {{ $treeStatus['health'] < 30 ? 'text-gray-500' : 
-                                         ($treeStatus['health'] >= 50 ? 'text-emerald-500' : 'text-yellow-500') }} 
-                                      animate-float"></i>
-                        </div>
-                        
-                        <!-- Season Overlay -->
-                        @if($userTree->season === 'winter')
-                            <div class="absolute top-0 right-0 w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                                <i class="fas fa-snowflake text-blue-500 text-sm"></i>
-                            </div>
-                        @endif
-                    </div>
-
-                    <!-- Tree Stats -->
-                    <div class="text-center space-y-3 w-full">
-                        <div>
-                            <h3 class="text-lg font-semibold text-gray-800 mb-1">
-                                {{ $treeStatus['level'] }}
-                            </h3>
-                            <p class="text-gray-600 text-sm">{{ $treeStatus['message'] }}</p>
-                        </div>
-
-                        <div class="space-y-2">
-                            <!-- Health Bar -->
-                            <div class="flex items-center space-x-2">
-                                <i class="fas fa-heart text-red-500 text-sm"></i>
-                                <div class="flex-1">
-                                    <div class="bg-gray-200 rounded-full h-2">
-                                        <div class="bg-red-500 h-2 rounded-full transition-all duration-500" 
-                                             style="width: {{ $treeStatus['health'] }}%"></div>
-                                    </div>
-                                </div>
-                                <span class="text-xs text-gray-600">{{ $treeStatus['health'] }}%</span>
-                            </div>
-                            
-                            <!-- Experience Bar -->
-                            <div class="flex items-center space-x-2">
-                                <i class="fas fa-star text-yellow-500 text-sm"></i>
-                                <div class="flex-1">
-                                    <div class="bg-gray-200 rounded-full h-2">
-                                        <div class="bg-yellow-500 h-2 rounded-full transition-all duration-500" 
-                                             style="width: {{ ($userTree->exp % 100) }}%"></div>
-                                    </div>
-                                </div>
-                                <span class="text-xs text-gray-600">{{ $userTree->exp }} XP</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
 
     <div id="dailyMissionReportModal" class="hidden fixed inset-0 z-50">
@@ -288,8 +219,8 @@
             <div class="bg-white rounded-2xl shadow-xl w-full max-w-2xl p-6">
                 <div class="flex items-start justify-between gap-4 mb-4">
                     <div>
-                        <h3 class="text-xl font-bold text-gray-900">Báo cáo kết quả</h3>
-                        <p class="text-sm text-gray-600">Bạn đã trải nghiệm bài tập này thế nào?</p>
+                        <h3 class="text-xl font-bold text-gray-900">{{ __('dashboard.report_title') }}</h3>
+                        <p class="text-sm text-gray-600">{{ __('dashboard.report_subtitle') }}</p>
                     </div>
                     <button type="button" id="closeDailyMissionModal" class="text-gray-500 hover:text-gray-900">
                         <i class="fas fa-times"></i>
@@ -297,9 +228,9 @@
                 </div>
 
                 <div class="space-y-4">
-                    <textarea id="dailyMissionReportContent" rows="5" class="w-full rounded-xl border border-gray-200 p-4 focus:outline-none focus:ring-2 focus:ring-emerald-300" placeholder="Viết cảm nhận của bạn..." required></textarea>
+                    <textarea id="dailyMissionReportContent" rows="5" class="w-full rounded-xl border border-gray-200 p-4 focus:outline-none focus:ring-2 focus:ring-emerald-300" placeholder="{{ __('dashboard.report_placeholder') }}" required></textarea>
                     <div class="flex items-center justify-end gap-3">
-                        <button type="button" id="submitDailyMissionReport" class="bg-gray-900 text-white px-5 py-3 rounded-lg">Hoàn thành nhiệm vụ</button>
+                        <button type="button" id="submitDailyMissionReport" class="bg-gray-900 text-white px-5 py-3 rounded-lg">{{ __('dashboard.complete_mission') }}</button>
                     </div>
                 </div>
             </div>
@@ -371,7 +302,7 @@
         const wrapper = document.createElement('div');
         wrapper.id = 'dailyMissionCompletedState';
         wrapper.className = 'text-emerald-600 font-medium';
-        wrapper.innerHTML = '<i class="fas fa-check-circle mr-2"></i>Bạn đã hoàn thành nhiệm vụ hôm nay. Hãy quay lại vào ngày mai!';
+        wrapper.innerHTML = '<i class="fas fa-check-circle mr-2"></i>{{ __('dashboard.mission_completed_message') }}';
 
         const parent = timerEl ? timerEl.parentElement : null;
         if (parent) {
@@ -438,7 +369,7 @@
             if (taskId <= 0) return;
             const content = (reportInput.value || '').trim();
             if (!content) {
-                toast('Vui lòng nhập nội dung báo cáo.', 'error');
+                toast('{{ __('dashboard.report_required') }}', 'error');
                 return;
             }
 
@@ -456,16 +387,16 @@
 
                 const data = await res.json();
                 if (!res.ok || !data.success) {
-                    toast('Có lỗi xảy ra. Vui lòng thử lại.', 'error');
+                    toast('{{ __('dashboard.error_occurred') }}', 'error');
                     submitBtn.disabled = false;
                     return;
                 }
 
                 closeModal();
                 setCompletedUI(data.new_exp);
-                toast(`Bạn nhận được +${data.xp_awarded} XP!`, 'success');
+                toast(`{{ __('dashboard.xp_awarded_message', ['xp' => '+${data.xp_awarded}']) }}`, 'success');
             } catch (e) {
-                toast('Có lỗi xảy ra. Vui lòng thử lại.', 'error');
+                toast('{{ __('dashboard.error_occurred') }}', 'error');
                 submitBtn.disabled = false;
             }
         });

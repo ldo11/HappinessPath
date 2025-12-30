@@ -18,7 +18,6 @@
                             <i class="fas fa-fire text-orange-500"></i>
                             <span class="text-sm font-medium">{{ $streakInfo['current_streak'] }} day streak</span>
                         </div>
-                        <p class="text-xs text-gray-500">{{ $treeStatus['message'] }}</p>
                     </div>
                 </div>
             </div>
@@ -355,19 +354,13 @@ function showSessionComplete(results) {
             <span class="font-bold text-green-900">+${results.exp_gained}</span>
         </div>
         <div class="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
-            <span class="text-blue-800">Tree Health</span>
+            <span class="text-blue-800">Mental Wellness</span>
             <span class="font-bold text-blue-900">+${results.health_improved}%</span>
         </div>
         ${results.leveled_up ? `
             <div class="flex justify-between items-center p-3 bg-purple-50 rounded-lg">
                 <span class="text-purple-800">Level Up!</span>
                 <span class="font-bold text-purple-900">${results.previous_level} → ${results.new_level}</span>
-            </div>
-        ` : ''}
-        ${results.fruits_earned > 0 ? `
-            <div class="flex justify-between items-center p-3 bg-yellow-50 rounded-lg">
-                <span class="text-yellow-800">Fruits Earned</span>
-                <span class="font-bold text-yellow-900">+${results.fruits_earned}</span>
             </div>
         ` : ''}
     `;

@@ -15,11 +15,6 @@
                         <span class="inline-flex items-center px-3 py-1 rounded-full text-xs bg-emerald-500/15 text-emerald-200 border border-emerald-500/20">+{{ (int) $video->xp_reward }} XP</span>
                     </div>
                 </div>
-
-                <div class="glassmorphism rounded-xl px-5 py-3 w-full lg:w-auto">
-                    <div class="text-xs text-white/60">XP hiện tại</div>
-                    <div class="text-2xl font-bold text-white" id="currentXp">{{ (int) (Auth::user()->userTree->exp ?? 0) }}</div>
-                </div>
             </div>
         </div>
     </div>
@@ -123,10 +118,6 @@
             if (data.claimed) {
                 btn.setAttribute('data-claimed', '1');
                 btn.textContent = 'Đã nhận XP';
-                const xpEl = document.getElementById('currentXp');
-                if (xpEl && typeof data.new_exp !== 'undefined') {
-                    xpEl.textContent = String(data.new_exp);
-                }
                 toast(`Bạn nhận được +${data.xp_awarded} XP!`, 'success');
                 const hint = document.getElementById('claimHint');
                 if (hint) hint.textContent = 'Bạn đã nhận XP cho video này.';

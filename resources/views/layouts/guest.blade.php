@@ -90,28 +90,28 @@
                             </button>
                             <div id="languageDropdown" class="hidden absolute right-0 mt-2 w-52 glassmorphism rounded-lg shadow-lg z-50">
                                 <div class="py-1">
-                                    <a href="#" data-locale-switch="vi" class="flex items-center px-4 py-3 text-sm text-white hover:bg-white/10 transition-colors">
+                                    <a href="{{ route('language.switch', 'vi') }}" class="flex items-center px-4 py-3 text-sm text-white hover:bg-white/10 transition-colors">
                                         <span class="text-xl mr-3">🇻🇳</span>
                                         <div class="font-medium">Tiếng Việt</div>
                                         @if(app()->getLocale() === 'vi')
                                             <i class="fas fa-check text-emerald-400 ml-auto"></i>
                                         @endif
                                     </a>
-                                    <a href="#" data-locale-switch="en" class="flex items-center px-4 py-3 text-sm text-white hover:bg-white/10 transition-colors">
+                                    <a href="{{ route('language.switch', 'en') }}" class="flex items-center px-4 py-3 text-sm text-white hover:bg-white/10 transition-colors">
                                         <span class="text-xl mr-3">🇺🇸</span>
                                         <div class="font-medium">English</div>
                                         @if(app()->getLocale() === 'en')
                                             <i class="fas fa-check text-emerald-400 ml-auto"></i>
                                         @endif
                                     </a>
-                                    <a href="#" data-locale-switch="de" class="flex items-center px-4 py-3 text-sm text-white hover:bg-white/10 transition-colors">
+                                    <a href="{{ route('language.switch', 'de') }}" class="flex items-center px-4 py-3 text-sm text-white hover:bg-white/10 transition-colors">
                                         <span class="text-xl mr-3">🇩🇪</span>
                                         <div class="font-medium">Deutsch</div>
                                         @if(app()->getLocale() === 'de')
                                             <i class="fas fa-check text-emerald-400 ml-auto"></i>
                                         @endif
                                     </a>
-                                    <a href="#" data-locale-switch="kr" class="flex items-center px-4 py-3 text-sm text-white hover:bg-white/10 transition-colors">
+                                    <a href="{{ route('language.switch', 'kr') }}" class="flex items-center px-4 py-3 text-sm text-white hover:bg-white/10 transition-colors">
                                         <span class="text-xl mr-3">🇰🇷</span>
                                         <div class="font-medium">한국어</div>
                                         @if(app()->getLocale() === 'kr')
@@ -123,7 +123,7 @@
                         </div>
                     </div>
                     <div class="w-16 h-16 sm:w-20 sm:h-20 bg-emerald-600/20 backdrop-blur-sm rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4 animate-float border border-emerald-400/30">
-                        <i class="fas fa-tree text-emerald-400 text-2xl sm:text-3xl"></i>
+                        <i class="fas fa-route text-emerald-400 text-2xl sm:text-3xl"></i>
                     </div>
                     <h1 class="text-2xl sm:text-3xl font-bold text-white spiritual-font mb-2">
                         <span class="hidden sm:inline">Con Đường Hạnh Phúc</span>

@@ -180,6 +180,96 @@ class LanguageLineSeeder extends Seeder
                     'kr' => '다음 오류를 수정해주세요:',
                 ],
             ],
+            [
+                'group' => 'welcome',
+                'key' => 'title',
+                'text' => [
+                    'vi' => 'Con Đường Hạnh Phúc - Chữa lành và Phát triển',
+                    'en' => 'Happiness Path - Healing and Growth',
+                    'de' => 'Glückspfad - Heilung und Wachstum',
+                    'kr' => '행복 경로 - 치유와 성장',
+                ],
+            ],
+            [
+                'group' => 'welcome',
+                'key' => 'tagline',
+                'text' => [
+                    'vi' => 'Chữa lành nỗi đau - Vun bồi nội lực - Khai mở trí tuệ',
+                    'en' => 'Healing pain - Building inner strength - Unlocking wisdom',
+                    'de' => 'Schmerz heilen - Innere Stärke aufbauen - Weisheit erschließen',
+                    'kr' => '고통 치유 - 내면의 힘 키우기 - 지혜 열기',
+                ],
+            ],
+            [
+                'group' => 'welcome',
+                'key' => 'login',
+                'text' => [
+                    'vi' => 'Đăng nhập',
+                    'en' => 'Login',
+                    'de' => 'Anmelden',
+                    'kr' => '로그인',
+                ],
+            ],
+            [
+                'group' => 'welcome',
+                'key' => 'logout',
+                'text' => [
+                    'vi' => 'Đăng xuất',
+                    'en' => 'Logout',
+                    'de' => 'Abmelden',
+                    'kr' => '로그아웃',
+                ],
+            ],
+            [
+                'group' => 'welcome',
+                'key' => 'start_journey',
+                'text' => [
+                    'vi' => 'Bắt đầu Hành trình',
+                    'en' => 'Start Journey',
+                    'de' => 'Reise beginnen',
+                    'kr' => '여정 시작하기',
+                ],
+            ],
+            [
+                'group' => 'welcome',
+                'key' => 'have_account',
+                'text' => [
+                    'vi' => 'Đã có tài khoản?',
+                    'en' => 'Already have an account?',
+                    'de' => 'Haben Sie bereits ein Konto?',
+                    'kr' => '이미 계정이 있으신가요?',
+                ],
+            ],
+            [
+                'group' => 'welcome',
+                'key' => 'go_to_dashboard',
+                'text' => [
+                    'vi' => 'Vào Dashboard',
+                    'en' => 'Go to Dashboard',
+                    'de' => 'Zum Dashboard',
+                    'kr' => '대시보드로',
+                ],
+            ],
+            [
+                'group' => 'welcome',
+                'key' => 'hello_user',
+                'text' => [
+                    'vi' => 'Xin chào, :name!',
+                    'en' => 'Hello, :name!',
+                    'de' => 'Hallo, :name!',
+                    'kr' => '안녕하세요, :name님!',
+                ],
+            ],
+            [
+                'group' => 'welcome',
+                'key' => 'copyright',
+                'text' => [
+                    'vi' => '© 2024 Con Đường Hạnh Phúc. Tất cả quyền được bảo lưu.',
+                    'en' => '© 2024 Happiness Path. All rights reserved.',
+                    'de' => '© 2024 Glückspfad. Alle Rechte vorbehalten.',
+                    'kr' => '© 2024 행복 경로. 모든 권리 보유.',
+                ],
+            ],
         ];
 
         foreach ($rows as $row) {

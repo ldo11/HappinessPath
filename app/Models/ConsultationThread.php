@@ -38,4 +38,9 @@ class ConsultationThread extends Model
     {
         return $this->hasMany(ConsultationReply::class, 'thread_id');
     }
+
+    public function systemMessages(): HasMany
+    {
+        return $this->hasMany(ConsultationSystemMessage::class, 'thread_id');
+    }
 }

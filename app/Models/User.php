@@ -101,11 +101,6 @@ class User extends Authenticatable implements MustVerifyEmailContract
         return $this->belongsTo(User::class, 'buddy_id');
     }
 
-    public function userTree(): HasOne
-    {
-        return $this->hasOne(UserTree::class);
-    }
-
     public function userJourney(): HasOne
     {
         return $this->hasOne(UserJourney::class);

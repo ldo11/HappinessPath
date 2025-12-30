@@ -152,7 +152,7 @@
             <i class="fas fa-tree text-green-600 text-xl mr-3"></i>
             <div>
                 <p class="font-medium text-gray-900">My Giving Tree</p>
-                <p class="text-sm text-gray-600">Level {{ $stats['current_level'] }} • {{ $stats['fruits_given'] }} fruits given</p>
+                <p class="text-sm text-gray-600">Level 1 • 0 fruits given</p>
             </div>
         </a>
         

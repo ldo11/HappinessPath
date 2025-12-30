@@ -54,13 +54,8 @@
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                         <div class="bg-yellow-50 p-4 rounded-lg text-center">
                             <i class="fas fa-star text-yellow-600 text-2xl mb-2"></i>
-                            <p class="text-2xl font-bold text-gray-900">{{ Auth::user()->userTree?->exp ?? 0 }}</p>
+                            <p class="text-2xl font-bold text-gray-900">0</p>
                             <p class="text-sm text-gray-600">Total EXP</p>
-                        </div>
-                        <div class="bg-green-50 p-4 rounded-lg text-center">
-                            <i class="fas fa-tree text-green-600 text-2xl mb-2"></i>
-                            <p class="text-2xl font-bold text-gray-900">{{ Auth::user()->userTree?->season ?? 1 }}</p>
-                            <p class="text-sm text-gray-600">Tree Level</p>
                         </div>
                         <div class="bg-blue-50 p-4 rounded-lg text-center">
                             <i class="fas fa-check text-blue-600 text-2xl mb-2"></i>
@@ -71,7 +66,7 @@
                         </div>
                         <div class="bg-purple-50 p-4 rounded-lg text-center">
                             <i class="fas fa-heart text-purple-600 text-2xl mb-2"></i>
-                            <p class="text-2xl font-bold text-gray-900">{{ Auth::user()->userTree?->total_fruits_given ?? 0 }}</p>
+                            <p class="text-2xl font-bold text-gray-900">0</p>
                             <p class="text-sm text-gray-600">Fruits Given</p>
                         </div>
                     </div>

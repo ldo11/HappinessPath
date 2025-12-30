@@ -4,7 +4,6 @@ namespace App\Services;
 
 use App\Models\User;
 use App\Models\UserQuizResult;
-use App\Models\UserTree;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
@@ -45,13 +44,8 @@ class AdminService
 
             UserQuizResult::withTrashed()->where('user_id', $userId)->forceDelete();
 
-            $tree = UserTree::query()->firstOrNew(['user_id' => $userId]);
-            $tree->season = 'spring';
-            $tree->health = 0;
-            $tree->exp = 0;
-            $tree->fruits_balance = 0;
-            $tree->total_fruits_given = 0;
-            $tree->save();
+            // UserTree model has been removed - no tree reset needed
+            // The reset functionality now focuses only on quiz results and onboarding status
         });
     }
 }

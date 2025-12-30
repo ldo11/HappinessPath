@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
-use App\Models\UserTree;
 use App\Models\UserVideoLog;
 use App\Models\Video;
 use Illuminate\Http\Request;
@@ -75,6 +74,11 @@ class VideoController extends Controller
     {
         $video = Video::query()->findOrFail($videoId);
 
+        // Check if video is active
+        if (!$video->is_active) {
+            abort(404);
+        }
+
         $user = $request->user();
         $lang = (string) ($user?->language ?? app()->getLocale());
         if (!in_array($lang, ['vi', 'en', 'de', 'kr'], true)) {
@@ -141,39 +145,17 @@ class VideoController extends Controller
             );
 
             if ($log->claimed_at) {
-                $tree = UserTree::query()->firstOrCreate(
-                    ['user_id' => $user->id],
-                    [
-                        'season' => 'spring',
-                        'health' => 50,
-                        'exp' => 0,
-                        'fruits_balance' => 0,
-                        'total_fruits_given' => 0,
-                    ]
-                );
-
                 return [
                     'claimed' => false,
                     'xp_awarded' => (int) ($log->xp_awarded ?? 0),
-                    'new_exp' => (int) $tree->exp,
                 ];
             }
 
             $xp = (int) ($video->xp_reward ?? 50);
 
-            $tree = UserTree::query()->firstOrCreate(
-                ['user_id' => $user->id],
-                [
-                    'season' => 'spring',
-                    'health' => 50,
-                    'exp' => 0,
-                    'fruits_balance' => 0,
-                    'total_fruits_given' => 0,
-                ]
-            );
-
-            $tree->exp = (int) $tree->exp + $xp;
-            $tree->save();
+            // For now, we'll just store the XP in the log
+            // In the future, we might add a simple xp column to users table
+            // or implement a different progress tracking system
 
             $log->claimed_at = now();
             $log->xp_awarded = $xp;
@@ -182,7 +164,6 @@ class VideoController extends Controller
             return [
                 'claimed' => true,
                 'xp_awarded' => $xp,
-                'new_exp' => (int) $tree->exp,
             ];
         });
 

@@ -10,22 +10,55 @@ use App\Http\Controllers\Web\MeditationController;
 use App\Http\Controllers\Web\VideoController;
 use App\Http\Controllers\Web\ConsultationController;
 use App\Http\Controllers\Web\DailyMissionController;
+use App\Http\Controllers\Web\UserAssessmentController;
+use App\Http\Controllers\Web\TranslatorController;
+use App\Http\Controllers\Web\AdminAssessmentController as WebAdminAssessmentController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\VideoController as AdminVideoController;
 use App\Http\Controllers\Admin\LanguageController;
 use App\Http\Controllers\Admin\SolutionController;
 use App\Http\Controllers\Admin\AssessmentQuestionController as AdminAssessmentQuestionController;
+use App\Http\Controllers\Admin\AssessmentController as AdminAssessmentController;
 use App\Http\Controllers\Admin\PainPointController as AdminPainPointController;
 use App\Http\Controllers\Admin\DailyTaskController as AdminDailyTaskController;
 use App\Http\Controllers\Translator\DashboardController as TranslatorDashboardController;
 use App\Http\Controllers\Translator\LanguageLineController as TranslatorLanguageLineController;
+use App\Http\Controllers\Translator\AssessmentController as TranslatorAssessmentController;
 use App\Http\Controllers\Consultant\DashboardController as ConsultantDashboardController;
 use App\Http\Middleware\EnsureEmailVerified;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+
+// Language switcher route
+Route::get('/lang/{lang}', function ($lang) {
+    $supportedLocales = ['en', 'vi', 'de', 'kr'];
+    
+    if (!in_array($lang, $supportedLocales)) {
+        abort(404);
+    }
+    
+    // For guests, store in session
+    if (!Auth::check()) {
+        session(['locale' => $lang]);
+    } else {
+        // For authenticated users, update their language preference
+        $user = Auth::user();
+        if (isset($user->language)) {
+            $user->language = $lang;
+            $user->save();
+        } else {
+            session(['locale' => $lang]);
+        }
+    }
+    
+    app()->setLocale($lang);
+    
+    // Redirect back or to home
+    return redirect()->back();
+})->name('language.switch');
 
 Route::get('/', function () {
     $preferredLocale = session('locale')
@@ -68,83 +101,23 @@ Route::prefix('{locale}')
         })->middleware(['auth', 'throttle:6,1'])->name('verification.send');
 
         Route::middleware(['auth', EnsureEmailVerified::class])->group(function () {
-            // Assessment routes (user-only)
+            // Advanced Assessment routes (user-only)
             Route::middleware(['user'])->group(function () {
+                Route::get('/assessments', [UserAssessmentController::class, 'index'])->name('assessments.index');
+                Route::get('/assessments/{id}', [UserAssessmentController::class, 'show'])->name('assessments.show');
+                Route::get('/assessments/{assessment}/signed/{token}', [UserAssessmentController::class, 'showSigned'])->name('assessments.signed');
+                Route::post('/assessments/{assessmentId}', [UserAssessmentController::class, 'submit'])->name('assessments.submit');
+                Route::get('/assessments/result/{userAssessment}', [UserAssessmentController::class, 'result'])->name('assessments.result');
+                Route::post('/assessments/result/{userAssessment}/convert-to-consultation', [UserAssessmentController::class, 'convertToConsultation'])->name('assessments.result.convert-to-consultation');
+                
+                // Legacy assessment route (redirect to new system)
                 Route::get('/assessment', function () {
-                    return view('assessment');
+                    return redirect()->route('assessments.index');
                 })->name('assessment');
-
-                Route::post('/assessment/submit', function (Request $request) {
-                    $validated = $request->validate([
-                        'answers' => 'required|array',
-                        'answers.*' => 'required|integer|min:1|max:5',
-                    ]);
-
-                    $answers = $validated['answers'];
-
-                    $user = Auth::user();
-
-                    /** @var \App\Services\AssessmentService $service */
-                    $service = app(\App\Services\AssessmentService::class);
-                    $scoreResult = $service->calculateScoreAndSyncPainPoints($user, $answers);
-
-                    $heartScore = (int) ($scoreResult['heart_score'] ?? 0);
-                    $gritScore = (int) ($scoreResult['grit_score'] ?? 0);
-                    $wisdomScore = (int) ($scoreResult['wisdom_score'] ?? 0);
-                    $dominantIssue = (string) ($scoreResult['custom_focus'] ?? 'heart');
-
-                    // Upsert quiz result so retakes update the stored score
-                    \App\Models\UserQuizResult::updateOrCreate(
-                        ['user_id' => $user->id],
-                        [
-                            'heart_score' => $heartScore,
-                            'grit_score' => $gritScore,
-                            'wisdom_score' => $wisdomScore,
-                            'dominant_issue' => $dominantIssue,
-                        ]
-                    );
-
-                    // Mark assessment complete for onboarding redirect logic
-                    if ($user->onboarding_status !== 'test_completed') {
-                        $user->onboarding_status = 'test_completed';
-                        $user->save();
-                    }
-
-                    // Ensure user journey exists
-                    \App\Models\UserJourney::firstOrCreate(
-                        ['user_id' => $user->id],
-                        [
-                            'current_day' => 1,
-                            'last_activity_at' => now(),
-                        ]
-                    );
-
-                    // Ensure user tree exists and update health based on scores
-                    $userTree = $user->userTree;
-                    if (!$userTree) {
-                        $userTree = \App\Models\UserTree::firstOrCreate(
-                            ['user_id' => $user->id],
-                            [
-                                'season' => 'spring',
-                                'health' => 50,
-                                'exp' => 0,
-                                'fruits_balance' => 0,
-                                'total_fruits_given' => 0,
-                            ]
-                        );
-                    }
-
-                    $totalScore = $heartScore + $gritScore + $wisdomScore;
-                    $healthPercentage = ($totalScore / 150) * 100;
-                    $userTree->health = max(20, min(100, $healthPercentage));
-                    $userTree->save();
-
-                    return redirect()->route('dashboard')->with('success', 'Đánh giá hoàn thành! Chào mừng đến với hành trình chữa lành.');
-                })->name('assessment.submit');
-
-                Route::get('/pain-points', [PainPointController::class, 'index'])->name('pain-points.index');
-                Route::post('/pain-points', [PainPointController::class, 'store'])->name('pain-points.store');
             });
+
+            Route::get('/pain-points', [PainPointController::class, 'index'])->name('pain-points.index');
+            Route::post('/pain-points', [PainPointController::class, 'store'])->name('pain-points.store');
             
             Route::get('/settings/profile', [ProfileSettingsController::class, 'edit'])->name('profile.settings.edit');
             Route::post('/settings/profile', [ProfileSettingsController::class, 'update'])->name('profile.settings.update');
@@ -170,9 +143,6 @@ Route::prefix('{locale}')
         // User Frontend Routes
         Route::middleware(['auth'])->group(function () {
             Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-            Route::get('/my-tree', function () {
-                return redirect()->to(route('dashboard') . '#my-tree');
-            })->name('my-tree');
             Route::post('/dashboard/complete-task', [DashboardController::class, 'completeTask'])->name('dashboard.complete.task');
             Route::post('/dashboard/donate-fruit', [DashboardController::class, 'donateFruit'])->name('dashboard.donate.fruit');
 
@@ -254,13 +224,32 @@ Route::prefix('{locale}')
             Route::get('/daily-tasks/{dailyTask}/edit', [AdminDailyTaskController::class, 'edit'])->name('daily-tasks.edit');
             Route::put('/daily-tasks/{dailyTask}', [AdminDailyTaskController::class, 'update'])->name('daily-tasks.update');
             Route::delete('/daily-tasks/{dailyTask}', [AdminDailyTaskController::class, 'destroy'])->name('daily-tasks.destroy');
+
+            // Advanced Assessments Management
+            Route::prefix('assessments')->name('assessments.')->group(function () {
+                Route::get('/', [WebAdminAssessmentController::class, 'index'])->name('index');
+                Route::get('/create', [WebAdminAssessmentController::class, 'create'])->name('create');
+                Route::post('/', [WebAdminAssessmentController::class, 'store'])->name('store');
+                Route::get('/{assessment}/edit', [WebAdminAssessmentController::class, 'edit'])->name('edit');
+                Route::put('/{assessment}', [WebAdminAssessmentController::class, 'update'])->name('update');
+                Route::delete('/{assessment}', [WebAdminAssessmentController::class, 'destroy'])->name('destroy');
+                Route::get('/{assessment}', [WebAdminAssessmentController::class, 'show'])->name('show');
+                Route::post('/{assessment}/request-translation', [WebAdminAssessmentController::class, 'requestTranslation'])->name('request-translation');
+                Route::patch('/{id}/publish', [WebAdminAssessmentController::class, 'publish'])->name('publish');
+                Route::post('/{assessment}/mark-special', [WebAdminAssessmentController::class, 'markSpecial'])->name('mark-special');
+            });
         });
 
         // Translator Routes
         Route::middleware(['auth', 'role:translator'])->prefix('translator')->name('translator.')->group(function () {
-            Route::get('/dashboard', [TranslatorDashboardController::class, 'index'])->name('dashboard');
+            Route::get('/dashboard', [TranslatorController::class, 'index'])->name('dashboard');
             Route::get('/language-lines', [TranslatorLanguageLineController::class, 'index'])->name('language-lines.index');
             Route::post('/language-lines/{languageLine}', [TranslatorLanguageLineController::class, 'update'])->name('language-lines.update');
+            
+            // Advanced Assessments Translation
+            Route::get('/assessments', [TranslatorAssessmentController::class, 'index'])->name('assessments.index');
+            Route::get('/assessments/{assessment}/translate', [TranslatorAssessmentController::class, 'translate'])->name('assessments.translate');
+            Route::post('/assessments/{assessment}/submit-translation', [TranslatorAssessmentController::class, 'submitTranslation'])->name('assessments.submit-translation');
         });
 
         // Consultant Routes
@@ -268,6 +257,8 @@ Route::prefix('{locale}')
             Route::get('/dashboard', [ConsultantDashboardController::class, 'index'])->name('dashboard');
             Route::get('/threads/{thread}', [ConsultantDashboardController::class, 'show'])->name('threads.show');
             Route::post('/threads/{thread}/replies', [ConsultantDashboardController::class, 'reply'])->name('threads.reply');
+            Route::post('/threads/{thread}/assign-assessment', [ConsultantDashboardController::class, 'assignAssessment'])->name('threads.assign-assessment');
+            Route::get('/assessments/available', [ConsultantDashboardController::class, 'getAvailableAssessments'])->name('assessments.available');
         });
     });
 

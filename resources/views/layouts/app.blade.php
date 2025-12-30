@@ -129,7 +129,7 @@
                     <div class="flex items-center">
                         <div class="flex-shrink-0 flex items-center">
                             <div class="w-8 h-8 md:w-10 md:h-10 bg-emerald-600/20 backdrop-blur-sm rounded-full flex items-center justify-center mr-2 md:mr-3 border border-emerald-400/30">
-                                <i class="fas fa-tree text-emerald-400 text-sm md:text-lg"></i>
+                                <i class="fas fa-route text-emerald-400 text-sm md:text-lg"></i>
                             </div>
                             <span class="font-bold text-lg md:text-xl text-white spiritual-font hidden sm:block">Con Đường Hạnh Phúc</span>
                             <span class="font-bold text-lg md:text-xl text-white spiritual-font sm:hidden">Hạnh Phúc</span>

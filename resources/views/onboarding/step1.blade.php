@@ -8,7 +8,7 @@
         <!-- Logo and Title -->
         <div class="text-center mb-8">
             <div class="w-20 h-20 bg-primary-500 rounded-full flex items-center justify-center mx-auto mb-4 animate-float">
-                <i class="fas fa-tree text-white text-3xl"></i>
+                <i class="fas fa-route text-white text-3xl"></i>
             </div>
             <h1 class="text-3xl font-bold text-gray-900 mb-2">Welcome to Your Path</h1>
             <p class="text-gray-600">Begin your journey to mental wellness and inner peace</p>

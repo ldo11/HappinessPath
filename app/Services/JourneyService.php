@@ -92,35 +92,9 @@ class JourneyService
      */
     private function awardExperience(User $user, int $points)
     {
-        $userTree = $user->userTree;
-        
-        if (!$userTree) {
-            // Create tree if it doesn't exist
-            $userTree = \App\Models\UserTree::create([
-                'user_id' => $user->id,
-                'season' => 'spring',
-                'health' => 50,
-                'exp' => 0,
-                'fruits_balance' => 0,
-                'total_fruits_given' => 0,
-            ]);
-        }
-
-        $userTree->exp += $points;
-        
-        // Update health based on experience
-        $userTree->health = min(100, $userTree->health + 5);
-        
-        // Update season based on experience
-        if ($userTree->exp >= 1000) {
-            $userTree->season = 'winter';
-        } elseif ($userTree->exp >= 500) {
-            $userTree->season = 'autumn';
-        } elseif ($userTree->exp >= 200) {
-            $userTree->season = 'summer';
-        }
-        
-        $userTree->save();
+        // UserTree model has been removed - experience awarding is disabled
+        // This functionality could be replaced with a different progress tracking system
+        return;
     }
 
     /**
@@ -142,77 +116,13 @@ class JourneyService
      */
     public function getTreeStatus(User $user)
     {
-        $userTree = $user->userTree;
-        
-        if (!$userTree) {
-            return [
-                'health' => 50,
-                'season' => 'spring',
-                'exp' => 0,
-                'message' => 'Cây của bạn đang bắt đầu phát triển',
-                'icon' => 'fa-seedling',
-                'color' => 'text-green-500',
-                'level' => 'Mầm cây',
-                'next_level' => 10
-            ];
-        }
-
-        $health = $userTree->health;
-        $season = $userTree->season;
-        $exp = $userTree->exp;
-
-        // Determine tree status based on health
-        if ($health < 30) {
-            $status = [
-                'message' => 'Cây của bạn cần sự chăm sóc',
-                'icon' => 'fa-tree',
-                'color' => 'text-gray-500',
-                'level' => 'Cây khô',
-                'next_level' => 30
-            ];
-        } elseif ($health < 50) {
-            $status = [
-                'message' => 'Cây của bạn đang phát triển',
-                'icon' => 'fa-tree',
-                'color' => 'text-yellow-500',
-                'level' => 'Cây non',
-                'next_level' => 50
-            ];
-        } elseif ($health < 80) {
-            $status = [
-                'message' => 'Cây của bạn đang khỏe mạnh',
-                'icon' => 'fa-tree',
-                'color' => 'text-emerald-500',
-                'level' => 'Cây trưởng thành',
-                'next_level' => 80
-            ];
-        } else {
-            $status = [
-                'message' => 'Cây của bạn tràn đầy sức sống!',
-                'icon' => 'fa-tree',
-                'color' => 'text-green-600',
-                'level' => 'Cây cổ thụ',
-                'next_level' => 100
-            ];
-        }
-
-        $age = null;
-        if ($user->dob) {
-            try {
-                $age = $user->dob->age;
-            } catch (\Throwable $e) {
-                $age = null;
-            }
-        }
-
-        if ($age !== null && $age < 18) {
-            $status['icon'] = 'fa-seedling';
-        }
-
-        return array_merge([
-            'health' => $health,
-            'season' => $season,
-            'exp' => $exp
-        ], $status);
+        // UserTree model has been removed - return default tree status
+        return [
+            'health' => 50,
+            'season' => 'spring',
+            'level' => 'Cây non',
+            'message' => 'Hành trình của bạn vừa bắt đầu. Hãy kiên trì thực hành mỗi ngày.',
+            'icon' => 'fa-seedling'
+        ];
     }
 }

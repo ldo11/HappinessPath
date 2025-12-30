@@ -22,7 +22,7 @@ class AssessmentOption extends Model
 
     public function question(): BelongsTo
     {
-        return $this->belongsTo(AssessmentQuestion::class);
+        return $this->belongsTo(AssessmentQuestion::class, 'question_id');
     }
 
     public function getContentAttribute($value)

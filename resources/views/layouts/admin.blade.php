@@ -13,7 +13,7 @@
         <div class="w-64 bg-gray-900 text-white">
             <div class="p-4">
                 <h1 class="text-2xl font-bold text-green-400">
-                    <i class="fas fa-tree mr-2"></i>Admin Panel
+                    <i class="fas fa-cogs mr-2"></i>Admin Panel
                 </h1>
             </div>
             <nav class="mt-8">
@@ -55,14 +55,14 @@
                             </button>
                             <div id="languageDropdown" class="hidden absolute right-0 mt-2 w-52 bg-white rounded-lg shadow-lg z-50 border">
                                 <div class="py-1">
-                                    <a href="#" data-locale-switch="vi" class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                                    <a href="{{ route('language.switch', 'vi') }}" class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
                                         <span class="text-xl mr-3">🇻🇳</span>
                                         <div class="font-medium">Tiếng Việt</div>
                                         @if(app()->getLocale() === 'vi')
                                             <i class="fas fa-check text-green-600 ml-auto"></i>
                                         @endif
                                     </a>
-                                    <a href="#" data-locale-switch="en" class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                                    <a href="{{ route('language.switch', 'en') }}" class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
                                         <span class="text-xl mr-3">🇺🇸</span>
                                         <div class="font-medium">English</div>
                                         @if(app()->getLocale() === 'en')

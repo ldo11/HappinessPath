@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
 use App\Models\UserDailyTask;
-use App\Models\UserTree;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -34,22 +33,11 @@ class DailyMissionController extends Controller
             );
 
             if ($log->completed_at) {
-                $tree = UserTree::query()->firstOrCreate(
-                    ['user_id' => $user->id],
-                    [
-                        'season' => 'spring',
-                        'health' => 50,
-                        'exp' => 0,
-                        'fruits_balance' => 0,
-                        'total_fruits_given' => 0,
-                    ]
-                );
-
                 return [
                     'success' => true,
                     'already_completed' => true,
                     'xp_awarded' => (int) $log->xp_awarded,
-                    'new_exp' => (int) $tree->exp,
+                    'new_exp' => 0, // UserTree removed, return default value
                 ];
             }
 
@@ -58,25 +46,13 @@ class DailyMissionController extends Controller
             $log->xp_awarded = $xp;
             $log->save();
 
-            $tree = UserTree::query()->firstOrCreate(
-                ['user_id' => $user->id],
-                [
-                    'season' => 'spring',
-                    'health' => 50,
-                    'exp' => 0,
-                    'fruits_balance' => 0,
-                    'total_fruits_given' => 0,
-                ]
-            );
-
-            $tree->exp = (int) $tree->exp + $xp;
-            $tree->save();
-
+            // UserTree functionality has been removed
+            // XP is still awarded and stored in UserDailyTask but not tracked in UserTree
             return [
                 'success' => true,
                 'already_completed' => false,
                 'xp_awarded' => $xp,
-                'new_exp' => (int) $tree->exp,
+                'new_exp' => 0, // UserTree removed, return default value
             ];
         });
 

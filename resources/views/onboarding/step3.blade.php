@@ -18,31 +18,6 @@
 
         <!-- Results Card -->
         <div class="bg-white rounded-2xl shadow-xl p-8 text-center">
-            <!-- Tree Icon and Status -->
-            <div class="mb-8">
-                <div class="w-24 h-24 bg-gradient-to-br from-green-100 to-green-200 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse-slow">
-                    <i class="fas {{ $treeIcon }} {{ $treeColor }} text-4xl"></i>
-                </div>
-                <h1 class="text-3xl font-bold text-gray-900 mb-2">Your Tree is {{ ucfirst($treeStatus) }}!</h1>
-                <p class="text-gray-600 text-lg">{{ $treeMessage }}</p>
-            </div>
-
-            <!-- Tree Health Visualization -->
-            <div class="mb-8">
-                <div class="flex items-center justify-between mb-2">
-                    <span class="text-sm font-medium text-gray-700">Tree Health</span>
-                    <span class="text-sm font-bold {{ $userTree->health >= 80 ? 'text-green-600' : ($userTree->health >= 50 ? 'text-yellow-600' : 'text-orange-600') }}">
-                        {{ round($userTree->health) }}%
-                    </span>
-                </div>
-                <div class="w-full bg-gray-200 rounded-full h-4 overflow-hidden">
-                    <div class="health-bar h-full rounded-full transition-all duration-1000 ease-out
-                        {{ $userTree->health >= 80 ? 'bg-gradient-to-r from-green-400 to-green-600' : 
-                           ($userTree->health >= 50 ? 'bg-gradient-to-r from-yellow-400 to-yellow-600' : 'bg-gradient-to-r from-orange-400 to-orange-600') }}"
-                         style="width: {{ $userTree->health }}%"></div>
-                </div>
-            </div>
-
             <!-- Assessment Results -->
             @if($quizResult)
                 <div class="mb-8">
@@ -84,7 +59,7 @@
                             <i class="fas fa-sun text-yellow-500 mt-1 mr-3"></i>
                             <div>
                                 <p class="font-medium text-gray-900">Daily Tasks</p>
-                                <p class="text-sm text-gray-600">Receive personalized daily activities to nurture your tree</p>
+                                <p class="text-sm text-gray-600">Receive personalized daily activities for your personal growth</p>
                             </div>
                         </div>
                         <div class="flex items-start">
@@ -132,24 +107,6 @@
 
 @section('scripts')
 <script>
-// Animate the health bar on page load
-document.addEventListener('DOMContentLoaded', function() {
-    const healthBar = document.querySelector('.health-bar');
-    const targetWidth = '{{ $userTree->health }}%';
-    
-    // Start from 0 and animate to target
-    healthBar.style.width = '0%';
-    setTimeout(() => {
-        healthBar.style.width = targetWidth;
-    }, 500);
-    
-    // Add celebration effect if health is good
-    const health = {{ $userTree->health }};
-    if (health >= 80) {
-        confetti();
-    }
-});
-
 // Simple confetti effect for good results
 function confetti() {
     const colors = ['#22c55e', '#3b82f6', '#f59e0b', '#ef4444'];

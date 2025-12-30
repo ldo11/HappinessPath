@@ -22,12 +22,6 @@
                     <span>{{ __('menu.videos') }}</span>
                 </a>
 
-                <a href="{{ route('my-tree') }}"
-                   class="flex items-center gap-3 px-3 py-2 rounded-xl text-white/80 hover:bg-white/10 hover:text-white transition {{ request()->routeIs('my-tree') ? 'bg-white/10 text-white' : '' }}">
-                    <i class="fas fa-tree text-emerald-300"></i>
-                    <span>{{ __('menu.my_tree') }}</span>
-                </a>
-
                 <a href="{{ route('consultations.index') }}"
                    class="flex items-center gap-3 px-3 py-2 rounded-xl text-white/80 hover:bg-white/10 hover:text-white transition {{ request()->routeIs('consultations.*') ? 'bg-white/10 text-white' : '' }}">
                     <i class="fas fa-comments text-emerald-300"></i>
@@ -40,7 +34,7 @@
 
 <div class="lg:hidden fixed bottom-0 inset-x-0 z-20">
     <div class="glassmorphism border-t border-white/10">
-        <div class="grid grid-cols-5">
+        <div class="grid grid-cols-4">
             <a href="{{ route('dashboard') }}" class="py-3 text-center text-white/80 {{ request()->routeIs('dashboard') ? 'bg-white/10 text-white' : '' }}">
                 <i class="fas fa-chart-line"></i>
             </a>
@@ -49,9 +43,6 @@
             </a>
             <a href="{{ route('videos.index') }}" class="py-3 text-center text-white/80 {{ request()->routeIs('videos.*') ? 'bg-white/10 text-white' : '' }}">
                 <i class="fas fa-video"></i>
-            </a>
-            <a href="{{ route('my-tree') }}" class="py-3 text-center text-white/80 {{ request()->routeIs('my-tree') ? 'bg-white/10 text-white' : '' }}">
-                <i class="fas fa-tree"></i>
             </a>
             <a href="{{ route('consultations.index') }}" class="py-3 text-center text-white/80 {{ request()->routeIs('consultations.*') ? 'bg-white/10 text-white' : '' }}">
                 <i class="fas fa-comments"></i>
