@@ -132,50 +132,65 @@ class OnboardingController extends Controller
             $user = auth()->user();
             $answers = $validated['answers'];
 
-            // Calculate scores
-            $heartScore = 0;
-            $gritScore = 0;
-            $wisdomScore = 0;
-
+            $inputs = [];
             foreach ($answers as $answerId) {
-                $answer = \App\Models\AssessmentAnswer::with('question')->find($answerId);
-                if ($answer) {
-                    switch ($answer->question->pillar_group) {
-                        case 'heart':
-                            $heartScore += $answer->score;
-                            break;
-                        case 'grit':
-                            $gritScore += $answer->score;
-                            break;
-                        case 'wisdom':
-                            $wisdomScore += $answer->score;
-                            break;
-                    }
+                $answer = \App\Models\AssessmentAnswer::query()->select(['id', 'question_id', 'score'])->find($answerId);
+                if (!$answer) {
+                    continue;
                 }
+
+                $inputs[(string) $answer->question_id] = (int) $answer->score;
             }
 
-            // Determine dominant issue
-            $scores = [
-                'heart' => $heartScore,
-                'grit' => $gritScore,
-                'wisdom' => $wisdomScore,
-            ];
-            $dominantIssue = array_keys($scores, min($scores))[0];
+            /** @var \App\Services\AssessmentService $service */
+            $service = app(\App\Services\AssessmentService::class);
+            $scoreResult = $service->calculateScoreAndSyncPainPoints($user, $inputs);
+
+            $heartScore = (int) ($scoreResult['heart_score'] ?? 0);
+            $gritScore = (int) ($scoreResult['grit_score'] ?? 0);
+            $wisdomScore = (int) ($scoreResult['wisdom_score'] ?? 0);
+            $dominantIssue = (string) ($scoreResult['custom_focus'] ?? 'heart');
 
             // Save quiz results
-            UserQuizResult::create([
-                'user_id' => $user->id,
-                'heart_score' => $heartScore,
-                'grit_score' => $gritScore,
-                'wisdom_score' => $wisdomScore,
-                'dominant_issue' => $dominantIssue,
-            ]);
+            UserQuizResult::updateOrCreate(
+                ['user_id' => $user->id],
+                [
+                    'heart_score' => $heartScore,
+                    'grit_score' => $gritScore,
+                    'wisdom_score' => $wisdomScore,
+                    'dominant_issue' => $dominantIssue,
+                ]
+            );
 
             // Update user tree based on scores
             $totalScore = $heartScore + $gritScore + $wisdomScore;
             $healthPercentage = ($totalScore / 150) * 100; // Max possible score is 150 (50 per pillar)
             
+            $userJourney = $user->userJourney;
+            if (!$userJourney) {
+                $userJourney = \App\Models\UserJourney::firstOrCreate(
+                    ['user_id' => $user->id],
+                    [
+                        'current_day' => 1,
+                        'last_activity_at' => now(),
+                    ]
+                );
+            }
+
             $userTree = $user->userTree;
+            if (!$userTree) {
+                $userTree = \App\Models\UserTree::firstOrCreate(
+                    ['user_id' => $user->id],
+                    [
+                        'season' => 'spring',
+                        'health' => 50,
+                        'exp' => 0,
+                        'fruits_balance' => 0,
+                        'total_fruits_given' => 0,
+                    ]
+                );
+            }
+
             $userTree->health = max(20, min(100, $healthPercentage)); // Between 20-100
             $userTree->save();
 

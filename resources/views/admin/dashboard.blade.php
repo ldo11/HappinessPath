@@ -36,8 +36,8 @@
                 <i class="fas fa-video text-purple-600 text-xl"></i>
             </div>
             <div class="ml-4">
-                <p class="text-sm text-gray-600">Total Solutions</p>
-                <p class="text-2xl font-bold text-gray-800">{{ $stats['total_solutions'] }}</p>
+                <p class="text-sm text-gray-600">Total Videos</p>
+                <p class="text-2xl font-bold text-gray-800">{{ $stats['total_videos'] }}</p>
             </div>
         </div>
     </div>
@@ -83,26 +83,26 @@
         </div>
     </div>
 
-    <!-- Recent Solutions -->
+    <!-- Recent Videos -->
     <div class="bg-white rounded-lg shadow">
         <div class="px-6 py-4 border-b">
-            <h3 class="text-lg font-semibold text-gray-800">Recent Solutions</h3>
+            <h3 class="text-lg font-semibold text-gray-800">Recent Videos</h3>
         </div>
         <div class="p-6">
             <div class="space-y-4">
-                @foreach($recentSolutions as $solution)
+                @foreach($recentVideos as $video)
                 <div class="flex items-center justify-between">
                     <div class="flex items-center">
                         <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
                             <i class="fas fa-video text-purple-600"></i>
                         </div>
                         <div class="ml-3">
-                            <p class="text-sm font-medium text-gray-900">{{ $solution->type }}</p>
-                            <p class="text-xs text-gray-500">{{ $solution->translations->count() }} translations</p>
+                            <p class="text-sm font-medium text-gray-900">{{ $video->title }}</p>
+                            <p class="text-xs text-gray-500">{{ $video->language ?? 'vi' }}</p>
                         </div>
                     </div>
                     <span class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">
-                        {{ strtoupper($solution->locale) }}
+                        {{ $video->is_active ? 'ACTIVE' : 'INACTIVE' }}
                     </span>
                 </div>
                 @endforeach

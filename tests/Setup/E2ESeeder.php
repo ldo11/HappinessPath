@@ -3,9 +3,11 @@
 namespace Tests\Setup;
 
 use App\Models\Language;
+use App\Models\PainPoint;
 use App\Models\Solution;
 use App\Models\SolutionTranslation;
 use App\Models\User;
+use App\Models\UserQuizResult;
 use App\Models\UserTree;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
@@ -19,6 +21,7 @@ class E2ESeeder extends Seeder
         $this->seedUsers();
         $this->seedAssessmentQuestions();
         $this->seedTranslatorQueue();
+        $this->seedPainPoints();
     }
 
     private function seedLanguages(): void
@@ -37,11 +40,13 @@ class E2ESeeder extends Seeder
 
     private function seedUsers(): void
     {
+        $seedPassword = (string) (env('E2E_SEED_PASSWORD') ?: '123456');
+
         User::query()->updateOrCreate(
             ['email' => 'admin@test.com'],
             [
                 'name' => 'E2E Admin',
-                'password' => Hash::make('123456'),
+                'password' => Hash::make($seedPassword),
                 'role' => 'admin',
                 'email_verified_at' => now(),
                 'onboarding_status' => 'test_completed',
@@ -52,7 +57,7 @@ class E2ESeeder extends Seeder
             ['email' => 'volunteer@test.com'],
             [
                 'name' => 'E2E Volunteer',
-                'password' => Hash::make('123456'),
+                'password' => Hash::make($seedPassword),
                 'role' => 'translator',
                 'email_verified_at' => now(),
                 'onboarding_status' => 'test_completed',
@@ -74,12 +79,47 @@ class E2ESeeder extends Seeder
             ['email' => 'user@test.com'],
             [
                 'name' => 'E2E New User',
-                'password' => Hash::make('123456'),
+                'password' => Hash::make($seedPassword),
                 'role' => 'user',
                 'email_verified_at' => now(),
                 'onboarding_status' => 'new',
             ]
         );
+
+        User::query()->updateOrCreate(
+            ['email' => 'pain-e2e@test.com'],
+            [
+                'name' => 'E2E Pain User',
+                'password' => Hash::make($seedPassword),
+                'role' => 'user',
+                'email_verified_at' => now(),
+                'onboarding_status' => 'test_completed',
+            ]
+        );
+    }
+
+    private function seedPainPoints(): void
+    {
+        $user = User::query()->where('email', 'pain-e2e@test.com')->firstOrFail();
+
+        UserQuizResult::query()->updateOrCreate(
+            ['user_id' => $user->id],
+            [
+                'heart_score' => 1,
+                'grit_score' => 1,
+                'wisdom_score' => 1,
+                'dominant_issue' => 'heart',
+            ]
+        );
+
+        $insomnia = PainPoint::query()->updateOrCreate(
+            ['name' => 'Mất ngủ triền miên'],
+            ['icon_url' => null]
+        );
+
+        $user->painPoints()->sync([
+            $insomnia->id => ['severity' => 1],
+        ]);
     }
 
     private function seedAssessmentQuestions(): void

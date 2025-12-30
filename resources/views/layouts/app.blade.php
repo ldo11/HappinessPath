@@ -3,6 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Dashboard') - Con Đường Hạnh Phúc</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -121,9 +122,9 @@
         <div class="absolute inset-0 bg-slate-900/80"></div>
         
         <!-- Navigation -->
-        <nav class="relative z-20 glassmorphism border-b border-white/10">
+        <nav class="fixed top-0 inset-x-0 z-20 glassmorphism border-b border-white/10">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex justify-between h-16">
+                <div class="flex items-center justify-between h-16">
                     <!-- Logo -->
                     <div class="flex items-center">
                         <div class="flex-shrink-0 flex items-center">
@@ -136,46 +137,11 @@
                     </div>
                     
                     <!-- Right Side Navigation -->
-                    <div class="flex items-center space-x-2 md:space-x-6">
+                    <div class="flex items-center gap-2 md:gap-6 ml-auto">
                         <!-- Mobile Menu Toggle -->
                         <button onclick="toggleMobileMenu()" class="md:hidden text-white/80 hover:text-white p-2 rounded-lg hover:bg-white/10 transition-colors">
                             <i class="fas fa-bars text-lg"></i>
                         </button>
-                        
-                        <!-- Language Switcher - Desktop Only -->
-                        <div class="relative hidden md:block">
-                            <button onclick="toggleLanguageDropdown()" class="flex items-center text-white/80 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">
-                                <span class="text-lg mr-2">{{ app()->getLocale() === 'vi' ? '🇻🇳' : '🇺🇸' }}</span>
-                                <span class="hidden lg:block">{{ app()->getLocale() === 'vi' ? 'Tiếng Việt' : 'English' }}</span>
-                                <i class="fas fa-chevron-down ml-1 text-xs"></i>
-                            </button>
-                            
-                            <!-- Language Dropdown -->
-                            <div id="languageDropdown" class="hidden absolute right-0 mt-2 w-52 glassmorphism rounded-lg shadow-lg z-50">
-                                <div class="py-1">
-                                    <a href="{{ route('language.switch', 'vi') }}" class="flex items-center px-4 py-3 text-sm text-white hover:bg-white/10 transition-colors">
-                                        <span class="text-xl mr-3">🇻🇳</span>
-                                        <div>
-                                            <div class="font-medium">Tiếng Việt</div>
-                                            <div class="text-xs text-emerald-200">Vietnamese</div>
-                                        </div>
-                                        @if(app()->getLocale() === 'vi')
-                                            <i class="fas fa-check text-emerald-400 ml-auto"></i>
-                                        @endif
-                                    </a>
-                                    <a href="{{ route('language.switch', 'en') }}" class="flex items-center px-4 py-3 text-sm text-white hover:bg-white/10 transition-colors">
-                                        <span class="text-xl mr-3">🇺🇸</span>
-                                        <div>
-                                            <div class="font-medium">English</div>
-                                            <div class="text-xs text-emerald-200">United States</div>
-                                        </div>
-                                        @if(app()->getLocale() === 'en')
-                                            <i class="fas fa-check text-emerald-400 ml-auto"></i>
-                                        @endif
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
                         
                         <!-- Profile Dropdown -->
                         <div class="relative">
@@ -183,7 +149,7 @@
                                 <div class="w-8 h-8 bg-emerald-600/30 rounded-full flex items-center justify-center mr-2">
                                     <i class="fas fa-user text-emerald-300 text-sm"></i>
                                 </div>
-                                <span class="hidden md:block">{{ Auth::user()->name }}</span>
+                                <span class="hidden md:block">{{ __('ui.hi_name', ['name' => Auth::user()->name]) }}</span>
                                 <i class="fas fa-chevron-down ml-1 text-xs"></i>
                             </button>
                             
@@ -191,18 +157,18 @@
                             <div id="profileDropdown" class="hidden absolute right-0 mt-2 w-56 glassmorphism rounded-lg shadow-lg z-50">
                                 <div class="py-1">
                                     <a href="{{ route('profile.settings.edit') }}" class="block px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100">
-                                        <i class="fas fa-user mr-2"></i>Profile
+                                        <i class="fas fa-user mr-2"></i>{{ __('menu.profile') }}
                                     </a>
                                     @if(Auth::user()->role === 'admin' || Auth::user()->role === 'translator')
                                         <a href="{{ route(Auth::user()->role === 'admin' ? 'admin.dashboard' : 'translator.dashboard') }}" 
                                            class="block px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100">
-                                            <i class="fas fa-cog mr-2"></i>{{ ucfirst(Auth::user()->role) }} Panel
+                                            <i class="fas fa-cog mr-2"></i>{{ __('ui.role_panel', ['role' => ucfirst(Auth::user()->role)]) }}
                                         </a>
                                     @endif
                                     <form method="POST" action="{{ route('logout') }}" class="block">
                                         @csrf
                                         <button type="submit" class="w-full text-left px-3 py-2 rounded-lg text-red-600 hover:bg-red-50">
-                                            <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                                            <i class="fas fa-sign-out-alt mr-2"></i>{{ __('auth.logout') }}
                                         </button>
                                     </form>
                                 </div>
@@ -210,9 +176,16 @@
                         </div>
                     </div>
 
+                </div>
+            </div>
+        </nav>
+
         <!-- Main Content -->
-        <main class="relative z-10">
-            @yield('content')
+        <main class="relative z-10 pt-20">
+            <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:pl-72 pb-24 lg:pb-8">
+                @include('layouts.sidebar')
+                @yield('content')
+            </div>
         </main>
     </div>
 
@@ -249,7 +222,7 @@
             <div class="flex items-start">
                 <i class="fas fa-exclamation-circle text-red-400 mr-3 mt-1"></i>
                 <div>
-                    <p class="font-semibold mb-1">Vui lòng sửa các lỗi sau:</p>
+                    <p class="font-semibold mb-1">{{ __('validation.please_fix_errors') }}</p>
                     <ul class="text-sm space-y-1">
                         @foreach ($errors->all() as $error)
                             <li>• {{ $error }}</li>
@@ -262,40 +235,53 @@
 
     <!-- Scripts -->
     <script>
-        function toggleLanguageDropdown() {
-            const dropdown = document.getElementById('languageDropdown');
-            const profileDropdown = document.getElementById('profileDropdown');
-            
-            profileDropdown.classList.add('hidden');
-            dropdown.classList.toggle('hidden');
-        }
-        
+        (function () {
+            const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+            if (!token) {
+                return;
+            }
+
+            const originalFetch = window.fetch;
+            window.fetch = function (input, init) {
+                init = init || {};
+                const method = (init.method || 'GET').toUpperCase();
+                if (method !== 'GET' && method !== 'HEAD' && method !== 'OPTIONS') {
+                    init.headers = init.headers || {};
+                    if (init.headers instanceof Headers) {
+                        if (!init.headers.has('X-CSRF-TOKEN')) {
+                            init.headers.set('X-CSRF-TOKEN', token);
+                        }
+                    } else {
+                        if (!('X-CSRF-TOKEN' in init.headers)) {
+                            init.headers['X-CSRF-TOKEN'] = token;
+                        }
+                    }
+                }
+
+                return originalFetch(input, init);
+            };
+        })();
+
         function toggleProfileDropdown() {
             const dropdown = document.getElementById('profileDropdown');
-            const languageDropdown = document.getElementById('languageDropdown');
             
-            languageDropdown.classList.add('hidden');
             dropdown.classList.toggle('hidden');
         }
         
         function toggleMobileMenu() {
             const mobileMenu = document.getElementById('mobileMenu');
-            const languageDropdown = document.getElementById('languageDropdown');
             const profileDropdown = document.getElementById('profileDropdown');
             
-            languageDropdown.classList.add('hidden');
             profileDropdown.classList.add('hidden');
             mobileMenu.classList.toggle('hidden');
         }
         
         // Close dropdowns when clicking outside
         document.addEventListener('click', function(event) {
-            const languageDropdown = document.getElementById('languageDropdown');
             const profileDropdown = document.getElementById('profileDropdown');
             const mobileMenu = document.getElementById('mobileMenu');
             
             if (!event.target.closest('.relative') && !event.target.closest('button')) {
-                languageDropdown.classList.add('hidden');
                 profileDropdown.classList.add('hidden');
             }
             
@@ -304,6 +290,8 @@
                 mobileMenu.classList.add('hidden');
             }
         });
+
+        // Locale switching is handled via Profile Settings for authenticated users.
     </script>
     
     @yield('scripts')

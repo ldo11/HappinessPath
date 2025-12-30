@@ -10,11 +10,15 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
     )
+    ->withCommands()
     ->withMiddleware(function (Middleware $middleware) {
+        $middleware->web(append: [\App\Http\Middleware\SetLocaleFromUrl::class]);
         $middleware->alias([
             'admin' => \App\Http\Middleware\AdminMiddleware::class,
+            'role' => \App\Http\Middleware\CheckRole::class,
             'user' => \App\Http\Middleware\UserMiddleware::class,
             'translator' => \App\Http\Middleware\TranslatorMiddleware::class,
+            'setLocaleFromUrl' => \App\Http\Middleware\SetLocaleFromUrl::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

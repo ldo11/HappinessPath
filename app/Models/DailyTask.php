@@ -14,6 +14,7 @@ class DailyTask extends Model
         'day_number',
         'content',
         'pillar_tag',
+        'duration',
         'title',
         'description',
         'type',
@@ -29,6 +30,7 @@ class DailyTask extends Model
     protected $casts = [
         'content' => 'array',
         'instructions' => 'array',
+        'duration' => 'integer',
         'estimated_minutes' => 'integer',
         'completed_at' => 'datetime',
     ];

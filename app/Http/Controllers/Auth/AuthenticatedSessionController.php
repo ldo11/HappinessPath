@@ -48,15 +48,12 @@ class AuthenticatedSessionController extends Controller
         if ($effectiveRole === 'translator') {
             return redirect()->route('translator.dashboard');
         }
-        
-        // Redirect based on onboarding status
-        switch ($user->onboarding_status) {
-            case 'new':
-                return redirect()->route('assessment');
-            case 'test_completed':
-            default:
-                return redirect()->route('dashboard');
+
+        if ($effectiveRole === 'consultant') {
+            return redirect()->route('consultant.dashboard');
         }
+
+        return redirect()->route('dashboard');
     }
 
     public function destroy(Request $request)

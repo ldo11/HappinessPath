@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\UserQuizResult;
 use App\Services\AdminService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 
@@ -48,7 +49,7 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
-            'role' => ['required', Rule::in(['user', 'translator', 'admin'])],
+            'role' => ['required', Rule::in(['user', 'translator', 'consultant', 'admin'])],
             'city' => 'nullable|string|max:255',
             'spiritual_preference' => 'nullable|string|max:255',
             'geo_privacy' => 'boolean',
@@ -73,7 +74,7 @@ class UserController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
-            'role' => ['required', Rule::in(['user', 'translator', 'admin'])],
+            'role' => ['required', Rule::in(['user', 'translator', 'consultant', 'admin'])],
             'city' => 'nullable|string|max:255',
             'spiritual_preference' => 'nullable|string|max:255',
             'geo_privacy' => 'boolean',
@@ -107,15 +108,32 @@ class UserController extends Controller
 
     public function resetAssessment(User $user)
     {
-        $role = is_string($user->role) ? strtolower($user->role) : $user->role;
-        if (!in_array($role, ['user', 'member', null, ''], true)) {
-            return redirect()->route('admin.users.index')
-                ->with('error', 'Only users can have their assessment reset.');
+        if ($user->role !== 'user') {
+            return redirect()->back()->with('error', 'Only users can have their assessment reset.');
         }
+
+        DB::transaction(function () use ($user) {
+            DB::table('assessment_answers')->where('user_id', $user->id)->delete();
+            DB::table('user_pain_points')->where('user_id', $user->id)->delete();
+            UserQuizResult::withTrashed()->where('user_id', $user->id)->forceDelete();
+
+            $user->onboarding_status = 'new';
+            $user->save();
+        });
 
         app(AdminService::class)->resetAssessment($user->id);
 
-        return redirect()->route('admin.users.index')
-            ->with('success', 'Assessment reset. User will see the assessment again on next login.');
+        return redirect()->back()->with('success', 'Assessment reset successfully.');
+    }
+
+    public function verify(User $user)
+    {
+        if (!$user->email_verified_at) {
+            $user->email_verified_at = now();
+            $user->save();
+        }
+
+        return redirect()->route('admin.users.edit', $user)
+            ->with('success', 'User email verified successfully.');
     }
 }

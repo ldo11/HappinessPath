@@ -8,9 +8,13 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (Schema::hasTable('assessment_answers')) {
+            return;
+        }
+
         Schema::create('assessment_answers', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('question_id')->constrained()->onDelete('cascade');
+            $table->foreignId('question_id')->constrained('assessment_questions')->onDelete('cascade');
             $table->json('content');
             $table->integer('score'); // 1, 3, or 5 points
             $table->integer('order');

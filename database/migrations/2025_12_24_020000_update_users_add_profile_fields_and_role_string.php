@@ -15,11 +15,17 @@ return new class extends Migration
             // SQLite: rebuild the table to safely change role enum -> string and add new columns
             DB::statement('PRAGMA foreign_keys=OFF');
 
+            if (Schema::hasTable('users_old')) {
+                Schema::drop('users_old');
+            }
+            if (Schema::hasTable('users_new')) {
+                Schema::drop('users_new');
+            }
+
             $rows = DB::table('users')->get();
+            DB::statement('DROP INDEX IF EXISTS users_email_unique');
 
-            Schema::rename('users', 'users_old');
-
-            Schema::create('users', function (Blueprint $table) {
+            Schema::create('users_new', function (Blueprint $table) {
                 $table->id();
                 $table->string('name');
                 $table->string('email')->unique();
@@ -49,10 +55,6 @@ return new class extends Migration
                 $table->rememberToken();
                 $table->timestamps();
                 $table->softDeletes();
-
-                $table->index('role');
-                $table->index('spiritual_preference');
-                $table->index('onboarding_status');
             });
 
             foreach ($rows as $row) {
@@ -62,7 +64,7 @@ return new class extends Migration
                     default => $oldRole,
                 };
 
-                DB::table('users')->insert([
+                DB::table('users_new')->insert([
                     'id' => $row->id,
                     'name' => $row->name,
                     'email' => $row->email,
@@ -86,7 +88,12 @@ return new class extends Migration
                 ]);
             }
 
-            Schema::drop('users_old');
+            Schema::drop('users');
+            Schema::rename('users_new', 'users');
+
+            DB::statement('CREATE INDEX IF NOT EXISTS users_role_index ON users (role)');
+            DB::statement('CREATE INDEX IF NOT EXISTS users_spiritual_preference_index ON users (spiritual_preference)');
+            DB::statement('CREATE INDEX IF NOT EXISTS users_onboarding_status_index ON users (onboarding_status)');
 
             DB::statement('PRAGMA foreign_keys=ON');
         } else {

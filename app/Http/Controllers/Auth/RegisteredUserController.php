@@ -36,7 +36,6 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
-        // Redirect based on onboarding status
-        return redirect()->route('assessment');
+        return redirect()->route('dashboard');
     }
 }

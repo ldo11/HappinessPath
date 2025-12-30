@@ -1,6 +1,6 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page, type Dialog } from '@playwright/test';
 
-async function login(page, email: string, password: string) {
+async function login(page: Page, email: string, password: string) {
   await page.goto('/login');
   await page.locator('#email').fill(email);
   await page.locator('#password').fill(password);
@@ -8,7 +8,7 @@ async function login(page, email: string, password: string) {
 }
 
 test.describe('User flows', () => {
-  test('Scenario 1: Admin Management', async ({ page }) => {
+  test('Scenario 1: Admin Management', async ({ page }: { page: Page }) => {
     await login(page, 'admin@test.com', '123456');
 
     await page.goto('/admin/users');
@@ -27,7 +27,7 @@ test.describe('User flows', () => {
     await expect(page).toHaveURL(/\/admin\/users/);
     await expect(page.getByText(email)).toBeVisible();
 
-    page.once('dialog', async (dialog) => {
+    page.once('dialog', async (dialog: Dialog) => {
       await dialog.accept();
     });
 
@@ -38,7 +38,7 @@ test.describe('User flows', () => {
     await expect(page.getByText(/assessment reset/i)).toBeVisible();
   });
 
-  test('Scenario 2: User Onboarding & Assessment', async ({ page }) => {
+  test('Scenario 2: User Onboarding & Assessment', async ({ page }: { page: Page }) => {
     await login(page, 'user@test.com', '123456');
 
     await expect(page).toHaveURL(/\/assessment/);
@@ -62,7 +62,7 @@ test.describe('User flows', () => {
     await expect(page.getByRole('button', { name: /start practice/i })).toBeVisible();
   });
 
-  test('Scenario 3: Volunteer Translation Workflow', async ({ page }) => {
+  test('Scenario 3: Volunteer Translation Workflow', async ({ page }: { page: Page }) => {
     await login(page, 'volunteer@test.com', '123456');
 
     await page.goto('/translator/translations');
@@ -86,5 +86,25 @@ test.describe('User flows', () => {
 
     const remainingCount = await page.locator('tbody tr').count();
     await expect(remainingCount).toBeLessThan(initialCount);
+  });
+
+  test('Scenario 4: User manages Pain Points and sees Top 3 on Dashboard', async ({ page }: { page: Page }) => {
+    await login(page, 'pain-e2e@test.com', '123456');
+
+    await expect(page).toHaveURL(/\/dashboard/);
+
+    await page.getByRole('link', { name: 'Quản lý tất cả vấn đề' }).click();
+    await expect(page).toHaveURL(/\/pain-points/);
+
+    const painCard = page.locator('div', { hasText: 'Mất ngủ triền miên' }).first();
+    await expect(painCard).toBeVisible();
+
+    await painCard.locator('input[type="checkbox"]').check();
+    await painCard.locator('input[type="range"]').fill('10');
+
+    await page.getByRole('button', { name: /lưu/i }).click();
+
+    await expect(page).toHaveURL(/\/dashboard/);
+    await expect(page.getByText('Mất ngủ triền miên')).toBeVisible();
   });
 });

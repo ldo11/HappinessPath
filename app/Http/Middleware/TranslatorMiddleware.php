@@ -16,7 +16,7 @@ class TranslatorMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (Auth::check() && Auth::user()->role === 'translator') {
+        if (Auth::check() && in_array(Auth::user()->role, ['admin', 'translator'], true)) {
             return $next($request);
         }
 

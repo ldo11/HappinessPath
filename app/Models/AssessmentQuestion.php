@@ -5,14 +5,16 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class AssessmentQuestion extends Model
 {
     use HasFactory;
 
     protected $fillable = [
+        'assessment_id',
         'content',
-        'pillar_group',
+        'type',
         'order',
     ];
 
@@ -20,18 +22,21 @@ class AssessmentQuestion extends Model
         'content' => 'array',
     ];
 
-    public function answers(): HasMany
+    public function assessment(): BelongsTo
     {
-        return $this->hasMany(AssessmentAnswer::class)->orderBy('order');
+        return $this->belongsTo(Assessment::class);
     }
 
-    public function getContentAttribute($value): array
+    public function options(): HasMany
     {
-        return $value ?? [];
+        return $this->hasMany(AssessmentOption::class);
     }
 
-    public function getLocalizedContent(string $locale = 'vi'): string
+    public function getContentAttribute($value)
     {
-        return $this->content[$locale] ?? $this->content['vi'] ?? '';
+        $locale = app()->getLocale();
+        $content = json_decode($value, true);
+        
+        return $content[$locale] ?? $content['vi'] ?? $content['en'] ?? array_values($content)[0] ?? '';
     }
 }

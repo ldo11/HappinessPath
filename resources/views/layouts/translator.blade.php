@@ -44,8 +44,33 @@
                 <div class="px-6 py-4 flex justify-between items-center">
                     <h2 class="text-xl font-semibold text-gray-800">@yield('page-title', 'Dashboard')</h2>
                     <div class="flex items-center space-x-4">
+                        <div class="relative">
+                            <button onclick="toggleLanguageDropdown()" class="flex items-center text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                                <span class="text-lg mr-2">{{ app()->getLocale() === 'vi' ? '🇻🇳' : '🇺🇸' }}</span>
+                                <span>{{ app()->getLocale() === 'vi' ? 'Tiếng Việt' : 'English' }}</span>
+                                <i class="fas fa-chevron-down ml-2 text-xs"></i>
+                            </button>
+                            <div id="languageDropdown" class="hidden absolute right-0 mt-2 w-52 bg-white rounded-lg shadow-lg z-50 border">
+                                <div class="py-1">
+                                    <a href="#" data-locale-switch="vi" class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                                        <span class="text-xl mr-3">🇻🇳</span>
+                                        <div class="font-medium">Tiếng Việt</div>
+                                        @if(app()->getLocale() === 'vi')
+                                            <i class="fas fa-check text-indigo-600 ml-auto"></i>
+                                        @endif
+                                    </a>
+                                    <a href="#" data-locale-switch="en" class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                                        <span class="text-xl mr-3">🇺🇸</span>
+                                        <div class="font-medium">English</div>
+                                        @if(app()->getLocale() === 'en')
+                                            <i class="fas fa-check text-indigo-600 ml-auto"></i>
+                                        @endif
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
                         <span class="text-sm text-gray-600">
-                            <i class="fas fa-user mr-2"></i>{{ Auth::user()->name }}
+                            <i class="fas fa-user mr-2"></i>Hi {{ Auth::user()->name }}
                         </span>
                         <form action="{{ route('logout') }}" method="POST" class="inline">
                             @csrf
@@ -65,5 +90,47 @@
     </div>
 
     @yield('scripts')
+
+    <script>
+        function toggleLanguageDropdown() {
+            const dropdown = document.getElementById('languageDropdown');
+            dropdown.classList.toggle('hidden');
+        }
+
+        function switchLocale(locale) {
+            if (locale !== 'en' && locale !== 'vi') {
+                return;
+            }
+
+            const parts = window.location.pathname.split('/').filter(Boolean);
+            if (parts.length > 0 && (parts[0] === 'en' || parts[0] === 'vi')) {
+                parts[0] = locale;
+            } else {
+                parts.unshift(locale);
+            }
+
+            const newPath = '/' + parts.join('/');
+            window.location.assign(newPath + window.location.search + window.location.hash);
+        }
+
+        document.querySelectorAll('[data-locale-switch]').forEach(function (el) {
+            el.addEventListener('click', function (e) {
+                e.preventDefault();
+                const locale = el.getAttribute('data-locale-switch');
+                switchLocale(locale);
+            });
+        });
+
+        document.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('languageDropdown');
+            if (!dropdown) {
+                return;
+            }
+
+            if (!event.target.closest('#languageDropdown') && !event.target.closest('button[onclick="toggleLanguageDropdown()"]')) {
+                dropdown.classList.add('hidden');
+            }
+        });
+    </script>
 </body>
 </html>

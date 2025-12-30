@@ -4,90 +4,88 @@
 @section('auth-subtitle', __('assessment.subtitle'))
 
 @section('content')
-<div class="max-w-4xl mx-auto">
-    <!-- Assessment Header -->
-    <div class="text-center mb-8">
-        <div class="w-20 h-20 bg-emerald-600/20 backdrop-blur-sm rounded-full flex items-center justify-center mx-auto mb-4 animate-float border border-emerald-400/30">
-            <i class="fas fa-brain text-emerald-400 text-3xl"></i>
-        </div>
-        <h1 class="text-3xl font-bold text-white spiritual-font mb-2">
-            {{ __('assessment.title') }}
-        </h1>
-        <p class="text-emerald-200 text-sm">
-            {{ __('assessment.description') }}
-        </p>
-    </div>
+<div class="min-h-screen bg-cover bg-center bg-no-repeat" style="background-image: url('{{ asset('home-bg.jpg') }}');">
+    <div class="min-h-screen bg-gray-900/90">
+        <div class="w-full px-4 sm:px-6 lg:px-8 mt-4 sm:mt-20">
+            <div class="max-w-7xl mx-auto">
+                <div class="backdrop-blur-xl bg-white/10 border border-white/20 rounded-3xl shadow-2xl p-6 sm:p-10">
+                    <!-- Assessment Header -->
+                    <div class="text-center mb-6">
+                        <div class="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-white/20">
+                            <i class="fas fa-brain text-emerald-300 text-2xl"></i>
+                        </div>
+                        <h1 class="text-white font-bold spiritual-font text-2xl sm:text-3xl mb-2">
+                            {{ __('assessment.title') }}
+                        </h1>
+                        <p class="text-white/80 text-sm">
+                            {{ __('assessment.description') }}
+                        </p>
+                    </div>
 
-    <!-- Progress Bar -->
-    <div class="mb-8">
-        <div class="flex justify-between text-emerald-200 text-sm mb-2">
-            <span>{{ __('assessment.progress') }}</span>
-            <span id="progressText">{{ __('assessment.question') }} 1 {{ __('assessment.of') }} 30</span>
-        </div>
-        <div class="w-full bg-emerald-900/30 rounded-full h-3">
-            <div id="progressBar" class="bg-emerald-500 h-3 rounded-full transition-all duration-500" style="width: 3.33%"></div>
-        </div>
-    </div>
+                    <!-- Progress Bar -->
+                    <div class="mb-6">
+                        <div class="flex justify-between text-white/80 text-xs sm:text-sm mb-2">
+                            <span>{{ __('assessment.progress') }}</span>
+                            <span id="progressText">{{ __('assessment.question') }} 1 {{ __('assessment.of') }} 30</span>
+                        </div>
+                        <div class="w-full bg-white/10 rounded-full h-2.5 overflow-hidden">
+                            <div id="progressBar" class="bg-emerald-500 h-2.5 rounded-full transition-all duration-500" style="width: 3.33%"></div>
+                        </div>
+                    </div>
 
-    <!-- Assessment Form -->
-    <form id="assessmentForm" class="space-y-6" method="POST" action="{{ route('assessment.submit') }}">
-        @csrf
-        
-        <div id="questionContainer" class="glassmorphism rounded-2xl p-8">
-            <!-- Questions will be dynamically loaded here -->
-            <div class="text-center text-white">
-                <i class="fas fa-spinner fa-spin text-4xl mb-4"></i>
-                <p>{{ __('common.loading') }}...</p>
-            </div>
-        </div>
+                    <!-- Assessment Form -->
+                    <form id="assessmentForm" class="space-y-6" method="POST" action="{{ route('assessment.submit') }}">
+                        @csrf
 
-        <!-- Question Navigation -->
-        <div class="mt-6">
-            <div class="glassmorphism rounded-xl p-4">
-                <h3 class="text-emerald-200 text-sm font-medium mb-3 text-center">{{ __('assessment.progress') }}</h3>
-                <div class="grid grid-cols-6 sm:grid-cols-8 md:grid-cols-10 gap-2" id="questionNav">
-                    <!-- Question numbers will be dynamically added here -->
+                        <div id="questionContainer">
+                            <!-- Questions will be dynamically loaded here -->
+                            <div class="text-center text-white">
+                                <i class="fas fa-spinner fa-spin text-3xl mb-4"></i>
+                                <p class="text-white/80">{{ __('common.loading') }}...</p>
+                            </div>
+                        </div>
+
+                        <!-- Navigation -->
+                        <div class="flex items-center justify-between pt-2">
+                            <button type="button" 
+                                    id="prevBtn"
+                                    onclick="previousQuestion()"
+                                    class="bg-white/10 hover:bg-white/20 text-white px-5 py-3 rounded-xl transition-all duration-200 border border-white/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    disabled>
+                                <i class="fas fa-arrow-left mr-2"></i>
+                                {{ __('assessment.previous') }}
+                            </button>
+
+                            <div class="text-white/70 text-sm">
+                                <span id="questionIndicator">1 / 30</span>
+                            </div>
+
+                            <button type="button" 
+                                    id="nextBtn"
+                                    onclick="nextQuestion()"
+                                    class="bg-emerald-500/80 hover:bg-emerald-500 text-white px-5 py-3 rounded-xl transition-all duration-200 shadow-lg">
+                                {{ __('assessment.next') }}
+                                <i class="fas fa-arrow-right ml-2"></i>
+                            </button>
+                        </div>
+
+                        <!-- Submit Button (hidden until all answered) -->
+                        <div class="text-center hidden" id="submitSection">
+                            <p class="text-white/80 mb-4 text-center">
+                                <i class="fas fa-check-circle mr-2"></i>
+                                {{ __('assessment.completed') }}
+                            </p>
+                            <button type="submit" 
+                                    class="bg-emerald-500/80 hover:bg-emerald-500 text-white font-semibold py-4 px-8 rounded-xl text-lg transition-all duration-200 shadow-xl">
+                                <i class="fas fa-chart-line mr-2"></i>
+                                {{ __('assessment.submit') }}
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
-
-        <!-- Navigation -->
-        <div class="flex items-center justify-between mt-8">
-            <button type="button" 
-                    id="prevBtn"
-                    onclick="previousQuestion()"
-                    class="bg-emerald-600/20 text-emerald-300 px-6 py-3 rounded-lg transition-all duration-200 border border-emerald-400/30 hover:bg-emerald-600/30 disabled:opacity-50 disabled:cursor-not-allowed"
-                    disabled>
-                <i class="fas fa-arrow-left mr-2"></i>
-                {{ __('assessment.previous') }}
-            </button>
-
-            <div class="text-emerald-200 text-sm">
-                <span id="questionIndicator">1 / 30</span>
-            </div>
-
-            <button type="button" 
-                    id="nextBtn"
-                    onclick="nextQuestion()"
-                    class="emerald-gradient text-white px-6 py-3 rounded-lg transition-all duration-200 shadow-lg">
-                {{ __('assessment.next') }}
-                <i class="fas fa-arrow-right ml-2"></i>
-            </button>
-        </div>
-
-        <!-- Submit Button (hidden until last question) -->
-        <div class="text-center hidden" id="submitSection">
-            <p class="text-emerald-200 mb-4 text-center">
-                <i class="fas fa-check-circle mr-2"></i>
-                {{ __('assessment.completed') }}
-            </p>
-            <button type="submit" 
-                    class="emerald-gradient text-white font-semibold py-4 px-8 rounded-lg text-lg transition-all duration-200 transform hover:scale-[1.02] shadow-xl">
-                <i class="fas fa-chart-line mr-2"></i>
-                {{ __('assessment.submit') }}
-            </button>
-        </div>
-    </form>
+    </div>
 </div>
 
 @section('scripts')
@@ -194,29 +192,34 @@ function showQuestion(index) {
     
     let html = `
         <div class="space-y-6">
-            <div class="flex items-start space-x-4">
-                <div class="w-12 h-12 bg-emerald-500 rounded-full flex items-center justify-center flex-shrink-0">
-                    <span class="text-white font-bold">${question.id}</span>
+            <div class="flex items-start gap-4">
+                <div class="w-11 h-11 bg-white/10 rounded-2xl flex items-center justify-center flex-shrink-0 border border-white/20">
+                    <span class="text-white font-semibold">${question.id}</span>
                 </div>
                 <div class="flex-1">
-                    <h3 class="text-xl font-semibold text-white mb-6 leading-relaxed">
+                    <h3 class="text-white font-semibold leading-relaxed text-xl sm:text-3xl mb-6">
                         ${question.question}
                     </h3>
-                    
-                    <div class="space-y-3">
+
+                    <div class="space-y-3 max-w-lg mx-auto">
     `;
     
     question.options.forEach(option => {
-        const isChecked = answers[question.id] === option.value ? 'checked' : '';
+        const isSelected = answers[question.id] === option.value;
+        const selectedClass = isSelected ? 'bg-emerald-500/80 ring-2 ring-emerald-300 border-emerald-300/40' : 'bg-white/10 hover:bg-white/20 border-white/20';
+        const isChecked = isSelected ? 'checked' : '';
         html += `
-            <label class="flex items-center p-4 rounded-lg glassmorphism border border-emerald-400/30 hover:bg-white/10 transition-all duration-200 cursor-pointer">
-                <input type="radio" 
-                       name="question_${question.id}" 
-                       value="${option.value}" 
+            <label class="block w-full p-4 sm:p-5 rounded-2xl transition-all duration-200 cursor-pointer border ${selectedClass}">
+                <input type="radio"
+                       name="question_${question.id}"
+                       value="${option.value}"
                        ${isChecked}
                        onchange="selectAnswer(${question.id}, ${option.value})"
-                       class="w-4 h-4 text-emerald-500 bg-emerald-600/20 border-emerald-400 focus:ring-emerald-500">
-                <span class="ml-3 text-emerald-100">${option.text}</span>
+                       class="sr-only">
+                <div class="flex items-center justify-between">
+                    <span class="text-white font-medium">${option.text}</span>
+                    <span class="text-white/70 text-sm">${option.value}</span>
+                </div>
             </label>
         `;
     });

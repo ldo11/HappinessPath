@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class AssessmentSeeder extends Seeder
 {
@@ -12,6 +13,32 @@ class AssessmentSeeder extends Seeder
         // Clear existing data
         DB::table('assessment_answers')->delete();
         DB::table('assessment_questions')->delete();
+
+        $frequencyAnswers = [
+            [
+                'content' => ['vi' => 'Không bao giờ', 'en' => 'Never'],
+                'score' => 1,
+            ],
+            [
+                'content' => ['vi' => 'Hiếm khi', 'en' => 'Rarely'],
+                'score' => 2,
+            ],
+            [
+                'content' => ['vi' => 'Thỉnh thoảng', 'en' => 'Sometimes'],
+                'score' => 3,
+            ],
+            [
+                'content' => ['vi' => 'Thường xuyên', 'en' => 'Often'],
+                'score' => 4,
+            ],
+            [
+                'content' => ['vi' => 'Luôn luôn', 'en' => 'Always'],
+                'score' => 5,
+            ],
+        ];
+
+        $supportsIsNegative = Schema::hasColumn('assessment_questions', 'is_negative');
+        $supportsRelatedPainId = Schema::hasColumn('assessment_questions', 'related_pain_id');
 
         // Assessment questions data
         $questions = [
@@ -23,20 +50,6 @@ class AssessmentSeeder extends Seeder
                 ],
                 'pillar_group' => 'heart',
                 'order' => 1,
-                'answers' => [
-                    ['content' => [
-                        'vi' => 'Chửi thề, bực bội muốn đuổi theo hoặc bấm còi inh ỏi.',
-                        'en' => 'Swear, feel angry and want to chase them or honk loudly.'
-                    ], 'score' => 1],
-                    ['content' => [
-                        'vi' => 'Hơi giật mình và khó chịu, nhưng rồi bỏ qua.',
-                        'en' => 'Startled and uncomfortable, but then let it go.'
-                    ], 'score' => 3],
-                    ['content' => [
-                        'vi' => 'Thở phào vì mình không sao, cầu mong họ đi cẩn thận hơn.',
-                        'en' => 'Relieved that I\'m okay, hope they drive more carefully.'
-                    ], 'score' => 5],
-                ]
             ],
             [
                 'content' => [
@@ -45,20 +58,6 @@ class AssessmentSeeder extends Seeder
                 ],
                 'pillar_group' => 'heart',
                 'order' => 2,
-                'answers' => [
-                    ['content' => [
-                        'vi' => 'Thường xuyên, đó là cách khôn ngoan để sống.',
-                        'en' => 'Often, that\'s the smart way to live.'
-                    ], 'score' => 1],
-                    ['content' => [
-                        'vi' => 'Thỉnh thoảng, khi tình thế bắt buộc.',
-                        'en' => 'Sometimes, when circumstances force it.'
-                    ], 'score' => 3],
-                    ['content' => [
-                        'vi' => 'Hiếm khi, tôi coi trọng sự trung thực dù sự thật mất lòng.',
-                        'en' => 'Rarely, I value honesty even if the truth hurts.'
-                    ], 'score' => 5],
-                ]
             ],
             [
                 'content' => [
@@ -682,19 +681,62 @@ class AssessmentSeeder extends Seeder
             ],
         ];
 
+        $questions = array_map(function (array $questionData) use ($supportsIsNegative, $supportsRelatedPainId) {
+            $viContent = is_array($questionData['content'] ?? null) ? ($questionData['content']['vi'] ?? '') : '';
+
+            if (!isset($questionData['pillar']) && isset($questionData['pillar_group'])) {
+                $questionData['pillar'] = $questionData['pillar_group'];
+            }
+
+            if (!isset($questionData['is_negative'])) {
+                $questionData['is_negative'] = $this->inferIsNegative($viContent);
+            }
+
+            if (!isset($questionData['related_pain_id'])) {
+                $questionData['related_pain_id'] = $this->inferRelatedPainIds($viContent);
+            }
+
+            if (!$supportsIsNegative) {
+                unset($questionData['is_negative']);
+            }
+
+            if (!$supportsRelatedPainId) {
+                unset($questionData['related_pain_id']);
+            }
+
+            return $questionData;
+        }, $questions);
+
         // Insert questions and their answers
         foreach ($questions as $questionData) {
+            $pillar = $questionData['pillar'] ?? $questionData['pillar_group'] ?? null;
+
             // Insert question
-            $questionId = DB::table('assessment_questions')->insertGetId([
+            $questionInsert = [
                 'content' => json_encode($questionData['content']),
-                'pillar_group' => $questionData['pillar_group'],
+                'pillar_group' => $pillar,
                 'order' => $questionData['order'],
                 'created_at' => now(),
                 'updated_at' => now(),
-            ]);
+            ];
 
-            // Insert answers for this question
-            foreach ($questionData['answers'] as $index => $answerData) {
+            $viContent = is_array($questionData['content'] ?? null) ? ($questionData['content']['vi'] ?? '') : '';
+            if ($supportsIsNegative) {
+                $questionInsert['is_negative'] = (bool) ($questionData['is_negative'] ?? $this->inferIsNegative($viContent));
+            }
+            if ($supportsRelatedPainId) {
+                $explicitPainIds = $questionData['related_pain_id'] ?? null;
+                if (is_array($explicitPainIds)) {
+                    $questionInsert['related_pain_id'] = json_encode(array_values($explicitPainIds));
+                } else {
+                    $questionInsert['related_pain_id'] = json_encode($this->inferRelatedPainIds($viContent));
+                }
+            }
+
+            $questionId = DB::table('assessment_questions')->insertGetId($questionInsert);
+
+            // Insert standardized 5-point frequency answers for this question
+            foreach ($frequencyAnswers as $index => $answerData) {
                 DB::table('assessment_answers')->insert([
                     'question_id' => $questionId,
                     'content' => json_encode($answerData['content']),
@@ -707,5 +749,105 @@ class AssessmentSeeder extends Seeder
         }
 
         $this->command->info('Assessment questions and answers seeded successfully!');
+    }
+
+    private function inferIsNegative(string $viContent): bool
+    {
+        $negativeKeywords = [
+            'nóng giận',
+            'giận',
+            'cãi',
+            'nói dối',
+            'phán xét',
+            'buôn chuyện',
+            'ghen',
+            'đố kỵ',
+            'cô đơn',
+            'trống rỗng',
+            'sát sinh',
+            'nghiện',
+            'trì hoãn',
+            'lười',
+            'mất ngủ',
+            'stress',
+            'căng thẳng',
+            'sợ',
+            'áp lực',
+            'chán',
+            'nợ',
+            'suy kiệt',
+            'thiếu tự tin',
+            'mất định hướng',
+        ];
+
+        $haystack = mb_strtolower($viContent);
+        foreach ($negativeKeywords as $kw) {
+            if ($kw !== '' && str_contains($haystack, mb_strtolower($kw))) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function inferRelatedPainIds(string $viContent): array
+    {
+        if (!Schema::hasTable('pain_points')) {
+            return [];
+        }
+
+        $names = [];
+        $haystack = mb_strtolower($viContent);
+
+        $rules = [
+            'nóng giận' => ['Nóng giận mất kiểm soát'],
+            'giận' => ['Nóng giận mất kiểm soát'],
+            'con cái' => ['Mất kết nối với con cái'],
+            'hôn nhân' => ['Hôn nhân rạn nứt'],
+            'vợ chồng' => ['Hôn nhân rạn nứt'],
+            'cô đơn' => ['Cô đơn, Trống rỗng'],
+            'trống rỗng' => ['Cô đơn, Trống rỗng'],
+            'ghen' => ['Ghen tuông, Đố kỵ'],
+            'đố kỵ' => ['Ghen tuông, Đố kỵ'],
+            'tổn thương' => ['Tổn thương quá khứ'],
+            'mất định hướng' => ['Mất định hướng cuộc đời'],
+            'định hướng' => ['Mất định hướng cuộc đời'],
+            'công việc' => ['Chán nản công việc'],
+            'nợ' => ['Áp lực Nợ nần/Tài chính', 'Stress, Căng thẳng tột độ'],
+            'tài chính' => ['Áp lực Nợ nần/Tài chính', 'Stress, Căng thẳng tột độ'],
+            'stress' => ['Stress, Căng thẳng tột độ'],
+            'căng thẳng' => ['Stress, Căng thẳng tột độ'],
+            'mất ngủ' => ['Mất ngủ triền miên', 'Stress, Căng thẳng tột độ'],
+            'nghiện' => ['Nghiện Mạng xã hội/Game'],
+            'mạng xã hội' => ['Nghiện Mạng xã hội/Game'],
+            'game' => ['Nghiện Mạng xã hội/Game'],
+            'trì hoãn' => ['Trì hoãn, Lười biếng'],
+            'lười' => ['Trì hoãn, Lười biếng'],
+            'thiếu tự tin' => ['Sợ thất bại, Thiếu tự tin'],
+            'sợ thất bại' => ['Sợ thất bại, Thiếu tự tin'],
+            'mê tín' => ['Nghiện mê tín dị đoan'],
+            'suy kiệt' => ['Sức khỏe suy kiệt'],
+            'uể oải' => ['Sức khỏe suy kiệt'],
+        ];
+
+        foreach ($rules as $keyword => $painNames) {
+            if (str_contains($haystack, $keyword)) {
+                foreach ($painNames as $n) {
+                    $names[$n] = true;
+                }
+            }
+        }
+
+        if (empty($names)) {
+            return [];
+        }
+
+        $ids = DB::table('pain_points')
+            ->whereIn('name', array_keys($names))
+            ->pluck('id')
+            ->map(fn ($id) => (int) $id)
+            ->all();
+
+        return array_values(array_unique($ids));
     }
 }

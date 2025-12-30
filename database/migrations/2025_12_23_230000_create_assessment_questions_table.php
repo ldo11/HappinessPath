@@ -9,6 +9,12 @@ return new class extends Migration
     public function up(): void
     {
         if (Schema::hasTable('assessment_questions')) {
+            if (!Schema::hasColumn('assessment_questions', 'order')) {
+                Schema::table('assessment_questions', function (Blueprint $table) {
+                    $table->integer('order')->nullable();
+                });
+            }
+
             return;
         }
 

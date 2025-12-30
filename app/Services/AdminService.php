@@ -43,7 +43,7 @@ class AdminService
             $user->onboarding_status = 'new';
             $user->save();
 
-            UserQuizResult::query()->where('user_id', $userId)->delete();
+            UserQuizResult::withTrashed()->where('user_id', $userId)->forceDelete();
 
             $tree = UserTree::query()->firstOrNew(['user_id' => $userId]);
             $tree->season = 'spring';

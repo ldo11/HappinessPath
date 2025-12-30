@@ -3,23 +3,21 @@
 namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
+use App\Models\PainPoint;
 use App\Models\User;
 use App\Models\UserTree;
 use App\Models\UserJourney;
 use App\Models\Donation;
+use App\Models\UserDailyTask;
 use App\Services\JourneyService;
 use App\Services\CommunityService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Schema;
 
 class DashboardController extends Controller
 {
     protected $journeyService;
-
-    protected $middleware = [
-        'auth',
-        'verified'
-    ];
 
     public function __construct(JourneyService $journeyService)
     {
@@ -29,11 +27,6 @@ class DashboardController extends Controller
     public function index()
     {
         $user = Auth::user();
-        
-        // Redirect based on onboarding status
-        if ($user->onboarding_status === 'new') {
-            return redirect()->route('assessment');
-        }
 
         // Get user data
         $userTree = $user->userTree ?? $this->createDefaultTree($user);
@@ -42,37 +35,75 @@ class DashboardController extends Controller
         // Get today's task using JourneyService
         $todayTask = $this->journeyService->getTodayTask($user);
 
+        $dailyMissionCompleted = false;
+        if (isset($todayTask->id) && $todayTask->id) {
+            $dailyMissionCompleted = UserDailyTask::query()
+                ->where('user_id', $user->id)
+                ->where('daily_task_id', (int) $todayTask->id)
+                ->whereNotNull('completed_at')
+                ->exists();
+        }
+
         // Get tree status using JourneyService
         $treeStatus = $this->journeyService->getTreeStatus($user);
+
+        $painPoints = collect();
+        $userPainPoints = [];
+        $topPainPoints = collect();
+        if (Schema::hasTable('pain_points') && Schema::hasTable('user_pain_points')) {
+            $painPoints = PainPoint::query()->orderBy('name')->get();
+            $userPainPoints = $user->painPoints()->get()->keyBy('id')->map(function ($painPoint) {
+                return (int) $painPoint->pivot->severity;
+            })->all();
+
+            $topPainPoints = $painPoints
+                ->filter(function ($painPoint) use ($userPainPoints) {
+                    return array_key_exists($painPoint->id, $userPainPoints) && ((int) $userPainPoints[$painPoint->id]) > 0;
+                })
+                ->sortByDesc(function ($painPoint) use ($userPainPoints) {
+                    return (int) ($userPainPoints[$painPoint->id] ?? 0);
+                })
+                ->take(3);
+        }
+        $hasQuizResult = (bool) $user->quizResult;
 
         return view('dashboard', compact(
             'user',
             'userTree', 
             'userJourney',
             'todayTask',
-            'treeStatus'
+            'dailyMissionCompleted',
+            'treeStatus',
+            'painPoints',
+            'userPainPoints',
+            'topPainPoints',
+            'hasQuizResult'
         ));
     }
 
     private function createDefaultTree(User $user)
     {
-        return UserTree::create([
-            'user_id' => $user->id,
-            'season' => 'spring',
-            'health' => 50,
-            'exp' => 0,
-            'fruits_balance' => 0,
-            'total_fruits_given' => 0,
-        ]);
+        return UserTree::firstOrCreate(
+            ['user_id' => $user->id],
+            [
+                'season' => 'spring',
+                'health' => 50,
+                'exp' => 0,
+                'fruits_balance' => 0,
+                'total_fruits_given' => 0,
+            ]
+        );
     }
 
     private function createDefaultJourney(User $user)
     {
-        return UserJourney::create([
-            'user_id' => $user->id,
-            'current_day' => 1,
-            'last_activity_at' => now(),
-        ]);
+        return UserJourney::firstOrCreate(
+            ['user_id' => $user->id],
+            [
+                'current_day' => 1,
+                'last_activity_at' => now(),
+            ]
+        );
     }
 
     public function completeTask(Request $request)

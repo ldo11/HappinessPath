@@ -12,6 +12,6 @@ class DashboardController extends Controller
 
     public function index()
     {
-        return view('translator.dashboard');
+        return redirect()->route('translator.language-lines.index');
     }
 }

@@ -11,6 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (Schema::hasTable('daily_tasks')) {
+            return;
+        }
+
         Schema::create('daily_tasks', function (Blueprint $table) {
             $table->id();
             $table->integer('day');

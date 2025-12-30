@@ -51,6 +51,7 @@ class JourneyService
             'difficulty' => 'easy',
             'estimated_minutes' => 10,
             'solution_id' => null,
+            'completed_at' => null,
             'instructions' => [
                 'Tìm một không gian yên tĩnh',
                 'Ngồi xuống với tư thế thoải mái',
@@ -193,6 +194,19 @@ class JourneyService
                 'level' => 'Cây cổ thụ',
                 'next_level' => 100
             ];
+        }
+
+        $age = null;
+        if ($user->dob) {
+            try {
+                $age = $user->dob->age;
+            } catch (\Throwable $e) {
+                $age = null;
+            }
+        }
+
+        if ($age !== null && $age < 18) {
+            $status['icon'] = 'fa-seedling';
         }
 
         return array_merge([

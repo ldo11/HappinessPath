@@ -11,6 +11,8 @@ class ProfileSettingsService
         $user->fill([
             'geo_privacy' => $data['geo_privacy'],
             'spiritual_preference' => $data['spiritual_preference'],
+            'language' => $data['language'] ?? ($user->language ?? 'vi'),
+            'religion' => $data['religion'] ?? null,
         ]);
 
         $user->save();
