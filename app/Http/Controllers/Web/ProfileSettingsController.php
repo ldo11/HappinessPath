@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
+use App\Models\PainPoint;
 use App\Services\ProfileSettingsService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\URL;
@@ -11,8 +12,20 @@ class ProfileSettingsController extends Controller
 {
     public function edit(Request $request)
     {
+        $user = $request->user();
+
+        $painPoints = collect();
+        $selectedConsultantPainPointIds = [];
+
+        if ($user->hasRole('consultant')) {
+            $painPoints = PainPoint::query()->orderBy('name')->get();
+            $selectedConsultantPainPointIds = $user->consultantPainPoints()->pluck('pain_points.id')->all();
+        }
+
         return view('profile.settings', [
-            'user' => $request->user(),
+            'user' => $user,
+            'painPoints' => $painPoints,
+            'selectedConsultantPainPointIds' => $selectedConsultantPainPointIds,
         ]);
     }
 
@@ -23,6 +36,9 @@ class ProfileSettingsController extends Controller
             'spiritual_preference' => ['required', 'in:buddhism,christianity,secular'],
             'language' => ['required', 'in:vi,en,de,kr'],
             'religion' => ['nullable', 'in:buddhism,christianity,science,none'],
+            'is_available' => ['nullable', 'boolean'],
+            'consultant_pain_points' => ['nullable', 'array'],
+            'consultant_pain_points.*' => ['integer', 'exists:pain_points,id'],
         ]);
 
         $service->update($request->user(), $data);

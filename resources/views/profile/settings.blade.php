@@ -77,6 +77,41 @@
             </div>
         </div>
 
+        @if($user->hasRole('consultant'))
+            <div class="bg-white/10 backdrop-blur-md border border-white/20 p-6 rounded-lg">
+                <h2 class="text-lg font-semibold text-white mb-4">Consultant Settings</h2>
+
+                <div>
+                    <input type="hidden" name="is_available" value="0">
+                    <label class="inline-flex items-center gap-3">
+                        <input type="checkbox" name="is_available" value="1" class="rounded bg-transparent border-gray-500 text-emerald-500 focus:ring-emerald-400" @checked((bool) old('is_available', $user->is_available))>
+                        <span class="text-sm text-gray-200">Accepting new consultations</span>
+                    </label>
+                    @error('is_available')
+                        <p class="mt-2 text-sm text-red-200">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div class="mt-6">
+                    <label class="block text-sm font-medium text-gray-200" for="consultant_pain_points">My Skills</label>
+                    <select id="consultant_pain_points" name="consultant_pain_points[]" multiple
+                            class="mt-2 block w-full rounded-lg bg-transparent text-white border border-gray-500 focus:border-emerald-400 focus:ring-0">
+                        @foreach($painPoints as $pp)
+                            <option class="text-gray-900" value="{{ $pp->id }}" @selected(in_array($pp->id, old('consultant_pain_points', $selectedConsultantPainPointIds ?? []), true))>
+                                {{ $pp->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                    @error('consultant_pain_points')
+                        <p class="mt-2 text-sm text-red-200">{{ $message }}</p>
+                    @enderror
+                    @error('consultant_pain_points.*')
+                        <p class="mt-2 text-sm text-red-200">{{ $message }}</p>
+                    @enderror
+                </div>
+            </div>
+        @endif
+
         <div class="bg-white/10 backdrop-blur-md border border-white/20 p-6 rounded-lg">
             <div class="flex items-center justify-end">
                 <button type="submit" class="emerald-gradient text-white px-6 py-3 rounded-lg hover:shadow-lg transition-all duration-200">

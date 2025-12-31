@@ -21,17 +21,33 @@
             </div>
 
             <div>
-                <label class="block text-white/80 text-sm mb-2" for="related_pain_point_id">Pain point (tùy chọn)</label>
-                <select id="related_pain_point_id" name="related_pain_point_id"
+                <label class="block text-white/80 text-sm mb-2" for="pain_point_id">Pain point</label>
+                <select id="pain_point_id" name="pain_point_id" required
                         class="w-full rounded-xl bg-white/10 border border-white/15 text-white px-4 py-3 focus:outline-none focus:ring-2 focus:ring-white/30">
-                    <option value="" class="text-gray-900">-- Không chọn --</option>
+                    <option value="" class="text-gray-900">-- Chọn pain point --</option>
                     @foreach($painPoints as $pp)
-                        <option value="{{ $pp->id }}" class="text-gray-900" @selected((string) old('related_pain_point_id') === (string) $pp->id)>
+                        <option value="{{ $pp->id }}" class="text-gray-900" @selected((string) old('pain_point_id') === (string) $pp->id)>
                             {{ $pp->name }}
                         </option>
                     @endforeach
                 </select>
-                @error('related_pain_point_id')
+                @error('pain_point_id')
+                    <div class="text-red-300 text-sm mt-1">{{ $message }}</div>
+                @enderror
+            </div>
+
+            <div>
+                <label class="block text-white/80 text-sm mb-2" for="assigned_consultant_id">Available consultants (tùy chọn)</label>
+                <select id="assigned_consultant_id" name="assigned_consultant_id"
+                        class="w-full rounded-xl bg-white/10 border border-white/15 text-white px-4 py-3 focus:outline-none focus:ring-2 focus:ring-white/30">
+                    <option value="" class="text-gray-900">-- Không chọn --</option>
+                    @foreach($availableConsultants as $consultant)
+                        <option value="{{ $consultant->id }}" class="text-gray-900" @selected((string) old('assigned_consultant_id') === (string) $consultant->id)>
+                            {{ $consultant->name }}
+                        </option>
+                    @endforeach
+                </select>
+                @error('assigned_consultant_id')
                     <div class="text-red-300 text-sm mt-1">{{ $message }}</div>
                 @enderror
             </div>

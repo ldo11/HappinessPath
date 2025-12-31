@@ -106,6 +106,24 @@ class PainPointSeeder extends Seeder
                 'icon' => 'battery-quarter',
                 'description' => 'Thường xuyên ốm vặt, uể oải, thiếu năng lượng sống.',
             ],
+            [
+                'name' => 'Career',
+                'category' => 'wisdom',
+                'icon' => null,
+                'description' => 'Career and work-related challenges.',
+            ],
+            [
+                'name' => 'Love',
+                'category' => 'mind',
+                'icon' => null,
+                'description' => 'Relationship and love-related challenges.',
+            ],
+            [
+                'name' => 'Family',
+                'category' => 'mind',
+                'icon' => null,
+                'description' => 'Family and parenting-related challenges.',
+            ],
         ];
 
         foreach ($painPoints as $painPoint) {

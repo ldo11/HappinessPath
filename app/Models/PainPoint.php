@@ -24,4 +24,10 @@ class PainPoint extends Model
             ->withPivot(['severity'])
             ->withTimestamps();
     }
+
+    public function consultants(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'consultant_pain_point')
+            ->withTimestamps();
+    }
 }

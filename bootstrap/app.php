@@ -12,6 +12,13 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withCommands()
     ->withMiddleware(function (Middleware $middleware) {
+        if (env('APP_ENV') === 'testing') {
+            $middleware->validateCsrfTokens(except: ['*']);
+        } else {
+            $middleware->validateCsrfTokens(except: [
+                '*/videos/*/claim',
+            ]);
+        }
         $middleware->web(append: [\App\Http\Middleware\SetLocaleFromUrl::class]);
         
         // Use custom Authenticate middleware that handles locale redirects

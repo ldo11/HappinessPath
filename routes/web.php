@@ -169,6 +169,7 @@ Route::prefix('{locale}')
             Route::post('/consultations', [ConsultationController::class, 'store'])->name('consultations.store');
             Route::get('/consultations/{consultation_id}', [ConsultationController::class, 'show'])->name('consultations.show');
             Route::post('/consultations/{consultation_id}/replies', [ConsultationController::class, 'reply'])->name('consultations.reply');
+            Route::post('/consultations/{consultation_id}/close', [ConsultationController::class, 'close'])->name('consultations.close');
             
             // Meditation PWA
             Route::get('/meditate', [MeditationController::class, 'index'])->name('meditate');

@@ -30,6 +30,7 @@ class User extends Authenticatable implements MustVerifyEmailContract
         'disc_type',
         'role',
         'role_v2',
+        'is_available',
         'spiritual_preference',
         'onboarding_status',
         'start_pain_level',
@@ -53,6 +54,7 @@ class User extends Authenticatable implements MustVerifyEmailContract
             'email_verified_at' => 'datetime',
             'dob' => 'date',
             'geo_privacy' => 'boolean',
+            'is_available' => 'boolean',
             'password' => 'hashed',
         ];
     }
@@ -120,6 +122,12 @@ class User extends Authenticatable implements MustVerifyEmailContract
     {
         return $this->belongsToMany(PainPoint::class, 'user_pain_points')
             ->withPivot(['severity'])
+            ->withTimestamps();
+    }
+
+    public function consultantPainPoints(): BelongsToMany
+    {
+        return $this->belongsToMany(PainPoint::class, 'consultant_pain_point')
             ->withTimestamps();
     }
 

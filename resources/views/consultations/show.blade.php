@@ -12,7 +12,23 @@
                 @endif
             </div>
         </div>
-        <a href="{{ route('consultations.index') }}" class="px-4 py-2 rounded-xl bg-white/10 border border-white/15 text-white hover:bg-white/15">Quay lại</a>
+        <div class="flex items-center gap-2">
+            @php
+                $canClose = auth()->check() && (
+                    auth()->user()->hasRole('admin')
+                    || auth()->id() === $threadModel->user_id
+                    || (optional($threadModel)->assigned_consultant_id && auth()->id() === (int) $threadModel->assigned_consultant_id)
+                );
+            @endphp
+
+            @if($canClose && $threadModel->status !== 'closed')
+                <form method="POST" action="{{ route('consultations.close', ['locale' => app()->getLocale(), 'consultation_id' => $threadModel->id]) }}">
+                    @csrf
+                    <button type="submit" class="px-4 py-2 rounded-xl bg-red-500/20 border border-red-500/30 text-red-100 hover:bg-red-500/30">Close Thread</button>
+                </form>
+            @endif
+            <a href="{{ route('consultations.index') }}" class="px-4 py-2 rounded-xl bg-white/10 border border-white/15 text-white hover:bg-white/15">Quay lại</a>
+        </div>
     </div>
 
     <div class="rounded-2xl bg-white/10 border border-white/15 backdrop-blur-xl p-6 mb-6">

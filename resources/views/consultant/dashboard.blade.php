@@ -4,7 +4,18 @@
 <div class="max-w-6xl mx-auto">
     <div class="mb-6">
         <h1 class="text-2xl font-bold text-white">Consultant Dashboard</h1>
-        <p class="text-white/70 text-sm">Open consultation threads from users.</p>
+        <p class="text-white/70 text-sm">Consultation threads from users.</p>
+    </div>
+
+    <div class="flex items-center gap-2 mb-4">
+        <a href="{{ route('consultant.dashboard', ['locale' => app()->getLocale(), 'tab' => 'open']) }}"
+           class="px-4 py-2 rounded-xl border border-white/15 text-sm {{ ($tab ?? 'open') === 'open' ? 'bg-white text-gray-900' : 'bg-white/10 text-white hover:bg-white/15' }}">
+            Open
+        </a>
+        <a href="{{ route('consultant.dashboard', ['locale' => app()->getLocale(), 'tab' => 'closed']) }}"
+           class="px-4 py-2 rounded-xl border border-white/15 text-sm {{ ($tab ?? 'open') === 'closed' ? 'bg-white text-gray-900' : 'bg-white/10 text-white hover:bg-white/15' }}">
+            Closed
+        </a>
     </div>
 
     <div class="space-y-4">
@@ -25,7 +36,11 @@
             </a>
         @empty
             <div class="rounded-2xl bg-white/10 border border-white/15 backdrop-blur-xl p-6 text-white/80">
-                No open threads.
+                @if(($tab ?? 'open') === 'closed')
+                    No closed threads.
+                @else
+                    No open threads.
+                @endif
             </div>
         @endforelse
 

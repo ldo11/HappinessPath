@@ -14,7 +14,7 @@ class AuthDashboardLoginTest extends TestCase
 
     private function getSeedPassword(): string
     {
-        return (string) (env('TEST_USER_PASSWORD') ?: '123456');
+        return (string) (env('TEST_USER_PASSWORD') ?: '15987536245');
     }
 
     private function assertPageHasGreetingAndOk(string $path, string $expectedName): void
