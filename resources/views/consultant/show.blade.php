@@ -9,11 +9,11 @@
                 Status: <span class="text-white/80">{{ strtoupper($thread->status) }}</span>
                 <span class="ml-2">| User: {{ $thread->user->name ?? ('#'.$thread->user_id) }}</span>
                 @if($thread->relatedPainPoint)
-                    <span class="ml-2">| Pain point: {{ $thread->relatedPainPoint->title }}</span>
+                    <span class="ml-2">| Pain point: {{ $thread->relatedPainPoint->name }}</span>
                 @endif
             </div>
         </div>
-        <a href="{{ route('consultant.dashboard') }}" class="px-4 py-2 rounded-xl bg-white/10 border border-white/15 text-white hover:bg-white/15">Back</a>
+        <a href="{{ route('consultant.dashboard', ['locale' => app()->getLocale()]) }}" class="px-4 py-2 rounded-xl bg-white/10 border border-white/15 text-white hover:bg-white/15">Back</a>
     </div>
 
     <div class="rounded-2xl bg-white/10 border border-white/15 backdrop-blur-xl p-6 mb-6">
@@ -70,7 +70,7 @@
             </div>
             
             <div id="assessmentAssignmentForm" class="hidden space-y-3">
-                <form method="POST" action="{{ route('consultant.threads.assign-assessment', $thread) }}" class="space-y-3">
+                <form method="POST" action="{{ route('consultant.threads.assign-assessment', ['locale' => app()->getLocale(), 'thread' => $thread->id]) }}" class="space-y-3">
                     @csrf
                     <div>
                         <label class="block text-emerald-200 text-sm mb-1">Select Assessment:</label>
@@ -88,7 +88,7 @@
         </div>
 
         <!-- Reply Form -->
-        <form method="POST" action="{{ route('consultant.threads.reply', $thread) }}" class="space-y-4">
+        <form method="POST" action="{{ route('consultant.threads.reply', ['locale' => app()->getLocale(), 'thread' => $thread->id]) }}" class="space-y-4">
             @csrf
             <label class="block text-white/80 text-sm" for="content">Reply (Advice)</label>
             <textarea id="content" name="content" rows="5" required
@@ -131,7 +131,7 @@ async function loadAssessments() {
     const select = document.getElementById('assessmentSelect');
     
     try {
-        const response = await fetch('{{ route("consultant.assessments.available") }}');
+        const response = await fetch('{{ route("consultant.assessments.available", ["locale" => app()->getLocale()]) }}');
         const assessments = await response.json();
         
         // Clear loading option

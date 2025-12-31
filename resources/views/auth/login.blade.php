@@ -82,21 +82,28 @@
         
         <div class="space-y-2">
             <button type="button" 
-                    onclick="fillTestCredentials('admin@happiness.test', '123456')"
+                    onclick="fillTestCredentials('admin@happiness.test', '15987536245')"
                     class="w-full glassmorphism text-white py-2 px-4 rounded-lg text-sm hover:bg-white/20 transition-all duration-200 border border-emerald-400/30">
                 <i class="fas fa-crown mr-2 text-yellow-400"></i>
                 {{ __('auth.login_admin') }}
             </button>
+
+            <button type="button" 
+                    onclick="fillTestCredentials('consultant@example.com', '15987536245')"
+                    class="w-full glassmorphism text-white py-2 px-4 rounded-lg text-sm hover:bg-white/20 transition-all duration-200 border border-emerald-400/30">
+                <i class="fas fa-user-md mr-2 text-emerald-300"></i>
+                Consultant
+            </button>
             
             <button type="button" 
-                    onclick="fillTestCredentials('user@happiness.test', '123456')"
+                    onclick="fillTestCredentials('user@happiness.test', '15987536245')"
                     class="w-full glassmorphism text-white py-2 px-4 rounded-lg text-sm hover:bg-white/20 transition-all duration-200 border border-emerald-400/30">
                 <i class="fas fa-user mr-2 text-blue-400"></i>
                 {{ __('auth.login_user') }}
             </button>
 
             <button type="button" 
-                    onclick="fillTestCredentials('translator@happiness.test', '123456')"
+                    onclick="fillTestCredentials('translator@happiness.test', '15987536245')"
                     class="w-full glassmorphism text-white py-2 px-4 rounded-lg text-sm hover:bg-white/20 transition-all duration-200 border border-emerald-400/30">
                 <i class="fas fa-language mr-2 text-indigo-300"></i>
                 Translator

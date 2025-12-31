@@ -84,6 +84,13 @@ Route::prefix('{locale}')
         Route::get('/register', [RegisteredUserController::class, 'create'])->name('register');
         Route::post('/register', [RegisteredUserController::class, 'store']);
 
+        // Standalone assessment routes (accessible without auth)
+        Route::get('/assessment-form', function () {
+            return view('assessment');
+        })->name('assessment.form');
+        
+        Route::post('/assessment-form', [UserAssessmentController::class, 'submitStandalone'])->name('assessment.submit');
+
         Route::get('/email/verify', function () {
             return view('auth.verify-email');
         })->middleware('auth')->name('verification.notice');
@@ -160,8 +167,8 @@ Route::prefix('{locale}')
             Route::get('/consultations', [ConsultationController::class, 'index'])->name('consultations.index');
             Route::get('/consultations/create', [ConsultationController::class, 'create'])->name('consultations.create');
             Route::post('/consultations', [ConsultationController::class, 'store'])->name('consultations.store');
-            Route::get('/consultations/{thread}', [ConsultationController::class, 'show'])->name('consultations.show');
-            Route::post('/consultations/{thread}/replies', [ConsultationController::class, 'reply'])->name('consultations.reply');
+            Route::get('/consultations/{consultation_id}', [ConsultationController::class, 'show'])->name('consultations.show');
+            Route::post('/consultations/{consultation_id}/replies', [ConsultationController::class, 'reply'])->name('consultations.reply');
             
             // Meditation PWA
             Route::get('/meditate', [MeditationController::class, 'index'])->name('meditate');

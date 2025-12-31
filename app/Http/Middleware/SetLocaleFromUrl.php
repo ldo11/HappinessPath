@@ -26,6 +26,27 @@ class SetLocaleFromUrl
 
         $preferredLocale = in_array($preferredLocale, $supportedLocales, true) ? $preferredLocale : 'en';
 
+        // Check for multiple locale prefixes (e.g., /en/en/something)
+        $path = $request->path();
+        $segments = array_values(array_filter(explode('/', $path)));
+        
+        // If we detect multiple locale prefixes, redirect to clean URL
+        $localePrefixCount = 0;
+        foreach ($segments as $segment) {
+            if (in_array($segment, $supportedLocales, true)) {
+                $localePrefixCount++;
+            } else {
+                break;
+            }
+        }
+        
+        if ($localePrefixCount > 1) {
+            // Remove all locale prefixes and redirect with single preferred locale
+            $cleanPath = implode('/', array_slice($segments, $localePrefixCount));
+            $cleanPath = $cleanPath === '' ? '' : '/' . $cleanPath;
+            return redirect('/' . $preferredLocale . $cleanPath);
+        }
+
         if (! $routeLocale) {
             if (in_array($segmentLocale, $supportedLocales, true)) {
                 session(['locale' => $segmentLocale]);
@@ -46,15 +67,32 @@ class SetLocaleFromUrl
         }
 
         // If user is authenticated, their profile language is authoritative.
+        // However, allow manual locale selection via URL for better UX
         if (Auth::check() && is_string($preferredLocale) && $preferredLocale !== $routeLocale) {
+            // Check if user is manually accessing a different locale via URL
+            // If so, respect their manual choice and don't redirect
             $path = $request->path();
             $segments = array_values(array_filter(explode('/', $path)));
-            if (count($segments) > 0 && in_array($segments[0], $supportedLocales, true)) {
-                $segments[0] = $preferredLocale;
-                session(['locale' => $preferredLocale]);
-                app()->setLocale($preferredLocale);
-                URL::defaults(['locale' => $preferredLocale]);
-                return redirect('/' . implode('/', $segments));
+            
+            // If the first segment is a valid locale and matches the route locale,
+            // it means user manually typed this URL, so respect their choice
+            if (count($segments) > 0 && in_array($segments[0], $supportedLocales, true) && $segments[0] === $routeLocale) {
+                // User manually selected this locale, update their session to match
+                session(['locale' => $routeLocale]);
+                app()->setLocale($routeLocale);
+                URL::defaults(['locale' => $routeLocale]);
+                // Don't redirect - let them use their manually chosen locale
+            } else {
+                // Otherwise, redirect to their preferred locale
+                if (count($segments) > 0 && in_array($segments[0], $supportedLocales, true)) {
+                    if ($segments[0] !== $preferredLocale) {
+                        $segments[0] = $preferredLocale;
+                        session(['locale' => $preferredLocale]);
+                        app()->setLocale($preferredLocale);
+                        URL::defaults(['locale' => $preferredLocale]);
+                        return redirect('/' . implode('/', $segments));
+                    }
+                }
             }
         }
 

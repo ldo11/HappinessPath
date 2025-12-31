@@ -83,7 +83,7 @@ class CriticalFlowWorkingTest extends TestCase
         $controller = new \App\Http\Controllers\Web\ConsultationController();
         
         // Test show method
-        $response = $controller->show(\Illuminate\Http\Request::create('/consultations/1', 'GET'), $thread->id);
+        $response = $controller->show(\Illuminate\Http\Request::create('/consultations/1', 'GET'), 'en', $thread);
         $this->assertEquals('consultations.show', $response->getName());
         
         // Test reply method - create request with authenticated user
@@ -96,7 +96,7 @@ class CriticalFlowWorkingTest extends TestCase
         
         // Just test that the method doesn't throw an exception and creates the reply
         try {
-            $response = $controller->reply($request, $thread->id);
+            $response = $controller->reply($request, 'en', $thread);
             // Assert reply was created
             $this->assertDatabaseHas('consultation_replies', [
                 'content' => 'New reply message',

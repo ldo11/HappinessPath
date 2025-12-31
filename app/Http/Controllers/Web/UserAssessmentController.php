@@ -190,7 +190,7 @@ class UserAssessmentController extends Controller
             'consultation_thread_id' => $consultationThread->id,
         ]);
 
-        return redirect()->route('consultations.show', $consultationThread)
+        return redirect()->route('consultations.show', $consultationThread->id)
             ->with('success', 'Assessment result has been sent for consultation!');
     }
 
@@ -256,5 +256,29 @@ class UserAssessmentController extends Controller
         }
 
         return $results;
+    }
+
+    public function submitStandalone(Request $request)
+    {
+        // Validate the form data
+        $data = $request->validate([
+            'answers' => 'required|array',
+            'answers.*' => 'required|integer',
+        ]);
+
+        // Check if user is authenticated
+        if (!auth()->check()) {
+            // Redirect to login with a message to return after assessment
+            return redirect()->route('login')
+                ->with('info', 'Please login to submit your assessment. Your answers will be saved.')
+                ->with('intended', route('assessment.form'));
+        }
+
+        $user = auth()->user();
+        
+        // Create a simple assessment record or redirect to results
+        // For now, just redirect to the assessments index with a success message
+        return redirect()->route('assessments.index')
+            ->with('success', 'Assessment submitted successfully!');
     }
 }

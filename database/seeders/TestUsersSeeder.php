@@ -10,7 +10,7 @@ class TestUsersSeeder extends Seeder
 {
     public function run(): void
     {
-        $defaultPassword = (string) (env('TEST_USER_PASSWORD') ?: '123456');
+        $defaultPassword = (string) (env('TEST_USER_PASSWORD') ?: '15987536245');
 
         // Create admin user
         User::firstOrCreate(['email' => 'admin@happiness.test'], [
@@ -61,7 +61,7 @@ class TestUsersSeeder extends Seeder
         User::updateOrCreate(['email' => 'consultant@example.com'], [
             'name' => 'Consultant',
             'email' => 'consultant@example.com',
-            'password' => Hash::make((string) (env('CONSULTANT_SEED_PASSWORD') ?: 'password')),
+            'password' => Hash::make((string) (env('CONSULTANT_SEED_PASSWORD') ?: $defaultPassword)),
             'role' => 'consultant',
             'city' => 'Remote',
             'spiritual_preference' => 'secular',
@@ -77,7 +77,7 @@ class TestUsersSeeder extends Seeder
             $this->command->info('Admin: admin@happiness.test / ' . $defaultPassword);
             $this->command->info('User: user@happiness.test / ' . $defaultPassword);
             $this->command->info('Translator: translator@happiness.test / ' . $defaultPassword);
-            $this->command->info('Consultant: consultant@example.com / ' . ((string) (env('CONSULTANT_SEED_PASSWORD') ?: 'password')));
+            $this->command->info('Consultant: consultant@example.com / ' . ((string) (env('CONSULTANT_SEED_PASSWORD') ?: $defaultPassword)));
         }
     }
 }

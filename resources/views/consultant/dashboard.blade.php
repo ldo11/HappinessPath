@@ -9,7 +9,7 @@
 
     <div class="space-y-4">
         @forelse($threads as $thread)
-            <a href="{{ route('consultant.threads.show', $thread) }}" class="block rounded-2xl bg-white/10 border border-white/15 backdrop-blur-xl p-5 hover:bg-white/15 transition">
+            <a href="{{ route('consultant.threads.show', ['locale' => app()->getLocale(), 'thread' => $thread->id]) }}" class="block rounded-2xl bg-white/10 border border-white/15 backdrop-blur-xl p-5 hover:bg-white/15 transition">
                 <div class="flex items-start justify-between gap-4">
                     <div>
                         <div class="text-white font-semibold">{{ $thread->title }}</div>

@@ -13,7 +13,10 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withCommands()
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->web(append: [\App\Http\Middleware\SetLocaleFromUrl::class]);
+        
+        // Use custom Authenticate middleware that handles locale redirects
         $middleware->alias([
+            'auth' => \App\Http\Middleware\Authenticate::class,
             'admin' => \App\Http\Middleware\AdminMiddleware::class,
             'role' => \App\Http\Middleware\CheckRole::class,
             'user' => \App\Http\Middleware\UserMiddleware::class,

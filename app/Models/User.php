@@ -96,6 +96,11 @@ class User extends Authenticatable implements MustVerifyEmailContract
         };
     }
 
+    public function hasRole($role): bool
+    {
+        return $this->role === $role;
+    }
+
     public function buddy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'buddy_id');

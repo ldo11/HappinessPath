@@ -28,8 +28,14 @@ class LocaleMiddlewareTest extends TestCase
             'email_verified_at' => now(),
         ]);
 
-        $response = $this->actingAs($user)->followingRedirects()->get('/en/dashboard');
+        // Test that user can manually access English URL despite German preference
+        $response = $this->actingAs($user)->get('/en/dashboard');
         $response->assertOk();
-        $response->assertSessionHas('locale', 'de');
+        $response->assertSessionHas('locale', 'en'); // User manually chose English, so respect it
+        
+        // Test that accessing without locale prefix redirects to preferred locale
+        $response = $this->actingAs($user)->followingRedirects()->get('/dashboard');
+        $response->assertOk();
+        $response->assertSessionHas('locale', 'de'); // Should redirect to German preference
     }
 }

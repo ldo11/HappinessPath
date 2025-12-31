@@ -27,7 +27,7 @@
                     <option value="" class="text-gray-900">-- Không chọn --</option>
                     @foreach($painPoints as $pp)
                         <option value="{{ $pp->id }}" class="text-gray-900" @selected((string) old('related_pain_point_id') === (string) $pp->id)>
-                            {{ $pp->title }}
+                            {{ $pp->name }}
                         </option>
                     @endforeach
                 </select>

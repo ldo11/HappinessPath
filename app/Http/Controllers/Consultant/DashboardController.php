@@ -23,17 +23,17 @@ class DashboardController extends Controller
         return view('consultant.dashboard', compact('threads'));
     }
 
-    public function show(Request $request, ConsultationThread $thread)
+    public function show(Request $request, string $locale, ConsultationThread $thread)
     {
         $thread->load(['user', 'replies.user', 'relatedPainPoint', 'systemMessages']);
 
         return view('consultant.show', compact('thread'));
     }
 
-    public function reply(Request $request, ConsultationThread $thread)
+    public function reply(Request $request, string $locale, ConsultationThread $thread)
     {
         if (in_array($thread->status, ['closed'], true)) {
-            return redirect()->route('consultant.threads.show', $thread)
+            return redirect()->route('consultant.threads.show', ['locale' => $locale, 'thread' => $thread->id])
                 ->with('error', 'Thread is closed.');
         }
 
@@ -51,11 +51,11 @@ class DashboardController extends Controller
             $thread->update(['status' => 'answered']);
         }
 
-        return redirect()->route('consultant.threads.show', $thread)
+        return redirect()->route('consultant.threads.show', ['locale' => $locale, 'thread' => $thread->id])
             ->with('success', 'Reply sent.');
     }
 
-    public function assignAssessment(Request $request, ConsultationThread $thread)
+    public function assignAssessment(Request $request, string $locale, ConsultationThread $thread)
     {
         $data = $request->validate([
             'assessment_id' => ['required', 'exists:assessments,id'],
