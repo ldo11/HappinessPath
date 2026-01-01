@@ -6,10 +6,16 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Spatie\Translatable\HasTranslations;
 
 class AssessmentQuestion extends Model
 {
     use HasFactory;
+    use HasTranslations;
+
+    public array $translatable = [
+        'content',
+    ];
 
     protected $fillable = [
         'assessment_id',
@@ -24,9 +30,7 @@ class AssessmentQuestion extends Model
         'related_pain_point_key',
     ];
 
-    protected $casts = [
-        'content' => 'array',
-    ];
+    protected $casts = [];
 
     public function assessment(): BelongsTo
     {
@@ -38,12 +42,9 @@ class AssessmentQuestion extends Model
         return $this->hasMany(AssessmentOption::class, 'question_id');
     }
 
-    public function getContentAttribute($value)
+    public function answers(): HasMany
     {
-        $locale = app()->getLocale();
-        $content = json_decode($value, true);
-        
-        return $content[$locale] ?? $content['vi'] ?? $content['en'] ?? array_values($content)[0] ?? '';
+        return $this->options();
     }
 
     public function getPillarGroupAttribute($value)

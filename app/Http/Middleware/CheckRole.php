@@ -32,7 +32,21 @@ class CheckRole
             return $next($request);
         }
 
-        $allowed = array_filter(array_map(fn ($r) => is_string($r) ? strtolower(trim($r)) : $r, $roles));
+        $allowed = [];
+        foreach ($roles as $r) {
+            if (!is_string($r)) {
+                continue;
+            }
+
+            foreach (preg_split('/[|,]/', $r) ?: [] as $part) {
+                $part = strtolower(trim($part));
+                if ($part !== '') {
+                    $allowed[] = $part;
+                }
+            }
+        }
+
+        $allowed = array_values(array_unique($allowed));
         if ($allowed === []) {
             return $next($request);
         }

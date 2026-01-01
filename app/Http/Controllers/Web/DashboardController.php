@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\UserJourney;
 use App\Models\Donation;
 use App\Models\UserDailyTask;
+use App\Models\DailyMission;
 use App\Services\JourneyService;
 use App\Services\CommunityService;
 use Illuminate\Http\Request;
@@ -68,6 +69,11 @@ class DashboardController extends Controller
         }
         $hasQuizResult = (bool) $user->quizResult;
 
+        $dailyMissions = collect();
+        if (Schema::hasTable('daily_missions')) {
+            $dailyMissions = DailyMission::query()->latest('id')->limit(10)->get();
+        }
+
         return view('dashboard', compact(
             'user',
             'userJourney',
@@ -77,7 +83,8 @@ class DashboardController extends Controller
             'painPoints',
             'userPainPoints',
             'topPainPoints',
-            'hasQuizResult'
+            'hasQuizResult',
+            'dailyMissions'
         ));
     }
 

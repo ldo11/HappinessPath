@@ -13,10 +13,6 @@ use Illuminate\Validation\Rule;
 
 class UserController extends Controller
 {
-    protected $middleware = [
-        'admin'
-    ];
-
     public function index(Request $request)
     {
         $query = User::with(['userJourney']);

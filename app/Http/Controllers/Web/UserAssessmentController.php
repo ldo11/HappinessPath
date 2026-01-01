@@ -148,7 +148,7 @@ class UserAssessmentController extends Controller
         // 5. Return Response
         return response()->json([
             'message' => 'Submitted successfully',
-            'redirect_url' => route('assessments.result', $userAssessment->id)
+            'redirect_url' => route('user.assessments.result', $userAssessment->id)
         ]);
     }
 
@@ -190,7 +190,7 @@ class UserAssessmentController extends Controller
             'consultation_thread_id' => $consultationThread->id,
         ]);
 
-        return redirect()->route('consultations.show', $consultationThread->id)
+        return redirect()->route('user.consultations.show', ['consultation_id' => $consultationThread->id])
             ->with('success', 'Assessment result has been sent for consultation!');
     }
 
@@ -269,16 +269,16 @@ class UserAssessmentController extends Controller
         // Check if user is authenticated
         if (!auth()->check()) {
             // Redirect to login with a message to return after assessment
-            return redirect()->route('login')
+            return redirect()->route('user.login')
                 ->with('info', 'Please login to submit your assessment. Your answers will be saved.')
-                ->with('intended', route('assessment.form'));
+                ->with('intended', route('user.assessment.form'));
         }
 
         $user = auth()->user();
         
         // Create a simple assessment record or redirect to results
         // For now, just redirect to the assessments index with a success message
-        return redirect()->route('assessments.index')
+        return redirect()->route('user.assessments.index')
             ->with('success', 'Assessment submitted successfully!');
     }
 }

@@ -10,10 +10,6 @@ use Illuminate\Support\Facades\DB;
 
 class TranslationController extends Controller
 {
-    protected $middleware = [
-        'translator'
-    ];
-
     public function index(Request $request)
     {
         $query = SolutionTranslation::with(['solution', 'language'])

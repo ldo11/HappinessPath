@@ -25,7 +25,7 @@
                     <i class="fas fa-user-md mr-1"></i>Submitted for Consultation
                 </span>
                 @if($userAssessment->consultation_thread)
-                    <a href="{{ route('consultations.show', $userAssessment->consultation_thread) }}" 
+                    <a href="{{ route('user.consultations.show', ['consultation_id' => $userAssessment->consultation_thread->id]) }}" 
                        class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium hover:bg-blue-200 transition-colors">
                         <i class="fas fa-comments mr-1"></i>View Consultation Thread
                     </a>
@@ -178,18 +178,18 @@
 
     <!-- Action Buttons -->
     <div class="flex flex-col sm:flex-row gap-4">
-        <a href="{{ route('assessments.index') }}" 
+        <a href="{{ route('user.assessments.index') }}" 
            class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-6 py-3 rounded-lg font-medium text-center transition-colors">
             <i class="fas fa-arrow-left mr-2"></i>Back to Assessments
         </a>
         
-        <a href="{{ route('assessments.show', $userAssessment->assessment) }}" 
+        <a href="{{ route('user.assessments.show', $userAssessment->assessment) }}" 
            class="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 rounded-lg font-medium text-center transition-colors">
             <i class="fas fa-redo mr-2"></i>Retake Assessment
         </a>
 
         @if($userAssessment->submission_mode === 'submitted_for_consultation' && $userAssessment->consultation_thread)
-            <a href="{{ route('consultations.show', $userAssessment->consultation_thread) }}" 
+            <a href="{{ route('user.consultations.show', ['consultation_id' => $userAssessment->consultation_thread->id]) }}" 
                class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium text-center transition-colors">
                 <i class="fas fa-comments mr-2"></i>View Consultation
             </a>
@@ -204,7 +204,7 @@ function submitForConsultation() {
         // Create a form to submit the consultation request
         const form = document.createElement('form');
         form.method = 'POST';
-        form.action = '{{ route("assessments.submit", $userAssessment->assessment) }}';
+        form.action = '{{ route("user.assessments.submit", $userAssessment->assessment) }}';
         
         // Add CSRF token
         const csrf = document.createElement('input');

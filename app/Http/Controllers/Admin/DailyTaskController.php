@@ -8,11 +8,7 @@ use Illuminate\Http\Request;
 
 class DailyTaskController extends Controller
 {
-    protected $middleware = [
-        'admin'
-    ];
-
-    public function index()
+    public function index(Request $request)
     {
         $tasks = DailyTask::query()->orderBy('day_number')->paginate(30);
 

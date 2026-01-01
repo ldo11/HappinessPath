@@ -5,10 +5,16 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Spatie\Translatable\HasTranslations;
 
 class AssessmentOption extends Model
 {
     use HasFactory;
+    use HasTranslations;
+
+    public array $translatable = [
+        'content',
+    ];
 
     protected $fillable = [
         'question_id',
@@ -16,20 +22,10 @@ class AssessmentOption extends Model
         'score',
     ];
 
-    protected $casts = [
-        'content' => 'array',
-    ];
+    protected $casts = [];
 
     public function question(): BelongsTo
     {
         return $this->belongsTo(AssessmentQuestion::class, 'question_id');
-    }
-
-    public function getContentAttribute($value)
-    {
-        $locale = app()->getLocale();
-        $content = json_decode($value, true);
-        
-        return $content[$locale] ?? $content['vi'] ?? $content['en'] ?? array_values($content)[0] ?? '';
     }
 }

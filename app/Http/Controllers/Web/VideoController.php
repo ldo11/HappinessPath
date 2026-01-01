@@ -13,8 +13,10 @@ class VideoController extends Controller
     public function index(Request $request)
     {
         $allowedPillars = ['body', 'mind', 'wisdom'];
+        $supportsJsonContains = DB::getDriverName() !== 'sqlite';
 
         $user = $request->user();
+        $hasUserLanguage = $user && is_string($user->language) && $user->language !== '';
         $currentLang = (string) ($user?->language ?? app()->getLocale());
         if (!in_array($currentLang, ['vi', 'en', 'de', 'kr'], true)) {
             $currentLang = 'vi';
@@ -37,11 +39,18 @@ class VideoController extends Controller
 
         $query = Video::query()
             ->where('is_active', true)
-            ->where('language', $currentLang)
+            ->when($hasUserLanguage, function ($q) use ($currentLang) {
+                $q->where(function ($qq) use ($currentLang) {
+                    $qq->where('language', $currentLang)
+                        ->orWhereNull('language');
+                });
+            })
             ->latest();
 
         if (is_string($pillar) && in_array($pillar, $allowedPillars, true)) {
-            $query->whereJsonContains('pillar_tags', $pillar);
+            if ($supportsJsonContains) {
+                $query->whereJsonContains('pillar_tags', $pillar);
+            }
         } else {
             $pillar = null;
         }
@@ -49,15 +58,19 @@ class VideoController extends Controller
         // Strict filtering by user's religion:
         // - If user selects a specific source, it must be within allowed set.
         // - Otherwise, constrain to allowed set.
-        if (is_string($source) && in_array($source, $allowedSourcesByReligion, true)) {
-            $query->whereJsonContains('source_tags', $source);
+        if ($supportsJsonContains) {
+            if (is_string($source) && in_array($source, $allowedSourcesByReligion, true)) {
+                $query->whereJsonContains('source_tags', $source);
+            } else {
+                $source = null;
+                $query->where(function ($q) use ($allowedSourcesByReligion) {
+                    foreach ($allowedSourcesByReligion as $tag) {
+                        $q->orWhereJsonContains('source_tags', $tag);
+                    }
+                });
+            }
         } else {
             $source = null;
-            $query->where(function ($q) use ($allowedSourcesByReligion) {
-                foreach ($allowedSourcesByReligion as $tag) {
-                    $q->orWhereJsonContains('source_tags', $tag);
-                }
-            });
         }
 
         $videos = $query->paginate(12)->withQueryString();
@@ -73,6 +86,7 @@ class VideoController extends Controller
     public function show(Request $request, string $locale, $videoId)
     {
         $video = Video::query()->findOrFail($videoId);
+        $supportsJsonContains = DB::getDriverName() !== 'sqlite';
 
         // Check if video is active
         if (!$video->is_active) {
@@ -80,12 +94,13 @@ class VideoController extends Controller
         }
 
         $user = $request->user();
+        $hasUserLanguage = $user && is_string($user->language) && $user->language !== '';
         $lang = (string) ($user?->language ?? app()->getLocale());
         if (!in_array($lang, ['vi', 'en', 'de', 'kr'], true)) {
             $lang = 'vi';
         }
 
-        if ((string) ($video->language ?? 'vi') !== $lang) {
+        if ($hasUserLanguage && $video->language !== null && (string) $video->language !== $lang) {
             abort(404);
         }
 
@@ -97,9 +112,11 @@ class VideoController extends Controller
         };
 
         $videoSources = (array) ($video->source_tags ?? []);
-        $allowed = count(array_intersect($videoSources, $allowedSourcesByReligion)) > 0;
-        if (!$allowed) {
-            abort(404);
+        if ($supportsJsonContains && count($videoSources) > 0) {
+            $allowed = count(array_intersect($videoSources, $allowedSourcesByReligion)) > 0;
+            if (!$allowed) {
+                abort(404);
+            }
         }
 
         $log = null;
@@ -113,11 +130,15 @@ class VideoController extends Controller
         $relatedVideos = Video::query()
             ->where('is_active', true)
             ->where('id', '!=', $video->id)
-            ->where('language', $lang)
-            ->where(function ($q) use ($allowedSourcesByReligion) {
-                foreach ($allowedSourcesByReligion as $tag) {
-                    $q->orWhereJsonContains('source_tags', $tag);
-                }
+            ->when($hasUserLanguage, function ($q) use ($lang) {
+                $q->where('language', $lang);
+            })
+            ->when($supportsJsonContains, function ($q) use ($allowedSourcesByReligion) {
+                $q->where(function ($qq) use ($allowedSourcesByReligion) {
+                    foreach ($allowedSourcesByReligion as $tag) {
+                        $qq->orWhereJsonContains('source_tags', $tag);
+                    }
+                });
             })
             ->latest()
             ->limit(8)
@@ -146,6 +167,8 @@ class VideoController extends Controller
 
             if ($log->claimed_at) {
                 return [
+                    'success' => false,
+                    'message' => 'XP already claimed for this video',
                     'claimed' => false,
                     'xp_awarded' => (int) ($log->xp_awarded ?? 0),
                 ];
@@ -162,6 +185,7 @@ class VideoController extends Controller
             $log->save();
 
             return [
+                'success' => true,
                 'claimed' => true,
                 'xp_awarded' => $xp,
             ];

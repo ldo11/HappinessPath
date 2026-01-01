@@ -28,8 +28,25 @@
                 <tr class="hover:bg-gray-50">
                     <td class="px-6 py-4 whitespace-nowrap">
                         <div>
-                            <div class="text-sm font-medium text-gray-900">{{ $assessment->title }}</div>
-                            <div class="text-sm text-gray-500">{{ Str::limit($assessment->description, 80) }}</div>
+                            @php
+                                $tEn = trim((string) $assessment->getTranslation('title', 'en'));
+                                $tVi = trim((string) $assessment->getTranslation('title', 'vi'));
+                                $displayTitle = $tEn !== '' ? $tEn : $tVi;
+                            @endphp
+
+                            <div class="text-sm font-medium text-gray-900">{{ $displayTitle }}</div>
+                            <div class="text-sm text-gray-500">{{ Str::limit($assessment->getTranslation('description', 'en'), 80) }}</div>
+                            <div class="mt-2 flex gap-2">
+                                @if($tEn === '')
+                                    <span class="inline-flex items-center px-2 py-1 rounded-full bg-amber-50 text-amber-800 border border-amber-200 text-xs">Needs EN</span>
+                                @endif
+                                @if($tVi === '')
+                                    <span class="inline-flex items-center px-2 py-1 rounded-full bg-amber-50 text-amber-800 border border-amber-200 text-xs">Needs VI</span>
+                                @endif
+                                @if($tEn !== '' && $tVi !== '')
+                                    <span class="inline-flex items-center px-2 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs">OK</span>
+                                @endif
+                            </div>
                         </div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">

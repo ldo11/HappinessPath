@@ -32,8 +32,8 @@ class AuthenticatedSessionController extends Controller
 
         $user = Auth::user();
 
-        $legacyRole = $user->role;
-        $roleLower = is_string($legacyRole) ? strtolower($legacyRole) : $legacyRole;
+        $canonicalRole = $user->role;
+        $roleLower = is_string($canonicalRole) ? strtolower($canonicalRole) : $canonicalRole;
         $effectiveRole = match ($roleLower) {
             null, '' => 'user',
             'member' => 'user',
@@ -46,7 +46,7 @@ class AuthenticatedSessionController extends Controller
         }
 
         if ($effectiveRole === 'translator') {
-            return redirect()->route('translator.dashboard');
+            return redirect()->route('user.translator.translator.dashboard');
         }
 
         if ($effectiveRole === 'consultant') {
@@ -63,6 +63,6 @@ class AuthenticatedSessionController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect('/login');
+        return redirect('/en/login');
     }
 }

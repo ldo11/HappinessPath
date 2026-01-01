@@ -13,11 +13,6 @@ use Illuminate\Support\Facades\Log;
 
 class OnboardingController extends Controller
 {
-    protected $middleware = [
-        'guest' => ['except' => ['assessment', 'submitAssessment', 'results']],
-        'auth' => ['only' => ['assessment', 'submitAssessment', 'results']]
-    ];
-
     public function step1()
     {
         return view('onboarding.step1');

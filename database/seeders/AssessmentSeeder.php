@@ -17,15 +17,23 @@ class AssessmentSeeder extends Seeder
         DB::table('assessments')->delete();
 
         // Create a user for the assessment
-        $userId = DB::table('users')->insertGetId([
-            'name' => 'System Admin',
-            'email' => 'admin@happiness.test',
-            'password' => Hash::make('password'),
-            'role' => 'admin',
-            'email_verified_at' => now(),
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
+        $userId = DB::table('users')->where('email', 'admin@happiness.test')->value('id');
+        if (! $userId) {
+            $userId = DB::table('users')->insertGetId([
+                'name' => 'System Admin',
+                'email' => 'admin@happiness.test',
+                'password' => Hash::make('password'),
+                'role' => 'admin',
+                'email_verified_at' => now(),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        } else {
+            DB::table('users')->where('id', $userId)->update([
+                'password' => Hash::make('password'),
+                'updated_at' => now(),
+            ]);
+        }
 
         // Create a default assessment
         $assessmentId = DB::table('assessments')->insertGetId([

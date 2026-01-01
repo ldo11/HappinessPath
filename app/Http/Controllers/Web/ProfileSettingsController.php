@@ -32,10 +32,8 @@ class ProfileSettingsController extends Controller
     public function update(Request $request, ProfileSettingsService $service)
     {
         $data = $request->validate([
-            'geo_privacy' => ['required', 'boolean'],
-            'spiritual_preference' => ['required', 'in:buddhism,christianity,secular'],
-            'language' => ['required', 'in:vi,en,de,kr'],
-            'religion' => ['nullable', 'in:buddhism,christianity,science,none'],
+            'name' => ['required', 'string', 'max:255'],
+            'city' => ['nullable', 'string', 'max:255'],
             'is_available' => ['nullable', 'boolean'],
             'consultant_pain_points' => ['nullable', 'array'],
             'consultant_pain_points.*' => ['integer', 'exists:pain_points,id'],
@@ -43,11 +41,11 @@ class ProfileSettingsController extends Controller
 
         $service->update($request->user(), $data);
 
-        $language = (string) $data['language'];
+        $language = (string) ($request->user()->language ?? session('locale') ?? config('app.locale', 'en'));
         session(['locale' => $language]);
         app()->setLocale($language);
         URL::defaults(['locale' => $language]);
 
-        return redirect()->route('profile.settings.edit');
+        return redirect()->route('user.profile.settings.edit', ['locale' => app()->getLocale()]);
     }
 }

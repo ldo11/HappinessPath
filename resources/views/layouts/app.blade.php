@@ -156,11 +156,11 @@
                             <!-- Profile Dropdown Menu -->
                             <div id="profileDropdown" class="hidden absolute right-0 mt-2 w-56 glassmorphism rounded-lg shadow-lg z-50">
                                 <div class="py-1">
-                                    <a href="{{ route('profile.settings.edit') }}" class="block px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100">
+                                    <a href="{{ route('user.profile.settings.edit') }}" class="block px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100">
                                         <i class="fas fa-user mr-2"></i>{{ __('menu.profile') }}
                                     </a>
                                     @if(Auth::user()->role === 'admin' || Auth::user()->role === 'translator')
-                                        <a href="{{ route(Auth::user()->role === 'admin' ? 'admin.dashboard' : 'translator.dashboard') }}" 
+                                        <a href="{{ route(Auth::user()->role === 'admin' ? 'admin.dashboard' : 'user.translator.translator.dashboard') }}" 
                                            class="block px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100">
                                             <i class="fas fa-cog mr-2"></i>{{ __('ui.role_panel', ['role' => ucfirst(Auth::user()->role)]) }}
                                         </a>

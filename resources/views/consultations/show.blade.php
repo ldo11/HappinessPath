@@ -22,7 +22,7 @@
             @endphp
 
             @if($canClose && $threadModel->status !== 'closed')
-                <form method="POST" action="{{ route('consultations.close', ['locale' => app()->getLocale(), 'consultation_id' => $threadModel->id]) }}">
+                <form method="POST" action="{{ route('user.consultations.close', ['consultation_id' => $threadModel->id]) }}">
                     @csrf
                     <button type="submit" class="px-4 py-2 rounded-xl bg-red-500/20 border border-red-500/30 text-red-100 hover:bg-red-500/30">Close Thread</button>
                 </form>
@@ -57,7 +57,7 @@
     </div>
 
     <div class="rounded-2xl bg-white/10 border border-white/15 backdrop-blur-xl p-6">
-        <form method="POST" action="{{ route('consultations.reply', $threadModel) }}" class="space-y-4">
+        <form method="POST" action="{{ route('user.consultations.reply', ['consultation_id' => $threadModel->id]) }}" class="space-y-4">
             @csrf
             <label class="block text-white/80 text-sm" for="content">Gửi phản hồi</label>
             <textarea id="content" name="content" rows="4" required

@@ -11,14 +11,14 @@
     </div>
 
     <div class="space-y-4">
-        <form method="POST" action="{{ route('verification.send') }}">
+        <form method="POST" action="{{ route('user.verification.send') }}">
             @csrf
             <button type="submit" class="w-full emerald-gradient text-white px-4 py-3 rounded-lg hover:shadow-lg transition-all duration-200">
                 Resend Email
             </button>
         </form>
 
-        <form method="POST" action="{{ route('logout') }}" class="text-center">
+        <form method="POST" action="{{ route('user.logout') }}" class="text-center">
             @csrf
             <button type="submit" class="text-sm text-white/70 hover:text-white underline transition-colors">
                 Log Out

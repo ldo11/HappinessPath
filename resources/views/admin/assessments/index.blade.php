@@ -9,9 +9,18 @@
         <h2 class="text-2xl font-bold text-gray-800">Advanced Assessments</h2>
         <p class="text-sm text-gray-600 mt-1">Manage assessment workflows and translations</p>
     </div>
-    <a href="{{ route('admin.assessments.create') }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg">
-        <i class="fas fa-plus mr-2"></i>Create Assessment
-    </a>
+    <div class="flex items-center gap-2">
+        <form method="POST" action="{{ route('admin.assessments.import-json') }}" enctype="multipart/form-data" class="flex items-center gap-2">
+            @csrf
+            <input type="file" name="json_file" accept="application/json" class="text-sm" required>
+            <button type="submit" class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg">
+                <i class="fas fa-upload mr-2"></i>Upload JSON
+            </button>
+        </form>
+        <a href="{{ route('admin.assessments.create') }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg">
+            <i class="fas fa-plus mr-2"></i>Create Assessment
+        </a>
+    </div>
 </div>
 
 <!-- Assessments Table -->

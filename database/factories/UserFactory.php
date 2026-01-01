@@ -29,6 +29,22 @@ class UserFactory extends Factory
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
+            'dob' => fake()->date(),
+            'disc_type' => fake()->randomElement(['D', 'I', 'S', 'C']),
+            'role' => 'user',
+            'spiritual_preference' => fake()->randomElement(['buddhist', 'taoist', 'christian', 'muslim', 'hindu', 'none']),
+            'onboarding_status' => fake()->randomElement(['pending', 'completed']),
+            'start_pain_level' => fake()->numberBetween(1, 10),
+            'city' => fake()->city(),
+            'district' => fake()->state(),
+            'country' => fake()->country(),
+            'geo_privacy' => fake()->boolean(),
+            'locale' => 'en',
+            'buddy_id' => null,
+            'role_v2' => 'user',
+            'language' => 'en',
+            'religion' => fake()->randomElement(['buddhist', 'taoist', 'christian', 'muslim', 'hindu', 'none']),
+            'is_available' => fake()->boolean(80), // 80% chance of being available
         ];
     }
 
@@ -39,6 +55,33 @@ class UserFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'email_verified_at' => null,
+        ]);
+    }
+
+    public function admin(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => 'admin',
+            'role_v2' => 'admin',
+            'is_available' => true,
+        ]);
+    }
+
+    public function consultant(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => 'consultant',
+            'role_v2' => 'consultant',
+            'is_available' => true,
+        ]);
+    }
+
+    public function translator(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => 'translator',
+            'role_v2' => 'translator',
+            'is_available' => true,
         ]);
     }
 }

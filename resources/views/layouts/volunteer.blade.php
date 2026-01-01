@@ -30,7 +30,7 @@
                     <a href="{{ route('admin.dashboard') }}" class="block px-4 py-3 hover:bg-blue-800">
                         <i class="fas fa-cog mr-3"></i>Admin Panel
                     </a>
-                    <a href="{{ route('home') }}" class="block px-4 py-3 hover:bg-blue-800">
+                    <a href="{{ route('user.home', ['locale' => session('locale') ?? config('app.locale', 'en')]) }}" class="block px-4 py-3 hover:bg-blue-800">
                         <i class="fas fa-arrow-left mr-3"></i>Back to Site
                     </a>
                 </div>
@@ -93,7 +93,7 @@
                         <span class="text-sm text-gray-600">
                             <i class="fas fa-user mr-2"></i>{{ Auth::user()->name }}
                         </span>
-                        <form action="{{ route('logout') }}" method="POST" class="inline">
+                        <form action="{{ route('user.logout', ['locale' => session('locale') ?? config('app.locale', 'en')]) }}" method="POST" class="inline">
                             @csrf
                             <button type="submit" class="text-sm text-red-600 hover:text-red-800">
                                 <i class="fas fa-sign-out-alt mr-1"></i>Logout

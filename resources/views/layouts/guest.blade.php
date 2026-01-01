@@ -143,12 +143,10 @@
                 <div class="text-center mt-6 text-emerald-200 text-sm">
                     @if(Route::has('login') && Route::has('register'))
                         @if (request()->routeIs('login'))
-                            <p>Bạn chưa có tài khoản? 
-                                <a href="{{ route('register') }}" class="text-emerald-400 hover:text-emerald-300 underline transition-colors">
-                                    Đăng ký ngay
-                                </a>
-                            </p>
-                        @elseif (request()->routeIs('register'))
+                            <a href="{{ route('register') }}" class="text-emerald-400 hover:text-emerald-300 underline transition-colors">
+                                {{ __('auth.register') }}
+                            </a>
+                        @else
                             <p>Đã có tài khoản? 
                                 <a href="{{ route('login') }}" class="text-emerald-400 hover:text-emerald-300 underline transition-colors">
                                     Đăng nhập

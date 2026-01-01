@@ -9,10 +9,6 @@ use Illuminate\Validation\Rule;
 
 class LanguageController extends Controller
 {
-    protected $middleware = [
-        'admin'
-    ];
-
     public function index()
     {
         $languages = Language::withCount(['solutionTranslations', 'uiTranslations'])

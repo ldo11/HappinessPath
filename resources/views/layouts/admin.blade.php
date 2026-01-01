@@ -30,10 +30,10 @@
                     <i class="fas fa-video mr-3"></i>Video Management
                 </a>
                 <div class="border-t border-gray-700 mt-4 pt-4">
-                    <a href="{{ route('translator.dashboard') }}" class="block px-4 py-3 hover:bg-gray-800">
+                    <a href="{{ route('user.translator.translator.dashboard', ['locale' => session('locale') ?? config('app.locale', 'en')]) }}" class="block px-4 py-3 hover:bg-gray-800">
                         <i class="fas fa-language mr-3"></i>Translator Portal
                     </a>
-                    <a href="{{ route('home') }}" class="block px-4 py-3 hover:bg-gray-800">
+                    <a href="{{ route('user.home', ['locale' => session('locale') ?? config('app.locale', 'en')]) }}" class="block px-4 py-3 hover:bg-gray-800">
                         <i class="fas fa-arrow-left mr-3"></i>Back to Site
                     </a>
                 </div>
@@ -75,7 +75,7 @@
                         <span class="text-sm text-gray-600">
                             <i class="fas fa-user mr-2"></i>Hi {{ Auth::user()->name }}
                         </span>
-                        <form action="{{ route('logout') }}" method="POST" class="inline">
+                        <form action="{{ route('logout', ['locale' => session('locale') ?? config('app.locale', 'en')]) }}" method="POST" class="inline">
                             @csrf
                             <button type="submit" class="text-sm text-red-600 hover:text-red-800">
                                 <i class="fas fa-sign-out-alt mr-1"></i>Logout

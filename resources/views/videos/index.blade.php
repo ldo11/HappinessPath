@@ -29,7 +29,7 @@
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         @forelse($videos as $video)
-            <a href="{{ route('videos.show', ['locale' => app()->getLocale(), 'videoId' => $video->id]) }}" class="block bg-white rounded-xl shadow-sm hover:shadow-md transition border border-gray-100 overflow-hidden">
+            <a href="{{ route('videos.show', ['videoId' => $video->id]) }}" class="block bg-white rounded-xl shadow-sm hover:shadow-md transition border border-gray-100 overflow-hidden">
                 @if($video->thumbnail_url)
                     <div class="aspect-video bg-gray-100">
                         <img src="{{ $video->thumbnail_url }}" alt="{{ $video->title }}" class="w-full h-full object-cover">

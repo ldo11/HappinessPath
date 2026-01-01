@@ -47,7 +47,17 @@ class LanguageLineController extends Controller
             'text' => $text,
         ]);
 
-        return redirect()->route('translator.language-lines.index', $request->only('search'))
+        if ($request->expectsJson()) {
+            return response()->json([
+                'ok' => true,
+                'id' => $languageLine->id,
+                'group' => $languageLine->group,
+                'key' => $languageLine->key,
+                'text' => $languageLine->text,
+            ]);
+        }
+
+        return redirect()->route('translator.ui-matrix.index', $request->only('search'))
             ->with('success', 'Translations updated.');
     }
 }

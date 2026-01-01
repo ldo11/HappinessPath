@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
             LanguageLineSeeder::class,
             PainPointSeeder::class,
             AssessmentSeeder::class,
+            TranslationSeeder::class,
             TestUsersSeeder::class,
             VideoSeeder::class,
         ]);

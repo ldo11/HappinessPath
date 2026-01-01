@@ -28,7 +28,7 @@ class VideoFactory extends Factory
             'title' => fake()->sentence(4),
             'url' => 'https://www.youtube.com/watch?v=' . fake()->unique()->lexify('??????????'),
             'category' => fake()->randomElement(['body', 'mind', 'wisdom']),
-            'language' => fake()->randomElement(['en', 'vi', 'de', 'kr']),
+            'language' => 'en',
             'pillar_tag' => fake()->randomElement(['body', 'mind', 'wisdom']),
             'source_tag' => fake()->randomElement(['buddhism', 'christianity', 'science']),
             'pillar_tags' => [fake()->randomElement(['body', 'mind', 'wisdom'])],

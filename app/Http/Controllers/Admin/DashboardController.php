@@ -12,10 +12,6 @@ use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
-    protected $middleware = [
-        'admin'
-    ];
-
     public function index()
     {
         $stats = [

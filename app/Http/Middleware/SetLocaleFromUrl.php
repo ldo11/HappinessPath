@@ -18,7 +18,10 @@ class SetLocaleFromUrl
 
         $routeLocale = $request->route('locale');
         $segmentLocale = $request->segment(1);
-        $supportedLocales = ['en', 'vi', 'de', 'kr'];
+        $supportedLocales = (array) config('app.supported_locales', ['en', 'vi', 'de', 'kr']);
+        if ($supportedLocales === []) {
+            $supportedLocales = ['en', 'vi', 'de', 'kr'];
+        }
 
         $preferredLocale = (Auth::check() ? (Auth::user()->language ?? Auth::user()->locale) : null)
             ?? session('locale')
@@ -44,7 +47,16 @@ class SetLocaleFromUrl
             // Remove all locale prefixes and redirect with single preferred locale
             $cleanPath = implode('/', array_slice($segments, $localePrefixCount));
             $cleanPath = $cleanPath === '' ? '' : '/' . $cleanPath;
-            return redirect('/' . $preferredLocale . $cleanPath);
+            $targetUrl = '/' . $preferredLocale . $cleanPath;
+            
+            // Prevent infinite redirect loop and exclude logout paths
+            if ($request->fullUrl() === $targetUrl || 
+                $request->path() === ltrim($targetUrl, '/') ||
+                str_contains($request->path(), 'logout')) {
+                return $next($request);
+            }
+            
+            return redirect($targetUrl);
         }
 
         if (! $routeLocale) {
@@ -58,8 +70,16 @@ class SetLocaleFromUrl
 
             $path = ltrim($request->path(), '/');
             $path = $path === '' ? '' : '/'.$path;
+            $targetUrl = '/'.$preferredLocale.$path;
+            
+            // Prevent infinite redirect loop and exclude logout paths
+            if ($request->fullUrl() === $targetUrl || 
+                $request->path() === ltrim($targetUrl, '/') ||
+                str_contains($request->path(), 'logout')) {
+                return $next($request);
+            }
 
-            return redirect('/'.$preferredLocale.$path);
+            return redirect($targetUrl);
         }
 
         if (! in_array($routeLocale, $supportedLocales, true)) {
@@ -90,7 +110,16 @@ class SetLocaleFromUrl
                         session(['locale' => $preferredLocale]);
                         app()->setLocale($preferredLocale);
                         URL::defaults(['locale' => $preferredLocale]);
-                        return redirect('/' . implode('/', $segments));
+                        $targetUrl = '/' . implode('/', $segments);
+                        
+                        // Prevent infinite redirect loop and exclude logout paths
+                        if ($request->fullUrl() === $targetUrl || 
+                            $request->path() === ltrim($targetUrl, '/') ||
+                            str_contains($request->path(), 'logout')) {
+                            return $next($request);
+                        }
+                        
+                        return redirect($targetUrl);
                     }
                 }
             }

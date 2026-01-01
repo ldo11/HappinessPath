@@ -40,7 +40,7 @@
     </div>
 
     <!-- Assessment Form -->
-    <form id="assessmentForm" method="POST" action="{{ route('assessments.submit', $assessment) }}">
+    <form id="assessmentForm" method="POST" action="{{ route('user.assessments.submit', $assessment) }}">
         @csrf
         
         <!-- Questions Container -->
@@ -253,7 +253,7 @@ function setupOptionListeners() {
 
 function confirmExit() {
     if (confirm('Are you sure you want to exit? Your progress will be lost.')) {
-        window.location.href = '{{ route("assessments.index") }}';
+        window.location.href = '{{ route("user.assessments.index") }}';
     }
 }
 

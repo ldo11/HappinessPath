@@ -63,7 +63,7 @@
                     <h2 class="text-2xl font-bold text-gray-900 spiritual-font">Nỗi khổ</h2>
                     <p class="text-sm text-gray-600">Top 3 nỗi khổ theo mức độ hiện tại của bạn.</p>
                 </div>
-                <a href="{{ route('pain-points.index') }}" class="bg-gray-900 text-white px-4 py-2.5 rounded-lg shadow-sm hover:shadow-md transition text-center">
+                <a href="{{ route('user.pain-points.index') }}" class="bg-gray-900 text-white px-4 py-2.5 rounded-lg shadow-sm hover:shadow-md transition text-center">
                     Quản lý tất cả vấn đề
                 </a>
             </div>

@@ -8,7 +8,7 @@
     </div>
 
     <div class="rounded-2xl bg-white/10 border border-white/15 backdrop-blur-xl p-6">
-        <form method="POST" action="{{ route('consultations.store') }}" class="space-y-5">
+        <form method="POST" action="{{ route('user.consultations.store') }}" class="space-y-5">
             @csrf
 
             <div>

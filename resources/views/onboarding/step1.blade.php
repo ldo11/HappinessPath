@@ -161,7 +161,7 @@
             <div class="mt-6 text-center">
                 <p class="text-sm text-gray-600">
                     Already have an account?
-                    <a href="{{ route('login') }}" class="font-medium text-primary-600 hover:text-primary-500">
+                    <a href="{{ route('login', ['locale' => app()->getLocale()]) }}" class="font-medium text-primary-600 hover:text-primary-500">
                         Sign in here
                     </a>
                 </p>

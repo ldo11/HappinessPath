@@ -56,7 +56,7 @@
                                     $hasCompleted = $userResults->where('assessment_id', $assessment->id)->isNotEmpty();
                                 @endphp
                                 
-                                <a href="{{ route('assessments.show', $assessment) }}" 
+                                <a href="{{ route('user.assessments.show', $assessment) }}" 
                                    class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
                                     @if($hasCompleted)
                                         <i class="fas fa-redo mr-1"></i>Retake
@@ -119,14 +119,14 @@
                                     @endif
                                     
                                     @if($result->consultation_thread)
-                                        <a href="{{ route('consultations.show', $result->consultation_thread) }}" 
+                                        <a href="{{ route('user.consultations.show', ['consultation_id' => $result->consultation_thread->id]) }}" 
                                            class="text-blue-600 hover:text-blue-800">
                                             <i class="fas fa-comments mr-1"></i>View Thread
                                         </a>
                                     @endif
                                 </div>
                                 
-                                <a href="{{ route('assessments.result', $result) }}" 
+                                <a href="{{ route('user.assessments.result', $result) }}" 
                                    class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
                                     <i class="fas fa-eye mr-1"></i>Review Result
                                 </a>

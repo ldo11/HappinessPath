@@ -17,7 +17,7 @@ class EnsureEmailVerified
                 return response()->json(['message' => 'Unauthenticated.'], 401);
             }
 
-            return redirect()->route('login');
+            return redirect()->route('user.login');
         }
 
         if (!$user->hasVerifiedEmail()) {
@@ -25,7 +25,7 @@ class EnsureEmailVerified
                 return response()->json(['message' => 'Email address is not verified.'], 403);
             }
 
-            return redirect()->route('verification.notice');
+            return redirect()->route('user.verification.notice');
         }
 
         return $next($request);

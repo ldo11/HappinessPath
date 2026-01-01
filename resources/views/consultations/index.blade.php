@@ -7,15 +7,15 @@
             <h1 class="text-2xl font-bold text-white">Tư vấn</h1>
             <p class="text-white/70 text-sm">Danh sách yêu cầu tư vấn của bạn.</p>
         </div>
-        <a href="{{ route('consultations.create', ['locale' => app()->getLocale()]) }}" class="px-4 py-2 rounded-xl bg-white/10 border border-white/15 text-white hover:bg-white/15">Gửi yêu cầu tư vấn</a>
+        <a href="{{ route('user.consultations.create') }}" class="px-4 py-2 rounded-xl bg-white/10 border border-white/15 text-white hover:bg-white/15">Gửi yêu cầu tư vấn</a>
     </div>
 
     <div class="flex items-center gap-2 mb-4">
-        <a href="{{ route('consultations.index', ['locale' => app()->getLocale(), 'tab' => 'open']) }}"
+        <a href="{{ route('consultations.index', ['tab' => 'open']) }}"
            class="px-4 py-2 rounded-xl border border-white/15 text-sm {{ ($tab ?? 'open') === 'open' ? 'bg-white text-gray-900' : 'bg-white/10 text-white hover:bg-white/15' }}">
             Open
         </a>
-        <a href="{{ route('consultations.index', ['locale' => app()->getLocale(), 'tab' => 'closed']) }}"
+        <a href="{{ route('consultations.index', ['tab' => 'closed']) }}"
            class="px-4 py-2 rounded-xl border border-white/15 text-sm {{ ($tab ?? 'open') === 'closed' ? 'bg-white text-gray-900' : 'bg-white/10 text-white hover:bg-white/15' }}">
             Closed
         </a>
@@ -23,7 +23,7 @@
 
     <div class="space-y-4">
         @forelse($threads as $thread)
-            <a href="{{ route('consultations.show', ['locale' => app()->getLocale(), 'consultation_id' => $thread->id]) }}" class="block rounded-2xl bg-white/10 border border-white/15 backdrop-blur-xl p-5 hover:bg-white/15 transition">
+            <a href="{{ route('user.consultations.show', ['consultation_id' => $thread->id]) }}" class="block rounded-2xl bg-white/10 border border-white/15 backdrop-blur-xl p-5 hover:bg-white/15 transition">
                 <div class="flex items-start justify-between gap-4">
                     <div>
                         <div class="text-white font-semibold">{{ $thread->title }}</div>

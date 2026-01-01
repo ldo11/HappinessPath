@@ -6,12 +6,8 @@ use App\Http\Controllers\Controller;
 
 class DashboardController extends Controller
 {
-    protected $middleware = [
-        'translator'
-    ];
-
     public function index()
     {
-        return redirect()->route('translator.language-lines.index');
+        return redirect()->route('translator.ui-matrix.index');
     }
 }

@@ -8,19 +8,36 @@ use Illuminate\Http\Request;
 
 class VideoController extends Controller
 {
-    protected $middleware = [
-        'admin'
-    ];
+    private function redirectToIndex(Request $request)
+    {
+        $routeName = (string) optional($request->route())->getName();
+
+        if (str_starts_with($routeName, 'consultant.')) {
+            return redirect()->route('consultant.videos.index', ['locale' => app()->getLocale()]);
+        }
+
+        return redirect()->route('admin.videos.index');
+    }
 
     public function index(Request $request)
     {
         $videos = Video::query()->orderByDesc('id')->paginate(20);
+
+        $routeName = (string) optional($request->route())->getName();
+        if (str_starts_with($routeName, 'consultant.')) {
+            return view('consultant.videos.index', compact('videos'));
+        }
 
         return view('admin.videos.index', compact('videos'));
     }
 
     public function create()
     {
+        $routeName = (string) optional(request()->route())->getName();
+        if (str_starts_with($routeName, 'consultant.')) {
+            return view('consultant.videos.create');
+        }
+
         return view('admin.videos.create');
     }
 
@@ -42,6 +59,14 @@ class VideoController extends Controller
         $pillarTags = array_values(array_unique(array_filter($data['pillar_tags'] ?? [])));
         $sourceTags = array_values(array_unique(array_filter($data['source_tags'] ?? [])));
 
+        if ($pillarTags === []) {
+            $pillarTags = ['mind'];
+        }
+
+        if ($sourceTags === []) {
+            $sourceTags = ['science'];
+        }
+
         Video::create([
             'title' => $data['title'],
             'url' => $data['url'],
@@ -54,12 +79,17 @@ class VideoController extends Controller
             'is_active' => $isActive,
         ]);
 
-        return redirect()->route('admin.videos.index')
+        return $this->redirectToIndex($request)
             ->with('success', 'Video created successfully.');
     }
 
     public function edit(Video $video)
     {
+        $routeName = (string) optional(request()->route())->getName();
+        if (str_starts_with($routeName, 'consultant.')) {
+            return view('consultant.videos.edit', compact('video'));
+        }
+
         return view('admin.videos.edit', compact('video'));
     }
 
@@ -79,6 +109,14 @@ class VideoController extends Controller
         $pillarTags = array_values(array_unique(array_filter($data['pillar_tags'] ?? [])));
         $sourceTags = array_values(array_unique(array_filter($data['source_tags'] ?? [])));
 
+        if ($pillarTags === []) {
+            $pillarTags = ['mind'];
+        }
+
+        if ($sourceTags === []) {
+            $sourceTags = ['science'];
+        }
+
         $video->update([
             'title' => $data['title'],
             'url' => $data['url'],
@@ -91,6 +129,12 @@ class VideoController extends Controller
             'is_active' => (bool) ($data['is_active'] ?? false),
         ]);
 
+        $routeName = (string) optional($request->route())->getName();
+        if (str_starts_with($routeName, 'consultant.')) {
+            return redirect()->route('consultant.videos.edit', ['locale' => app()->getLocale(), 'videoId' => $video])
+                ->with('success', 'Video updated successfully.');
+        }
+
         return redirect()->route('admin.videos.edit', $video)
             ->with('success', 'Video updated successfully.');
     }
@@ -99,7 +143,7 @@ class VideoController extends Controller
     {
         $video->delete();
 
-        return redirect()->route('admin.videos.index')
+        return $this->redirectToIndex(request())
             ->with('success', 'Video deleted successfully.');
     }
 }

@@ -29,7 +29,13 @@ class ConsultationThreadFactory extends Factory
             'user_id' => User::factory(),
             'title' => fake()->sentence(4),
             'content' => fake()->paragraph(3),
+            'related_pain_point_id' => null,
             'status' => fake()->randomElement(['pending', 'active', 'closed']),
+            'is_private' => fake()->boolean(),
+            'related_assessment_id' => null,
+            'pain_point_id' => null,
+            'assigned_consultant_id' => null,
+            'closed_at' => null,
         ];
     }
 }

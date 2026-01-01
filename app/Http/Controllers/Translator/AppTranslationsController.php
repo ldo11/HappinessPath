@@ -9,10 +9,6 @@ use Illuminate\Support\Facades\File;
 
 class AppTranslationsController extends Controller
 {
-    protected $middleware = [
-        'translator'
-    ];
-
     public function index(Request $request)
     {
         $locale = $request->get('locale', 'vi');

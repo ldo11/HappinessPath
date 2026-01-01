@@ -99,7 +99,7 @@ class ConsultationController extends Controller
             'is_private' => true,
         ]);
 
-        return redirect()->route('consultations.show', ['locale' => app()->getLocale(), 'consultation_id' => $thread->id])
+        return redirect()->route('user.consultations.show', ['consultation_id' => $thread->id])
             ->with('success', 'Gửi yêu cầu tư vấn thành công.');
     }
 
@@ -177,7 +177,7 @@ class ConsultationController extends Controller
         }
 
         if (in_array($threadModel->status, ['closed'], true)) {
-            return redirect()->route('consultations.show', ['locale' => app()->getLocale(), 'consultation_id' => $threadModel->id])
+            return redirect()->route('user.consultations.show', ['consultation_id' => $threadModel->id])
                 ->with('error', 'Yêu cầu tư vấn đã được đóng.');
         }
 
@@ -205,7 +205,7 @@ class ConsultationController extends Controller
             return response()->json(['success' => true, 'message' => 'Reply created successfully']);
         }
 
-        return redirect()->route('consultations.show', ['locale' => app()->getLocale(), 'consultation_id' => $threadModel->id])
+        return redirect()->route('user.consultations.show', ['consultation_id' => $threadModel->id])
             ->with('success', 'Phản hồi đã được gửi.');
     }
 
@@ -247,7 +247,7 @@ class ConsultationController extends Controller
             ]);
         }
 
-        return redirect()->route('consultations.show', ['locale' => app()->getLocale(), 'consultation_id' => $threadModel->id])
+        return redirect()->route('user.consultations.show', ['consultation_id' => $threadModel->id])
             ->with('success', 'Thread closed.');
     }
 }

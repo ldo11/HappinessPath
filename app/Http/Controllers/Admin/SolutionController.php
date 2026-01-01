@@ -11,10 +11,6 @@ use Illuminate\Validation\Rule;
 
 class SolutionController extends Controller
 {
-    protected $middleware = [
-        'admin'
-    ];
-
     public function index(Request $request)
     {
         $query = Solution::with('translations');

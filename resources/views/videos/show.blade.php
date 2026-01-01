@@ -57,7 +57,7 @@
             <h2 class="text-lg font-semibold text-white">Related Videos</h2>
             <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 @forelse(($relatedVideos ?? collect()) as $rv)
-                    <a href="{{ route('videos.show', ['locale' => app()->getLocale(), 'videoId' => $rv->id]) }}" class="block rounded-2xl bg-white/10 border border-white/10 hover:bg-white/15 transition overflow-hidden">
+                    <a href="{{ route('videos.show', ['videoId' => $rv->id]) }}" class="block rounded-2xl bg-white/10 border border-white/10 hover:bg-white/15 transition overflow-hidden">
                         @if($rv->thumbnail_url)
                             <div class="aspect-video bg-black/60">
                                 <img src="{{ $rv->thumbnail_url }}" alt="" class="w-full h-full object-cover" />
@@ -98,7 +98,7 @@
         btn.disabled = true;
 
         try {
-            const res = await fetch(@json(route('videos.claim', ['locale' => app()->getLocale(), 'videoId' => $video->id])), {
+            const res = await fetch(@json(route('videos.claim', ['videoId' => $video->id])), {
                 method: 'POST',
                 headers: {
                     'Accept': 'application/json',

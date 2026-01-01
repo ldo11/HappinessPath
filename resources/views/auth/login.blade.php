@@ -4,7 +4,7 @@
 @section('auth-subtitle', __('auth.welcome_back'))
 
 @section('content')
-<form method="POST" action="{{ route('login') }}" class="space-y-6">
+<form method="POST" action="{{ url(app()->getLocale() . '/login') }}" class="space-y-6">
     @csrf
 
     <!-- Email Input -->
@@ -82,31 +82,66 @@
         
         <div class="space-y-2">
             <button type="button" 
-                    onclick="fillTestCredentials('admin@happiness.test', '15987536245')"
+                    onclick="fillTestCredentials('admin@happiness.test', 'password')"
                     class="w-full glassmorphism text-white py-2 px-4 rounded-lg text-sm hover:bg-white/20 transition-all duration-200 border border-emerald-400/30">
                 <i class="fas fa-crown mr-2 text-yellow-400"></i>
                 {{ __('auth.login_admin') }}
             </button>
 
             <button type="button" 
-                    onclick="fillTestCredentials('consultant@example.com', '15987536245')"
+                    onclick="fillTestCredentials('consultant@example.com', 'password')"
                     class="w-full glassmorphism text-white py-2 px-4 rounded-lg text-sm hover:bg-white/20 transition-all duration-200 border border-emerald-400/30">
                 <i class="fas fa-user-md mr-2 text-emerald-300"></i>
                 Consultant
             </button>
+
+            <button type="button" 
+                    onclick="fillTestCredentials('consultant1@test.com', 'password')"
+                    class="w-full glassmorphism text-white py-2 px-4 rounded-lg text-sm hover:bg-white/20 transition-all duration-200 border border-emerald-400/30">
+                <i class="fas fa-user-md mr-2 text-emerald-300"></i>
+                Consultant 1
+            </button>
+
+            <button type="button" 
+                    onclick="fillTestCredentials('consultant2@test.com', 'password')"
+                    class="w-full glassmorphism text-white py-2 px-4 rounded-lg text-sm hover:bg-white/20 transition-all duration-200 border border-emerald-400/30">
+                <i class="fas fa-user-md mr-2 text-emerald-300"></i>
+                Consultant 2
+            </button>
             
             <button type="button" 
-                    onclick="fillTestCredentials('user@happiness.test', '15987536245')"
+                    onclick="fillTestCredentials('user@happiness.test', 'password')"
                     class="w-full glassmorphism text-white py-2 px-4 rounded-lg text-sm hover:bg-white/20 transition-all duration-200 border border-emerald-400/30">
                 <i class="fas fa-user mr-2 text-blue-400"></i>
                 {{ __('auth.login_user') }}
             </button>
 
             <button type="button" 
-                    onclick="fillTestCredentials('translator@happiness.test', '15987536245')"
+                    onclick="fillTestCredentials('translator@happiness.test', 'password')"
                     class="w-full glassmorphism text-white py-2 px-4 rounded-lg text-sm hover:bg-white/20 transition-all duration-200 border border-emerald-400/30">
                 <i class="fas fa-language mr-2 text-indigo-300"></i>
                 Translator
+            </button>
+
+            <button type="button" 
+                    onclick="fillTestCredentials('user_vi@happiness.test', 'password')"
+                    class="w-full glassmorphism text-white py-2 px-4 rounded-lg text-sm hover:bg-white/20 transition-all duration-200 border border-emerald-400/30">
+                <i class="fas fa-user mr-2 text-red-400"></i>
+                User (Vietnamese)
+            </button>
+
+            <button type="button" 
+                    onclick="fillTestCredentials('user_de@happiness.test', 'password')"
+                    class="w-full glassmorphism text-white py-2 px-4 rounded-lg text-sm hover:bg-white/20 transition-all duration-200 border border-emerald-400/30">
+                <i class="fas fa-user mr-2 text-yellow-400"></i>
+                User (German)
+            </button>
+
+            <button type="button" 
+                    onclick="fillTestCredentials('user_kr@happiness.test', 'password')"
+                    class="w-full glassmorphism text-white py-2 px-4 rounded-lg text-sm hover:bg-white/20 transition-all duration-200 border border-emerald-400/30">
+                <i class="fas fa-user mr-2 text-purple-400"></i>
+                User (Korean)
             </button>
         </div>
     </div>

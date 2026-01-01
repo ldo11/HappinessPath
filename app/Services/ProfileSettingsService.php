@@ -9,10 +9,8 @@ class ProfileSettingsService
     public function update(User $user, array $data): User
     {
         $user->fill([
-            'geo_privacy' => $data['geo_privacy'],
-            'spiritual_preference' => $data['spiritual_preference'],
-            'language' => $data['language'] ?? ($user->language ?? 'vi'),
-            'religion' => $data['religion'] ?? null,
+            'name' => $data['name'],
+            'city' => $data['city'] ?? null,
             'is_available' => $data['is_available'] ?? $user->is_available,
         ]);
 

@@ -31,7 +31,7 @@
                 <div class="space-y-2">
                     <div class="flex items-center">
                         <span class="w-16 text-sm text-gray-600">Vietnamese:</span>
-                        <input type="text" name="title[vi]" required
+                        <input type="text" name="title[vi]"
                                value="{{ isset($assessment) ? $assessment->getRawOriginal('title')['vi'] ?? '' : old('title.vi') }}"
                                class="flex-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                                placeholder="Assessment title in Vietnamese">
@@ -66,7 +66,7 @@
                 <div class="space-y-2">
                     <div class="flex items-start">
                         <span class="w-16 text-sm text-gray-600 pt-2">Vietnamese:</span>
-                        <textarea name="description[vi]" required rows="3"
+                        <textarea name="description[vi]" rows="3"
                                   class="flex-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                                   placeholder="Assessment description in Vietnamese">{{ isset($assessment) ? $assessment->getRawOriginal('description')['vi'] ?? '' : old('description.vi') }}</textarea>
                     </div>
@@ -91,6 +91,16 @@
                 </div>
             </div>
         </div>
+
+        @if(isset($assessment))
+            <div class="mt-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                <select name="status" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="created" @selected(old('status', $assessment->status) === 'created')>Draft</option>
+                    <option value="active" @selected(old('status', $assessment->status) === 'active')>Published</option>
+                </select>
+            </div>
+        @endif
     </div>
 
     <!-- Questions Section -->
@@ -157,7 +167,7 @@ function addQuestionBlock(questionData = null, qIndex = null) {
             <div class="space-y-2 mb-3">
                 <div class="flex items-center">
                     <span class="w-20 text-sm text-gray-600">Vietnamese:</span>
-                    <input type="text" name="questions[${index}][content][vi]" required
+                    <input type="text" name="questions[${index}][content][vi]"
                            value="${questionData ? questionData.content.vi || '' : ''}"
                            class="flex-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                            placeholder="Question in Vietnamese">
@@ -228,16 +238,16 @@ function generateOptionsHtml(questionIndex, optionsData = null) {
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mb-2">
                     <div>
-                        <input type="text" name="questions[${questionIndex}][options][${optIndex}][content][vi]" required
-                               value="${option && option.content ? option.content.vi || '' : ''}"
-                               class="w-full px-2 py-1 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm"
-                               placeholder="Vietnamese">
+                        <input type="text" name="questions[${questionIndex}][options][${optIndex}][content][vi]"
+                               value="${option.content ? option.content.vi || '' : ''}"
+                               class="flex-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                               placeholder="Option in Vietnamese">
                     </div>
                     <div>
                         <input type="text" name="questions[${questionIndex}][options][${optIndex}][content][en]"
                                value="${option && option.content ? option.content.en || '' : ''}"
                                class="w-full px-2 py-1 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm"
-                               placeholder="English">
+                               placeholder="Option in English">
                     </div>
                     <div>
                         <input type="text" name="questions[${questionIndex}][options][${optIndex}][content][zh]"
@@ -281,7 +291,7 @@ function addOption(questionIndex) {
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mb-2">
                 <div>
-                    <input type="text" name="questions[${questionIndex}][options][${optionCount}][content][vi]" required
+                    <input type="text" name="questions[${questionIndex}][options][${optionCount}][content][vi]"
                            class="w-full px-2 py-1 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm"
                            placeholder="Vietnamese">
                 </div>

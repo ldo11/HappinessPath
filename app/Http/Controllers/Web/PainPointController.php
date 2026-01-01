@@ -39,6 +39,6 @@ class PainPointController extends Controller
 
         $request->user()->painPoints()->sync($sync);
 
-        return redirect()->route('pain-points.index')->with('success', 'Đã lưu cập nhật nỗi khổ.');
+        return redirect()->route('user.pain-points.index')->with('success', 'Đã lưu cập nhật nỗi khổ.');
     }
 }

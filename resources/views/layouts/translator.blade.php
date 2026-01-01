@@ -20,11 +20,17 @@
                 <a href="{{ route('translator.dashboard') }}" class="block px-4 py-3 hover:bg-indigo-800 {{ request()->routeIs('translator.dashboard') ? 'bg-indigo-800 border-l-4 border-indigo-200' : '' }}">
                     <i class="fas fa-tachometer-alt mr-3"></i>Dashboard
                 </a>
-                <a href="{{ route('translator.language-lines.index') }}" class="block px-4 py-3 hover:bg-indigo-800 {{ request()->routeIs('translator.language-lines.*') ? 'bg-indigo-800 border-l-4 border-indigo-200' : '' }}">
-                    <i class="fas fa-language mr-3"></i>Language Lines
+                <a href="{{ route('translator.ui-matrix.index') }}" class="block px-4 py-3 hover:bg-indigo-800 {{ request()->routeIs('translator.ui-matrix.*') ? 'bg-indigo-800 border-l-4 border-indigo-200' : '' }}">
+                    <i class="fas fa-language mr-3"></i>UI Matrix
+                </a>
+                <a href="{{ route('translator.assessments.index') }}" class="block px-4 py-3 hover:bg-indigo-800 {{ request()->routeIs('translator.assessments.*') ? 'bg-indigo-800 border-l-4 border-indigo-200' : '' }}">
+                    <i class="fas fa-list-check mr-3"></i>Assessments
+                </a>
+                <a href="{{ route('translator.daily-missions.index') }}" class="block px-4 py-3 hover:bg-indigo-800 {{ request()->routeIs('translator.daily-missions.*') ? 'bg-indigo-800 border-l-4 border-indigo-200' : '' }}">
+                    <i class="fas fa-bullseye mr-3"></i>Daily Missions
                 </a>
                 <div class="border-t border-indigo-700 mt-4 pt-4">
-                    <a href="{{ route('home') }}" class="block px-4 py-3 hover:bg-indigo-800">
+                    <a href="{{ route('user.home', ['locale' => session('locale') ?? config('app.locale', 'en')]) }}" class="block px-4 py-3 hover:bg-indigo-800">
                         <i class="fas fa-arrow-left mr-3"></i>Back to Site
                     </a>
                 </div>
@@ -41,7 +47,7 @@
                         <span class="text-sm text-gray-600">
                             <i class="fas fa-user mr-2"></i>Hi {{ Auth::user()->name }}
                         </span>
-                        <form action="{{ route('logout') }}" method="POST" class="inline">
+                        <form action="{{ route('logout', ['locale' => session('locale') ?? config('app.locale', 'en')]) }}" method="POST" class="inline">
                             @csrf
                             <button type="submit" class="text-sm text-red-600 hover:text-red-800">
                                 <i class="fas fa-sign-out-alt mr-1"></i>Logout
@@ -57,5 +63,7 @@
             </main>
         </div>
     </div>
+
+    @stack('scripts')
 </body>
 </html>

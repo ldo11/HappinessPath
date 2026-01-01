@@ -8,13 +8,9 @@ use Illuminate\Http\Request;
 
 class AssessmentQuestionController extends Controller
 {
-    protected $middleware = [
-        'admin'
-    ];
-
-    public function index()
+    public function index(Request $request)
     {
-        $questions = AssessmentQuestion::query()->orderBy('pillar_group')->orderBy('order')->paginate(20);
+        $questions = AssessmentQuestion::query()->latest('id')->orderBy('pillar_group')->orderBy('order')->paginate(20);
 
         return view('admin.assessment-questions.index', compact('questions'));
     }

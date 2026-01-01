@@ -10,10 +10,6 @@ use Illuminate\Validation\Rule;
 
 class UserController extends Controller
 {
-    protected $middleware = [
-        'translator'
-    ];
-
     public function index(Request $request)
     {
         $query = User::query()->whereIn('role', ['user', 'translator']);

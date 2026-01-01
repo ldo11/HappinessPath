@@ -6,10 +6,17 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Spatie\Translatable\HasTranslations;
 
 class Assessment extends Model
 {
     use HasFactory;
+    use HasTranslations;
+
+    public array $translatable = [
+        'title',
+        'description',
+    ];
 
     protected $fillable = [
         'title',
@@ -20,8 +27,6 @@ class Assessment extends Model
     ];
 
     protected $casts = [
-        'title' => 'array',
-        'description' => 'array',
         'score_ranges' => 'array',
     ];
 
@@ -63,25 +68,5 @@ class Assessment extends Model
         }
 
         return null;
-    }
-
-    public function getTitleAttribute($value)
-    {
-        $locale = app()->getLocale();
-        $title = json_decode($value, true);
-        
-        if (!is_array($title)) {
-            return $value; // Return raw value if not JSON
-        }
-        
-        return $title[$locale] ?? $title['vi'] ?? $title['en'] ?? array_values($title)[0] ?? '';
-    }
-
-    public function getDescriptionAttribute($value)
-    {
-        $locale = app()->getLocale();
-        $description = json_decode($value, true);
-        
-        return $description[$locale] ?? $description['vi'] ?? $description['en'] ?? array_values($description)[0] ?? '';
     }
 }
