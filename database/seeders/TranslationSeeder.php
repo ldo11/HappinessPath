@@ -57,7 +57,6 @@ class TranslationSeeder extends Seeder
         if ($existing) {
             DB::table('users')->where('id', $existing->id)->update([
                 'role' => 'consultant',
-                'role_v2' => 'consultant',
                 'password' => Hash::make('password'),
                 'updated_at' => now(),
             ]);
@@ -70,7 +69,6 @@ class TranslationSeeder extends Seeder
             'email' => $email,
             'password' => Hash::make('password'),
             'role' => 'consultant',
-            'role_v2' => 'consultant',
             'email_verified_at' => now(),
             'created_at' => now(),
             'updated_at' => now(),

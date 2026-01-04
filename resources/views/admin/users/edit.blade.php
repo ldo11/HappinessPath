@@ -6,7 +6,7 @@
 @section('content')
 <div class="max-w-2xl">
     <div class="bg-white rounded-lg shadow">
-        <form method="POST" action="{{ route('admin.users.update', $user) }}">
+        <form method="POST" action="{{ route('user.admin.users.update', ['user' => $user->id]) }}">
             @csrf
             @method('PUT')
             
@@ -92,7 +92,7 @@
                             <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 border border-yellow-200">
                                 Unverified
                             </span>
-                            <form method="POST" action="{{ route('admin.users.verify', $user) }}">
+                            <form method="POST" action="{{ route('user.admin.users.verify', ['user' => $user->id]) }}">
                                 @csrf
                                 @method('PATCH')
                                 <button type="submit" class="px-4 py-2 bg-yellow-600 border border-transparent rounded-md text-white hover:bg-yellow-700">
@@ -127,14 +127,45 @@
                         Enable geo privacy (hide location from other users)
                     </label>
                 </div>
+
+                <!-- User Pain Points -->
+                <div class="border-t pt-6 mt-6">
+                    <h4 class="text-lg font-medium text-gray-900 mb-4">User Pain Points</h4>
+                    @if($user->painPoints->count() > 0)
+                        <div class="bg-gray-50 rounded-lg border border-gray-200 overflow-hidden">
+                            <ul class="divide-y divide-gray-200">
+                                @foreach($user->painPoints as $painPoint)
+                                    <li class="px-4 py-3 flex items-center justify-between">
+                                        <div class="flex items-center">
+                                            @if($painPoint->icon_url)
+                                                <img src="{{ $painPoint->icon_url }}" alt="" class="h-8 w-8 rounded-full mr-3">
+                                            @endif
+                                            <div>
+                                                <p class="text-sm font-medium text-gray-900">{{ $painPoint->getTranslatedName() }}</p>
+                                                <p class="text-xs text-gray-500">{{ ucfirst($painPoint->category) }}</p>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center">
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                                Score: {{ $painPoint->pivot->score }}
+                                            </span>
+                                        </div>
+                                    </li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @else
+                        <p class="text-sm text-gray-500 italic">No pain points recorded for this user.</p>
+                    @endif
+                </div>
             </div>
 
             <div class="px-6 py-4 bg-gray-50 border-t flex justify-end space-x-3">
-                <a href="{{ route('admin.users.index') }}" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
+                <a href="{{ route('user.admin.users.index') }}" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
                     Cancel
                 </a>
                 @if(($user->role ?? null) === 'user')
-                    <form method="POST" action="{{ route('admin.users.reset-assessment', $user) }}" class="inline">
+                    <form method="POST" action="{{ route('user.admin.users.reset-assessment', ['user' => $user->id]) }}" class="inline">
                         @csrf
                         <button type="submit" class="px-4 py-2 bg-amber-600 border border-transparent rounded-md text-white hover:bg-amber-700" onclick="return confirm('Reset this user\'s assessment?')">
                             Reset Assessment

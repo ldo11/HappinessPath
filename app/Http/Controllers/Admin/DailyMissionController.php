@@ -53,6 +53,8 @@ class DailyMissionController extends Controller
             'is_body' => ['nullable', 'boolean'],
             'is_mind' => ['nullable', 'boolean'],
             'is_wisdom' => ['nullable', 'boolean'],
+            'mission_set_id' => ['nullable', 'exists:mission_sets,id'],
+            'day_number' => ['nullable', 'integer', 'min:1', 'max:30'],
         ]);
 
         DailyMission::create([
@@ -62,14 +64,26 @@ class DailyMissionController extends Controller
             'is_body' => (bool) ($data['is_body'] ?? false),
             'is_mind' => (bool) ($data['is_mind'] ?? false),
             'is_wisdom' => (bool) ($data['is_wisdom'] ?? false),
+            'mission_set_id' => $data['mission_set_id'] ?? null,
+            'day_number' => $data['day_number'] ?? null,
             'created_by_id' => $request->user()->id,
         ]);
+
+        if (!empty($data['mission_set_id'])) {
+             $routeName = (string) optional($request->route())->getName();
+             if (str_starts_with($routeName, 'consultant.')) {
+                 return redirect()->route('consultant.mission-sets.show', ['locale' => app()->getLocale(), 'missionSet' => $data['mission_set_id']]);
+             }
+             return redirect()->route('admin.mission-sets.show', $data['mission_set_id']);
+        }
 
         return $this->redirectToIndex($request);
     }
 
-    public function edit(DailyMission $dailyMission)
+    public function edit()
     {
+        $dailyMission = $this->resolveDailyMission();
+        
         $routeName = (string) optional(request()->route())->getName();
         if (str_starts_with($routeName, 'consultant.')) {
             return view('consultant.daily-missions.edit', [
@@ -82,8 +96,10 @@ class DailyMissionController extends Controller
         ]);
     }
 
-    public function update(Request $request, DailyMission $dailyMission)
+    public function update(Request $request)
     {
+        $dailyMission = $this->resolveDailyMission();
+        
         $data = $request->validate([
             'title' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
@@ -91,6 +107,8 @@ class DailyMissionController extends Controller
             'is_body' => ['nullable', 'boolean'],
             'is_mind' => ['nullable', 'boolean'],
             'is_wisdom' => ['nullable', 'boolean'],
+            'mission_set_id' => ['nullable', 'exists:mission_sets,id'],
+            'day_number' => ['nullable', 'integer', 'min:1', 'max:30'],
         ]);
 
         $dailyMission->update([
@@ -100,15 +118,47 @@ class DailyMissionController extends Controller
             'is_body' => (bool) ($data['is_body'] ?? false),
             'is_mind' => (bool) ($data['is_mind'] ?? false),
             'is_wisdom' => (bool) ($data['is_wisdom'] ?? false),
+            'mission_set_id' => $data['mission_set_id'] ?? $dailyMission->mission_set_id,
+            'day_number' => $data['day_number'] ?? $dailyMission->day_number,
         ]);
+
+        if ($dailyMission->mission_set_id) {
+             $routeName = (string) optional($request->route())->getName();
+             if (str_starts_with($routeName, 'consultant.')) {
+                 return redirect()->route('consultant.mission-sets.show', ['locale' => app()->getLocale(), 'missionSet' => $dailyMission->mission_set_id]);
+             }
+             return redirect()->route('admin.mission-sets.show', $dailyMission->mission_set_id);
+        }
 
         return $this->redirectToIndex($request);
     }
 
-    public function destroy(DailyMission $dailyMission)
+    public function destroy()
     {
+        $dailyMission = $this->resolveDailyMission();
+        $missionSetId = $dailyMission->mission_set_id;
+        
         $dailyMission->delete();
 
+        if ($missionSetId) {
+             $routeName = (string) optional(request()->route())->getName();
+             if (str_starts_with($routeName, 'consultant.')) {
+                 return redirect()->route('consultant.mission-sets.show', ['locale' => app()->getLocale(), 'missionSet' => $missionSetId]);
+             }
+             return redirect()->route('admin.mission-sets.show', $missionSetId);
+        }
+
         return $this->redirectToIndex(request());
+    }
+
+    private function resolveDailyMission()
+    {
+        $id = request()->route('dailyMission');
+        
+        if ($id instanceof DailyMission) {
+            return $id;
+        }
+        
+        return DailyMission::findOrFail($id);
     }
 }

@@ -33,8 +33,8 @@ class PainPointTest extends TestCase
         $p2 = PainPoint::create(['name' => 'PP 2', 'category' => 'mind']);
 
         $user->painPoints()->sync([
-            $p1->id => ['severity' => 0],
-            $p2->id => ['severity' => 0],
+            $p1->id => ['score' => 0],
+            $p2->id => ['score' => 0],
         ]);
 
         $response = $this->actingAs($user)->get('/en/dashboard');
@@ -67,22 +67,35 @@ class PainPointTest extends TestCase
         $p1 = PainPoint::create(['name' => 'Score 1', 'category' => 'mind']);
 
         $user->painPoints()->sync([
-            $p10->id => ['severity' => 10],
-            $p9->id => ['severity' => 9],
-            $p8->id => ['severity' => 8],
-            $p2->id => ['severity' => 2],
-            $p1->id => ['severity' => 1],
+            $p10->id => ['score' => 10],
+            $p9->id => ['score' => 9],
+            $p8->id => ['score' => 8],
+            $p2->id => ['score' => 2],
+            $p1->id => ['score' => 1],
         ]);
 
         $response = $this->actingAs($user)->get('/en/dashboard');
         $response->assertOk();
 
-        $response->assertViewHas('topPainPoints', function ($topPainPoints) use ($p10, $p9, $p8) {
-            if (!$topPainPoints || $topPainPoints->count() !== 3) {
+        $response->assertViewHas('myPainPoints', function ($myPainPoints) use ($p10, $p9, $p8, $p2, $p1) {
+            // Controller returns all pain points sorted by score desc
+            if (!$myPainPoints) {
+                return false;
+            }
+            
+            if ($myPainPoints->count() !== 5) {
                 return false;
             }
 
-            $names = $topPainPoints->pluck('name')->values()->all();
+            // Check if the first 3 are the top scorers
+            $names = $myPainPoints->take(3)->pluck('name')->values()->all();
+            
+            // Debug failure
+            if ($names !== [$p10->name, $p9->name, $p8->name]) {
+                dump('Expected:', [$p10->name, $p9->name, $p8->name]);
+                dump('Actual:', $names);
+                dump('All Scores:', $myPainPoints->map(fn($p) => $p->name . ': ' . $p->pivot->score)->all());
+            }
 
             return $names === [$p10->name, $p9->name, $p8->name];
         });

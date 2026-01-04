@@ -62,9 +62,9 @@ Route::prefix('admin')
         Route::get('/videos', [AdminVideoController::class, 'index'])->name('videos.index');
         Route::get('/videos/create', [AdminVideoController::class, 'create'])->name('videos.create');
         Route::post('/videos', [AdminVideoController::class, 'store'])->name('videos.store');
-        Route::get('/videos/{videoId}/edit', [AdminVideoController::class, 'edit'])->name('videos.edit');
-        Route::put('/videos/{videoId}', [AdminVideoController::class, 'update'])->name('videos.update');
-        Route::delete('/videos/{videoId}', [AdminVideoController::class, 'destroy'])->name('videos.destroy');
+        Route::get('/videos/{video}/edit', [AdminVideoController::class, 'edit'])->name('videos.edit');
+        Route::put('/videos/{video}', [AdminVideoController::class, 'update'])->name('videos.update');
+        Route::delete('/videos/{video}', [AdminVideoController::class, 'destroy'])->name('videos.destroy');
 
         Route::prefix('assessments')->name('assessments.')->group(function () {
             Route::get('/', [AdminAssessmentController::class, 'index'])->name('index');
@@ -89,4 +89,14 @@ Route::prefix('admin')
         Route::get('/daily-missions/{dailyMission}/edit', [AdminDailyMissionController::class, 'edit'])->name('daily-missions.edit');
         Route::put('/daily-missions/{dailyMission}', [AdminDailyMissionController::class, 'update'])->name('daily-missions.update');
         Route::delete('/daily-missions/{dailyMission}', [AdminDailyMissionController::class, 'destroy'])->name('daily-missions.destroy');
+
+        Route::prefix('mission-sets')->name('mission-sets.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Admin\MissionSetController::class, 'index'])->name('index');
+            Route::get('/create', [\App\Http\Controllers\Admin\MissionSetController::class, 'create'])->name('create');
+            Route::post('/', [\App\Http\Controllers\Admin\MissionSetController::class, 'store'])->name('store');
+            Route::get('/{missionSet}', [\App\Http\Controllers\Admin\MissionSetController::class, 'show'])->name('show');
+            Route::get('/{missionSet}/edit', [\App\Http\Controllers\Admin\MissionSetController::class, 'edit'])->name('edit');
+            Route::put('/{missionSet}', [\App\Http\Controllers\Admin\MissionSetController::class, 'update'])->name('update');
+            Route::delete('/{missionSet}', [\App\Http\Controllers\Admin\MissionSetController::class, 'destroy'])->name('destroy');
+        });
     });

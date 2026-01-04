@@ -27,7 +27,7 @@
                     <button type="submit" class="px-4 py-2 rounded-xl bg-red-500/20 border border-red-500/30 text-red-100 hover:bg-red-500/30">Close Thread</button>
                 </form>
             @endif
-            <a href="{{ route('consultations.index') }}" class="px-4 py-2 rounded-xl bg-white/10 border border-white/15 text-white hover:bg-white/15">Quay lại</a>
+            <a href="{{ route('user.consultations.index') }}" class="px-4 py-2 rounded-xl bg-white/10 border border-white/15 text-white hover:bg-white/15">Quay lại</a>
         </div>
     </div>
 

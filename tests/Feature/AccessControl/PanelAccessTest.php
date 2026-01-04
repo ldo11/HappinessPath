@@ -137,11 +137,13 @@ class PanelAccessTest extends TestCase
         $admin = User::factory()->admin()->create();
 
         // Test access to various admin pages
+        // Note: languages is only defined in admin.php (non-localized)
+        // users, videos, daily-missions are defined in web.php (localized)
         $adminRoutes = [
-            '/admin/users',
+            '/en/admin/users',
             '/admin/languages',
-            '/admin/videos',
-            '/admin/daily-missions',
+            '/en/admin/videos',
+            '/en/admin/daily-missions',
         ];
 
         foreach ($adminRoutes as $route) {
@@ -155,10 +157,9 @@ class PanelAccessTest extends TestCase
         $consultant = User::factory()->consultant()->create();
 
         $adminRoutes = [
-            '/admin/users',
             '/admin/languages',
-            '/admin/videos',
-            '/admin/daily-missions',
+            '/en/admin/videos',
+            '/en/admin/daily-missions',
         ];
 
         foreach ($adminRoutes as $route) {
@@ -172,14 +173,17 @@ class PanelAccessTest extends TestCase
         $translator = User::factory()->translator()->create();
 
         $adminRoutes = [
-            '/admin/users',
+            '/en/admin/users',
             '/admin/languages',
-            '/admin/videos',
-            '/admin/daily-missions',
+            '/en/admin/videos',
+            '/en/admin/daily-missions',
         ];
 
         foreach ($adminRoutes as $route) {
             $response = $this->actingAs($translator)->get($route);
+            if ($response->status() !== 403) {
+                dump("Translator failing route: $route", "Status: " . $response->status(), "Redirect: " . $response->headers->get('Location'));
+            }
             $response->assertForbidden();
         }
     }

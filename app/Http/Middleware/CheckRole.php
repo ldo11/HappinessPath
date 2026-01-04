@@ -20,15 +20,8 @@ class CheckRole
         }
 
         $userRole = Auth::user()->role;
-        $roleLower = is_string($userRole) ? strtolower($userRole) : $userRole;
-        $effectiveRole = match ($roleLower) {
-            null, '' => 'user',
-            'member' => 'user',
-            'volunteer' => 'translator',
-            default => $roleLower,
-        };
 
-        if ($effectiveRole === 'admin') {
+        if ($userRole === 'admin') {
             return $next($request);
         }
 
@@ -51,7 +44,7 @@ class CheckRole
             return $next($request);
         }
 
-        if (!in_array($effectiveRole, $allowed, true)) {
+        if (!in_array($userRole, $allowed, true)) {
             abort(403, 'Unauthorized access. Role required.');
         }
 

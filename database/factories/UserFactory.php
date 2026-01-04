@@ -41,7 +41,6 @@ class UserFactory extends Factory
             'geo_privacy' => fake()->boolean(),
             'locale' => 'en',
             'buddy_id' => null,
-            'role_v2' => 'user',
             'language' => 'en',
             'religion' => fake()->randomElement(['buddhist', 'taoist', 'christian', 'muslim', 'hindu', 'none']),
             'is_available' => fake()->boolean(80), // 80% chance of being available
@@ -62,7 +61,6 @@ class UserFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'role' => 'admin',
-            'role_v2' => 'admin',
             'is_available' => true,
         ]);
     }
@@ -71,7 +69,6 @@ class UserFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'role' => 'consultant',
-            'role_v2' => 'consultant',
             'is_available' => true,
         ]);
     }
@@ -80,7 +77,6 @@ class UserFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'role' => 'translator',
-            'role_v2' => 'translator',
             'is_available' => true,
         ]);
     }

@@ -23,7 +23,7 @@ class SetLocaleFromUrl
             $supportedLocales = ['en', 'vi', 'de', 'kr'];
         }
 
-        $preferredLocale = (Auth::check() ? (Auth::user()->language ?? Auth::user()->locale) : null)
+        $preferredLocale = (Auth::check() ? (Auth::user()->display_language ?? Auth::user()->language ?? Auth::user()->locale) : null)
             ?? session('locale')
             ?? config('app.locale', 'en');
 

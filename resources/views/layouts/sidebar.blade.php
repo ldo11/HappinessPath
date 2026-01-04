@@ -15,6 +15,12 @@
                         <span>Consultations</span>
                     </a>
 
+                    <a href="{{ route('consultant.users.index', ['locale' => app()->getLocale()]) }}"
+                       class="flex items-center gap-3 px-3 py-2 rounded-xl text-white/80 hover:bg-white/10 hover:text-white transition {{ request()->routeIs('consultant.users.*') ? 'bg-white/10 text-white' : '' }}">
+                        <i class="fas fa-users text-emerald-300"></i>
+                        <span>Users</span>
+                    </a>
+
                     <a href="{{ route('consultant.assessments.index', ['locale' => app()->getLocale()]) }}"
                        class="flex items-center gap-3 px-3 py-2 rounded-xl text-white/80 hover:bg-white/10 hover:text-white transition {{ request()->routeIs('consultant.assessments.*') ? 'bg-white/10 text-white' : '' }}">
                         <i class="fas fa-clipboard-list text-emerald-300"></i>
@@ -25,6 +31,12 @@
                        class="flex items-center gap-3 px-3 py-2 rounded-xl text-white/80 hover:bg-white/10 hover:text-white transition {{ request()->routeIs('consultant.daily-missions.*') ? 'bg-white/10 text-white' : '' }}">
                         <i class="fas fa-bullseye text-emerald-300"></i>
                         <span>Daily Missions</span>
+                    </a>
+
+                    <a href="{{ route('consultant.mission-sets.index', ['locale' => app()->getLocale()]) }}"
+                       class="flex items-center gap-3 px-3 py-2 rounded-xl text-white/80 hover:bg-white/10 hover:text-white transition {{ request()->routeIs('consultant.mission-sets.*') ? 'bg-white/10 text-white' : '' }}">
+                        <i class="fas fa-layer-group text-emerald-300"></i>
+                        <span>Mission Sets</span>
                     </a>
 
                     <a href="{{ route('consultant.videos.index', ['locale' => app()->getLocale()]) }}"
@@ -45,8 +57,8 @@
                         <span>{{ __('menu.dashboard') }}</span>
                     </a>
 
-                    <a href="{{ route('user.assessment') }}"
-                       class="flex items-center gap-3 px-3 py-2 rounded-xl text-white/80 hover:bg-white/10 hover:text-white transition {{ request()->routeIs('user.assessment') ? 'bg-white/10 text-white' : '' }}">
+                    <a href="{{ route('user.assessments.index', ['locale' => app()->getLocale()]) }}"
+                       class="flex items-center gap-3 px-3 py-2 rounded-xl text-white/80 hover:bg-white/10 hover:text-white transition {{ request()->routeIs('user.assessments.*') ? 'bg-white/10 text-white' : '' }}">
                         <i class="fas fa-clipboard-check text-emerald-300"></i>
                         <span>{{ __('menu.soul_assessment') }}</span>
                     </a>
@@ -57,10 +69,16 @@
                         <span>{{ __('menu.videos') }}</span>
                     </a>
 
-                    <a href="{{ route('consultations.index') }}"
-                       class="flex items-center gap-3 px-3 py-2 rounded-xl text-white/80 hover:bg-white/10 hover:text-white transition {{ request()->routeIs('consultations.*') ? 'bg-white/10 text-white' : '' }}">
+                    <a href="{{ route('user.consultations.index') }}"
+                       class="flex items-center gap-3 px-3 py-2 rounded-xl text-white/80 hover:bg-white/10 hover:text-white transition {{ request()->routeIs('user.consultations.*') ? 'bg-white/10 text-white' : '' }}">
                         <i class="fas fa-comments text-emerald-300"></i>
                         <span>{{ __('menu.consultations') }}</span>
+                    </a>
+
+                    <a href="{{ route('user.pain-points.index') }}"
+                       class="flex items-center gap-3 px-3 py-2 rounded-xl text-white/80 hover:bg-white/10 hover:text-white transition {{ request()->routeIs('user.pain-points.*') ? 'bg-white/10 text-white' : '' }}">
+                        <i class="fas fa-heart-broken text-emerald-300"></i>
+                        <span>{{ __('menu.pain_points') }}</span>
                     </a>
 
                     @if(auth()->user()?->hasRole('admin'))
@@ -90,7 +108,7 @@
 
 <div class="lg:hidden fixed bottom-0 inset-x-0 z-20">
     <div class="glassmorphism border-t border-white/10">
-        <div class="grid grid-cols-4">
+        <div class="grid grid-cols-5">
             @if(auth()->user()?->hasRole('consultant'))
                 <a href="{{ route('consultant.dashboard', ['locale' => app()->getLocale()]) }}" class="py-3 text-center text-white/80 {{ request()->routeIs('consultant.dashboard') ? 'bg-white/10 text-white' : '' }}">
                     <i class="fas fa-comments"></i>
@@ -101,6 +119,9 @@
                 <a href="{{ route('consultant.daily-missions.index', ['locale' => app()->getLocale()]) }}" class="py-3 text-center text-white/80 {{ request()->routeIs('consultant.daily-missions.*') ? 'bg-white/10 text-white' : '' }}">
                     <i class="fas fa-bullseye"></i>
                 </a>
+                <a href="{{ route('consultant.mission-sets.index', ['locale' => app()->getLocale()]) }}" class="py-3 text-center text-white/80 {{ request()->routeIs('consultant.mission-sets.*') ? 'bg-white/10 text-white' : '' }}">
+                    <i class="fas fa-layer-group"></i>
+                </a>
                 <a href="{{ route('user.profile.settings.edit', ['locale' => app()->getLocale()]) }}" class="py-3 text-center text-white/80 {{ request()->routeIs('user.profile.settings.*') ? 'bg-white/10 text-white' : '' }}">
                     <i class="fas fa-sliders-h"></i>
                 </a>
@@ -108,13 +129,13 @@
                 <a href="{{ route('dashboard') }}" class="py-3 text-center text-white/80 {{ request()->routeIs('dashboard') ? 'bg-white/10 text-white' : '' }}">
                     <i class="fas fa-chart-line"></i>
                 </a>
-                <a href="{{ route('user.assessment') }}" class="py-3 text-center text-white/80 {{ request()->routeIs('user.assessment') ? 'bg-white/10 text-white' : '' }}">
+                <a href="{{ route('user.assessment.shortcut') }}" class="py-3 text-center text-white/80 {{ request()->routeIs('user.assessments.*') ? 'bg-white/10 text-white' : '' }}">
                     <i class="fas fa-clipboard-check"></i>
                 </a>
                 <a href="{{ route('videos.index') }}" class="py-3 text-center text-white/80 {{ request()->routeIs('videos.*') ? 'bg-white/10 text-white' : '' }}">
                     <i class="fas fa-video"></i>
                 </a>
-                <a href="{{ route('consultations.index') }}" class="py-3 text-center text-white/80 {{ request()->routeIs('consultations.*') ? 'bg-white/10 text-white' : '' }}">
+                <a href="{{ route('user.consultations.index') }}" class="py-3 text-center text-white/80 {{ request()->routeIs('user.consultations.*') ? 'bg-white/10 text-white' : '' }}">
                     <i class="fas fa-comments"></i>
                 </a>
             @endif

@@ -143,7 +143,7 @@ class RegistrationAndLoginTest extends TestCase
             'password' => 'password123',
         ]);
 
-        $response->assertRedirect('/admin/dashboard');
+        $response->assertRedirect('/en/admin/dashboard');
 
         // Test consultant user
         $consultantUser = User::factory()->consultant()->create([

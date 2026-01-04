@@ -28,10 +28,33 @@
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-200" for="city">City</label>
-                    <input id="city" name="city" type="text" value="{{ old('city', $user->city) }}"
+                    <label class="block text-sm font-medium text-gray-200" for="location">Location</label>
+                    <input id="location" name="location" type="text" value="{{ old('location', $user->location) }}"
                            class="mt-2 block w-full rounded-lg bg-transparent text-white border border-gray-500 focus:border-emerald-400 focus:ring-0" />
-                    @error('city')
+                    @error('location')
+                        <p class="mt-2 text-sm text-red-200">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-200" for="display_language">Display Language</label>
+                    <select id="display_language" name="display_language"
+                            class="mt-2 block w-full rounded-lg bg-transparent text-white border border-gray-500 focus:border-emerald-400 focus:ring-0">
+                        <option value="en" class="text-black" @selected(old('display_language', $user->display_language) === 'en')>English</option>
+                        <option value="vi" class="text-black" @selected(old('display_language', $user->display_language) === 'vi')>Vietnamese</option>
+                        <option value="de" class="text-black" @selected(old('display_language', $user->display_language) === 'de')>German</option>
+                        <option value="kr" class="text-black" @selected(old('display_language', $user->display_language) === 'kr')>Korean</option>
+                    </select>
+                    @error('display_language')
+                        <p class="mt-2 text-sm text-red-200">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-200" for="introduction">Introduction</label>
+                    <textarea id="introduction" name="introduction" rows="3"
+                              class="mt-2 block w-full rounded-lg bg-transparent text-white border border-gray-500 focus:border-emerald-400 focus:ring-0">{{ old('introduction', $user->introduction) }}</textarea>
+                    @error('introduction')
                         <p class="mt-2 text-sm text-red-200">{{ $message }}</p>
                     @enderror
                 </div>

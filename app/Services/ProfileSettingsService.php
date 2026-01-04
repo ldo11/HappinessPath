@@ -10,6 +10,10 @@ class ProfileSettingsService
     {
         $user->fill([
             'name' => $data['name'],
+            'nickname' => $data['nickname'] ?? null,
+            'introduction' => $data['introduction'] ?? null,
+            'location' => $data['location'] ?? null,
+            'display_language' => $data['display_language'] ?? 'en',
             'city' => $data['city'] ?? null,
             'is_available' => $data['is_available'] ?? $user->is_available,
         ]);

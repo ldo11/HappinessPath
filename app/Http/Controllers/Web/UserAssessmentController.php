@@ -10,17 +10,16 @@ use App\Models\AssessmentAssignment;
 use App\Models\AssessmentOption;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 
 class UserAssessmentController extends Controller
 {
-    public function index()
+    public function index($locale)
     {
         $user = Auth::user();
         
         // Get available assessments
         $availableAssessments = Assessment::active()
-            ->with('questions.options')
+            ->withCount('questions')
             ->get();
             
         // Get special assessments assigned to this user
@@ -28,7 +27,7 @@ class UserAssessmentController extends Controller
             ->whereHas('userAssessments', function ($query) use ($user) {
                 $query->where('user_id', $user->id);
             })
-            ->with('questions.options')
+            ->withCount('questions')
             ->get();
             
         // Combine available and special assessments
@@ -45,7 +44,7 @@ class UserAssessmentController extends Controller
         return view('web.assessments.index', compact('allAvailableAssessments', 'userResults'));
     }
 
-    public function show($assessment, $token = null)
+    public function show($locale, $assessment, $token = null)
     {
         // Handle both route model binding and raw ID
         if (is_numeric($assessment)) {
@@ -68,12 +67,12 @@ class UserAssessmentController extends Controller
         return view('web.assessments.show', compact('assessment'));
     }
 
-    public function showSigned(Assessment $assessment, $token)
+    public function showSigned($locale, Assessment $assessment, $token)
     {
-        return $this->show($assessment, $token);
+        return $this->show($locale, $assessment, $token);
     }
 
-    public function submit(Request $request, $assessmentId) // Accept $assessmentId to avoid binding issues
+    public function submit(Request $request, $locale, $assessmentId)
     {
         // 1. Manual Lookup to bypass binding errors
         $assessment = Assessment::findOrFail($assessmentId);
@@ -148,11 +147,11 @@ class UserAssessmentController extends Controller
         // 5. Return Response
         return response()->json([
             'message' => 'Submitted successfully',
-            'redirect_url' => route('user.assessments.result', $userAssessment->id)
+            'redirect_url' => route('user.assessments.result', ['locale' => $locale, 'userAssessment' => $userAssessment->id])
         ]);
     }
 
-    public function result(UserAssessment $userAssessment)
+    public function result($locale, UserAssessment $userAssessment)
     {
         // Ensure user can only see their own results
         if ($userAssessment->user_id !== Auth::id()) {
@@ -167,7 +166,7 @@ class UserAssessmentController extends Controller
         return view('web.assessments.result', compact('userAssessment', 'results'));
     }
 
-    public function convertToConsultation(UserAssessment $userAssessment)
+    public function convertToConsultation($locale, UserAssessment $userAssessment)
     {
         // Ensure user can only convert their own results
         if ($userAssessment->user_id !== Auth::id()) {
@@ -181,7 +180,7 @@ class UserAssessmentController extends Controller
         $consultationThread = ConsultationThread::create([
             'user_id' => $userAssessment->user_id,
             'title' => "Review Assessment Result: " . $userAssessment->assessment->title,
-            'content' => "User has requested a review of their assessment result. Score: {$userAssessment->total_score}",
+            'content' => "User has requested a review of their assessment result. Score: " . $userAssessment->total_score,
             'status' => 'pending',
         ]);
 
@@ -190,7 +189,7 @@ class UserAssessmentController extends Controller
             'consultation_thread_id' => $consultationThread->id,
         ]);
 
-        return redirect()->route('user.consultations.show', ['consultation_id' => $consultationThread->id])
+        return redirect()->route('user.consultations.show', ['locale' => $locale, 'consultation_id' => $consultationThread->id])
             ->with('success', 'Assessment result has been sent for consultation!');
     }
 

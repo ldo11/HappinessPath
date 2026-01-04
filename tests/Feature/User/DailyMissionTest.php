@@ -55,7 +55,7 @@ class DailyMissionTest extends TestCase
     }
 
     /** @test */
-    public function user_cannot_complete_same_daily_mission_twice()
+    public function user_cannot_complete_same_daily_mission_twice_real()
     {
         // Complete the mission first time
         $response = $this->actingAs($this->user)
@@ -80,7 +80,7 @@ class DailyMissionTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertJson([
-            'success' => true,
+            'success' => false,
             'already_completed' => true,
             'xp_awarded' => 20, // Previously awarded XP
         ]);

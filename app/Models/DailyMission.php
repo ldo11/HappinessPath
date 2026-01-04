@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Spatie\Translatable\HasTranslations;
 
 class DailyMission extends Model
@@ -25,6 +26,8 @@ class DailyMission extends Model
         'is_mind',
         'is_wisdom',
         'created_by_id',
+        'mission_set_id',
+        'day_number',
     ];
 
     protected $casts = [
@@ -37,5 +40,10 @@ class DailyMission extends Model
     public function createdBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by_id');
+    }
+
+    public function missionSet(): BelongsTo
+    {
+        return $this->belongsTo(MissionSet::class);
     }
 }

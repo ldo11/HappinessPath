@@ -1,0 +1,44 @@
+
+   FAIL  Tests\Feature\Consultant\MissionSetAssignmentTest
+  ⨯ consultant can assign mission set to user                            0.14s  
+  ⨯ consultant can create mission set and add missions                   0.02s  
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Feature\Consultant\MissionSetAssignmentTest…  QueryException   
+  SQLSTATE[HY000]: General error: 1 no such table: users (Connection: sqlite, SQL: insert into "users" ("name", "email", "email_verified_at", "password", "remember_token", "dob", "disc_type", "role_v2", "role", "spiritual_preference", "onboarding_status", "start_pain_level", "city", "district", "country", "geo_privacy", "locale", "buddy_id", "language", "religion", "is_available", "updated_at", "created_at") values (Georgette Schoen, mitchell.ally@example.net, 2026-01-04 00:40:24, $2y$04$gRLQogr.j.tWOXAfn.UpRer/7JmK9WRhDvdYB17sHz8DLg6QTZK/O, yCUh523nxt, 1993-01-24 00:00:00, S, consultant, member, none, pending, 6, New Paulport, Indiana, Togo, 1, en, ?, en, taoist, 1, 2026-01-04 00:40:24, 2026-01-04 00:40:24))
+
+  at vendor/laravel/framework/src/Illuminate/Database/Connection.php:825
+    821▕                     $this->getName(), $query, $this->prepareBindings($bindings), $e
+    822▕                 );
+    823▕             }
+    824▕ 
+  ➜ 825▕             throw new QueryException(
+    826▕                 $this->getName(), $query, $this->prepareBindings($bindings), $e
+    827▕             );
+    828▕         }
+    829▕     }
+
+      [2m+18 vendor frames [22m
+  19  tests/Feature/Consultant/MissionSetAssignmentTest.php:21
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Feature\Consultant\MissionSetAssignmentTest…  QueryException   
+  SQLSTATE[HY000]: General error: 1 no such table: users (Connection: sqlite, SQL: insert into "users" ("name", "email", "email_verified_at", "password", "remember_token", "dob", "disc_type", "role_v2", "role", "spiritual_preference", "onboarding_status", "start_pain_level", "city", "district", "country", "geo_privacy", "locale", "buddy_id", "language", "religion", "is_available", "updated_at", "created_at") values (Mrs. Yasmine Crona, gerhold.isadore@example.com, 2026-01-04 00:40:24, $2y$04$gRLQogr.j.tWOXAfn.UpRer/7JmK9WRhDvdYB17sHz8DLg6QTZK/O, rEdP5NZUBN, 1988-03-22 00:00:00, I, consultant, member, buddhist, pending, 5, South Roman, Connecticut, Uruguay, 0, en, ?, en, hindu, 1, 2026-01-04 00:40:24, 2026-01-04 00:40:24))
+
+  at vendor/laravel/framework/src/Illuminate/Database/Connection.php:825
+    821▕                     $this->getName(), $query, $this->prepareBindings($bindings), $e
+    822▕                 );
+    823▕             }
+    824▕ 
+  ➜ 825▕             throw new QueryException(
+    826▕                 $this->getName(), $query, $this->prepareBindings($bindings), $e
+    827▕             );
+    828▕         }
+    829▕     }
+
+      [2m+18 vendor frames [22m
+  19  tests/Feature/Consultant/MissionSetAssignmentTest.php:50
+
+
+  Tests:    2 failed (0 assertions)
+  Duration: 0.22s
+

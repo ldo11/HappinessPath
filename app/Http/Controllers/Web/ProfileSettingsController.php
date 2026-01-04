@@ -33,6 +33,10 @@ class ProfileSettingsController extends Controller
     {
         $data = $request->validate([
             'name' => ['required', 'string', 'max:255'],
+            'nickname' => ['nullable', 'string', 'max:255'],
+            'introduction' => ['nullable', 'string'],
+            'location' => ['nullable', 'string', 'max:255'],
+            'display_language' => ['nullable', 'string', 'max:10'],
             'city' => ['nullable', 'string', 'max:255'],
             'is_available' => ['nullable', 'boolean'],
             'consultant_pain_points' => ['nullable', 'array'],
@@ -41,7 +45,7 @@ class ProfileSettingsController extends Controller
 
         $service->update($request->user(), $data);
 
-        $language = (string) ($request->user()->language ?? session('locale') ?? config('app.locale', 'en'));
+        $language = (string) ($request->user()->display_language ?? session('locale') ?? config('app.locale', 'en'));
         session(['locale' => $language]);
         app()->setLocale($language);
         URL::defaults(['locale' => $language]);

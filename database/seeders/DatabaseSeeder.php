@@ -14,20 +14,21 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call([
+            // Foundation
             LanguageSeeder::class,
             LanguageLineSeeder::class,
+
+            // Users & Roles
+            TestUsersSeeder::class,
+
+            // Content & Logic
             PainPointSeeder::class,
             AssessmentSeeder::class,
-            TranslationSeeder::class,
-            TestUsersSeeder::class,
+            DailyMissionSeeder::class,
             VideoSeeder::class,
-        ]);
 
-        // User::factory(10)->create();
-
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+            // Translations (Last)
+            TranslationSeeder::class,
         ]);
     }
 }

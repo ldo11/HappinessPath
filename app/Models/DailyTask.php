@@ -5,15 +5,22 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Translatable\HasTranslations;
 
 class DailyTask extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, HasTranslations;
+
+    public $translatable = ['title', 'description', 'content', 'instructions'];
 
     protected $fillable = [
         'day_number',
         'title',
         'description',
+        'content',
+        'pillar_tag',
+        'difficulty',
+        'difficulty_level_int',
         'type',
         'estimated_minutes',
         'solution_id',
@@ -23,7 +30,6 @@ class DailyTask extends Model
     ];
 
     protected $casts = [
-        'instructions' => 'array',
         'estimated_minutes' => 'integer',
         'completed_at' => 'datetime',
     ];

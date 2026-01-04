@@ -29,8 +29,11 @@
                 <a href="{{ route('admin.videos.index') }}" class="block px-4 py-3 hover:bg-gray-800 {{ request()->routeIs('admin.videos.*') ? 'bg-gray-800 border-l-4 border-green-400' : '' }}">
                     <i class="fas fa-video mr-3"></i>Video Management
                 </a>
+                <a href="{{ route('admin.mission-sets.index') }}" class="block px-4 py-3 hover:bg-gray-800 {{ request()->routeIs('admin.mission-sets.*') ? 'bg-gray-800 border-l-4 border-green-400' : '' }}">
+                    <i class="fas fa-layer-group mr-3"></i>Mission Sets
+                </a>
                 <div class="border-t border-gray-700 mt-4 pt-4">
-                    <a href="{{ route('user.translator.translator.dashboard', ['locale' => session('locale') ?? config('app.locale', 'en')]) }}" class="block px-4 py-3 hover:bg-gray-800">
+                    <a href="{{ route('translator.dashboard') }}" class="block px-4 py-3 hover:bg-gray-800">
                         <i class="fas fa-language mr-3"></i>Translator Portal
                     </a>
                     <a href="{{ route('user.home', ['locale' => session('locale') ?? config('app.locale', 'en')]) }}" class="block px-4 py-3 hover:bg-gray-800">

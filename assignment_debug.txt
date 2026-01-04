@@ -1,0 +1,33 @@
+"Assigning Mission Set ID: 1 to User ID: 2" // app/Http/Controllers/Consultant/MissionSetController.php:122
+"Before Update:" // app/Http/Controllers/Consultant/MissionSetController.php:123
+null // app/Http/Controllers/Consultant/MissionSetController.php:123
+"Update Result: true" // app/Http/Controllers/Consultant/MissionSetController.php:130
+"After Update (from instance):" // app/Http/Controllers/Consultant/MissionSetController.php:131
+null // app/Http/Controllers/Consultant/MissionSetController.php:131
+"After Update (fresh from DB):" // app/Http/Controllers/Consultant/MissionSetController.php:132
+null // app/Http/Controllers/Consultant/MissionSetController.php:132
+
+   FAIL  Tests\Feature\Consultant\MissionSetAssignmentTest
+  ⨯ consultant can assign mission set to user                            0.27s  
+  ✓ consultant can create mission set and add missions                   0.02s  
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Feature\Consultant\MissionSetAssignmentTest > consultant ca…   
+  Failed asserting that null matches expected 1.
+
+  at tests/Feature/Consultant/MissionSetAssignmentTest.php:53
+     49▕         $user->refresh();
+     50▕         // Debugging
+     51▕         // dump($user->toArray());
+     52▕         
+  ➜  53▕         $this->assertEquals($missionSet->id, $user->active_mission_set_id);
+     54▕         $this->assertEquals(now()->toDateString(), $user->mission_started_at->toDateString());
+     55▕     }
+     56▕ 
+     57▕     public function test_consultant_can_create_mission_set_and_add_missions()
+
+  1   tests/Feature/Consultant/MissionSetAssignmentTest.php:53
+
+
+  Tests:    1 failed, 1 passed (6 assertions)
+  Duration: 0.35s
+

@@ -29,7 +29,6 @@ class User extends Authenticatable implements MustVerifyEmailContract
         'dob',
         'disc_type',
         'role',
-        'role_v2',
         'is_available',
         'spiritual_preference',
         'onboarding_status',
@@ -41,6 +40,15 @@ class User extends Authenticatable implements MustVerifyEmailContract
         'locale',
         'language',
         'religion',
+        'nickname',
+        'display_language',
+        'introduction',
+        'location',
+        'xp_body',
+        'xp_mind',
+        'xp_wisdom',
+        'active_mission_set_id',
+        'mission_started_at',
     ];
 
     protected $hidden = [
@@ -56,51 +64,20 @@ class User extends Authenticatable implements MustVerifyEmailContract
             'geo_privacy' => 'boolean',
             'is_available' => 'boolean',
             'password' => 'hashed',
+            'mission_started_at' => 'date',
         ];
-    }
-
-    public function getRoleAttribute($value)
-    {
-        $roleV2 = $this->attributes['role_v2'] ?? null;
-        if (is_string($roleV2) && $roleV2 !== '') {
-            return strtolower($roleV2);
-        }
-
-        $legacy = $value;
-        $legacyLower = is_string($legacy) ? strtolower($legacy) : $legacy;
-
-        return match ($legacyLower) {
-            null, '' => 'user',
-            'member' => 'user',
-            'volunteer' => 'translator',
-            default => $legacyLower,
-        };
-    }
-
-    public function setRoleAttribute($value): void
-    {
-        $roleLower = is_string($value) ? strtolower(trim($value)) : $value;
-
-        $canonical = match ($roleLower) {
-            null, '' => 'user',
-            'member' => 'user',
-            'volunteer' => 'translator',
-            default => $roleLower,
-        };
-
-        $this->attributes['role_v2'] = $canonical;
-
-        // Keep legacy enum column compatible.
-        $this->attributes['role'] = match ($canonical) {
-            'admin' => 'admin',
-            'translator' => 'volunteer',
-            default => 'member',
-        };
     }
 
     public function hasRole($role): bool
     {
         return $this->role === $role;
+    }
+
+    public function completedMissions(): BelongsToMany
+    {
+        return $this->belongsToMany(DailyMission::class, 'mission_completions')
+            ->withPivot(['completed_at', 'xp_earned'])
+            ->withTimestamps();
     }
 
     public function buddy(): BelongsTo
@@ -120,8 +97,8 @@ class User extends Authenticatable implements MustVerifyEmailContract
 
     public function painPoints(): BelongsToMany
     {
-        return $this->belongsToMany(PainPoint::class, 'user_pain_points')
-            ->withPivot(['severity'])
+        return $this->belongsToMany(PainPoint::class, 'pain_point_user')
+            ->withPivot(['score'])
             ->withTimestamps();
     }
 
@@ -156,5 +133,10 @@ class User extends Authenticatable implements MustVerifyEmailContract
         return $this->belongsToMany(Video::class, 'user_video_logs')
             ->withPivot(['claimed_at', 'xp_awarded'])
             ->withTimestamps();
+    }
+
+    public function activeMissionSet(): BelongsTo
+    {
+        return $this->belongsTo(MissionSet::class, 'active_mission_set_id');
     }
 }

@@ -111,7 +111,7 @@ class AuthDashboardLoginTest extends TestCase
             'Dashboard should not contain Virtue Tree section (it was removed)'
         );
 
-        $dashboard->assertSee('/en/assessment', false);
+        $dashboard->assertSee('/en/assessments', false);
     }
 
     public function test_translator_can_login_and_view_dashboard(): void

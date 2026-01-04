@@ -6,11 +6,12 @@ use App\Http\Controllers\Translator\AssessmentController;
 use App\Http\Controllers\Translator\DailyMissionController;
 use Illuminate\Support\Facades\Route;
 
-Route::prefix('translator')
-    ->middleware(['web', 'auth', 'role:translator|admin'])
+Route::prefix('{locale}/translator')
+    ->whereIn('locale', ['en', 'vi', 'de', 'kr'])
+    ->middleware(['web', 'auth', 'role:translator|admin', 'localization'])
     ->name('translator.')
     ->group(function () {
-        Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+        Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
         Route::get('/ui-matrix', [LanguageLineController::class, 'index'])->name('ui-matrix.index');
         Route::post('/ui-matrix/{languageLine}', [LanguageLineController::class, 'update'])->name('ui-matrix.update');

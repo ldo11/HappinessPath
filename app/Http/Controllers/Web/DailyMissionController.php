@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
 use App\Models\DailyTask;
+use App\Models\DailyMission;
 use App\Models\UserDailyTask;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -88,14 +89,26 @@ class DailyMissionController extends Controller
             'report_content' => ['required', 'string', 'min:1'],
         ]);
 
-        // Backward compatibility for tests and legacy behavior:
-        // - Tests pass DailyMission::id as task_id.
-        // - UserDailyTask enforces FK to daily_tasks.
-        // So we ensure there is a daily_tasks row with the same id.
         $taskId = (int) $data['task_id'];
 
+        // JIT Creation Logic with Validation
+        // We only auto-create a DailyTask placeholder if a valid DailyMission exists with this ID.
+        // This supports the legacy behavior where DailyMission IDs are passed as task_id,
+        // while strictly preventing arbitrary integer completions.
         $dailyTaskExists = DailyTask::query()->whereKey($taskId)->exists();
+        
         if (! $dailyTaskExists) {
+            // Check if it's a valid DailyMission
+            $missionExists = DailyMission::where('id', $taskId)->exists();
+            
+            if (!$missionExists) {
+                // If neither exists, fail validation
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    'task_id' => ['The selected task id is invalid (not found in tasks or missions).'],
+                ]);
+            }
+
+            // Auto-create placeholder for valid Mission
             $payload = [
                 'id' => $taskId,
                 'title' => 'Daily Mission #' . $taskId,
@@ -111,12 +124,10 @@ class DailyMissionController extends Controller
             if (Schema::hasColumn('daily_tasks', 'day_number')) {
                 $payload['day_number'] = 1;
             }
-
             if (Schema::hasColumn('daily_tasks', 'type')) {
                 $payload['type'] = 'mindfulness';
             }
             if (Schema::hasColumn('daily_tasks', 'difficulty')) {
-                // Some schemas use enum strings, some use tinyint.
                 $payload['difficulty'] = Schema::getColumnType('daily_tasks', 'difficulty') === 'integer' ? 1 : 'easy';
             }
             if (Schema::hasColumn('daily_tasks', 'estimated_minutes')) {
@@ -139,13 +150,19 @@ class DailyMissionController extends Controller
         }
 
         $user = $request->user();
-        $xp = 20;
+        
+        // Determine XP to award
+        $xp = 20; // Default
+        $mission = DailyMission::find($taskId);
+        if ($mission) {
+            $xp = $mission->points ?? 20;
+        }
 
-        $result = DB::transaction(function () use ($user, $data, $xp) {
+        $result = DB::transaction(function () use ($user, $data, $xp, $taskId) {
             $log = UserDailyTask::query()->firstOrCreate(
                 [
                     'user_id' => $user->id,
-                    'daily_task_id' => (int) $data['task_id'],
+                    'daily_task_id' => (int) $taskId,
                 ],
                 [
                     'report_content' => (string) $data['report_content'],
@@ -160,7 +177,7 @@ class DailyMissionController extends Controller
                     'message' => 'Task already completed',
                     'already_completed' => true,
                     'xp_awarded' => (int) $log->xp_awarded,
-                    'new_exp' => 0, // UserTree removed, return default value
+                    'new_exp' => 0, 
                 ];
             }
 
@@ -169,13 +186,26 @@ class DailyMissionController extends Controller
             $log->xp_awarded = $xp;
             $log->save();
 
-            // UserTree functionality has been removed
-            // XP is still awarded and stored in UserDailyTask but not tracked in UserTree
+            // Award XP to specific column based on task type
+            $task = DailyTask::find($taskId);
+            if ($task) {
+                $type = $task->type ?? 'mindfulness';
+                $column = match($type) {
+                    'physical' => 'xp_body',
+                    'wisdom' => 'xp_wisdom',
+                    default => 'xp_mind',
+                };
+                $user->increment($column, $xp);
+            } else {
+                // Fallback if task not found (should be rare due to prior checks)
+                $user->increment('xp_mind', $xp);
+            }
+
             return [
                 'success' => true,
                 'already_completed' => false,
                 'xp_awarded' => $xp,
-                'new_exp' => 0, // UserTree removed, return default value
+                'new_exp' => $user->fresh()->xp_mind, // Return relevant XP or total? Just returning one for UI mostly.
             ];
         });
 

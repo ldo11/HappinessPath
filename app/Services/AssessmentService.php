@@ -141,7 +141,7 @@ class AssessmentService
         return $result;
     }
 
-    private function syncPainPointsFromTriggers(User $user, array $painPointTriggers): void
+    public function syncPainPointsFromTriggers(User $user, array $painPointTriggers): void
     {
         if (empty($painPointTriggers)) {
             return;

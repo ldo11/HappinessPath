@@ -13,7 +13,7 @@ class VideoController extends Controller
     public function index(Request $request)
     {
         $allowedPillars = ['body', 'mind', 'wisdom'];
-        $supportsJsonContains = DB::getDriverName() !== 'sqlite';
+        $driver = DB::getDriverName(); $supportsJsonContains = $driver !== 'sqlite';
 
         $user = $request->user();
         $hasUserLanguage = $user && is_string($user->language) && $user->language !== '';
@@ -48,8 +48,8 @@ class VideoController extends Controller
             ->latest();
 
         if (is_string($pillar) && in_array($pillar, $allowedPillars, true)) {
-            if ($supportsJsonContains) {
-                $query->whereJsonContains('pillar_tags', $pillar);
+            if (true) {
+                if ($supportsJsonContains) { $query->whereJsonContains('pillar_tags', $pillar); } else { $query->where('pillar_tags', 'LIKE', '%"' . $pillar . '"%' ); }
             }
         } else {
             $pillar = null;
@@ -58,14 +58,14 @@ class VideoController extends Controller
         // Strict filtering by user's religion:
         // - If user selects a specific source, it must be within allowed set.
         // - Otherwise, constrain to allowed set.
-        if ($supportsJsonContains) {
+        if (true) {
             if (is_string($source) && in_array($source, $allowedSourcesByReligion, true)) {
-                $query->whereJsonContains('source_tags', $source);
+                if ($supportsJsonContains) { $query->whereJsonContains('source_tags', $source); } else { $query->where('source_tags', 'LIKE', '%"' . $source . '"%' ); }
             } else {
                 $source = null;
-                $query->where(function ($q) use ($allowedSourcesByReligion) {
+                $query->where(function ($q) use ($allowedSourcesByReligion, $supportsJsonContains) {
                     foreach ($allowedSourcesByReligion as $tag) {
-                        $q->orWhereJsonContains('source_tags', $tag);
+                        if ($supportsJsonContains) { $q->orWhereJsonContains('source_tags', $tag); } else { $q->orWhere('source_tags', 'LIKE', '%"' . $tag . '"%' ); }
                     }
                 });
             }
@@ -86,7 +86,7 @@ class VideoController extends Controller
     public function show(Request $request, string $locale, $videoId)
     {
         $video = Video::query()->findOrFail($videoId);
-        $supportsJsonContains = DB::getDriverName() !== 'sqlite';
+        $driver = DB::getDriverName(); $supportsJsonContains = $driver !== 'sqlite';
 
         // Check if video is active
         if (!$video->is_active) {
@@ -112,7 +112,7 @@ class VideoController extends Controller
         };
 
         $videoSources = (array) ($video->source_tags ?? []);
-        if ($supportsJsonContains && count($videoSources) > 0) {
+        if (count($videoSources) > 0) {
             $allowed = count(array_intersect($videoSources, $allowedSourcesByReligion)) > 0;
             if (!$allowed) {
                 abort(404);
@@ -133,10 +133,10 @@ class VideoController extends Controller
             ->when($hasUserLanguage, function ($q) use ($lang) {
                 $q->where('language', $lang);
             })
-            ->when($supportsJsonContains, function ($q) use ($allowedSourcesByReligion) {
-                $q->where(function ($qq) use ($allowedSourcesByReligion) {
+            ->when(true, function ($q) use ($allowedSourcesByReligion, $supportsJsonContains) {
+                $q->where(function ($qq) use ($allowedSourcesByReligion, $supportsJsonContains) {
                     foreach ($allowedSourcesByReligion as $tag) {
-                        $qq->orWhereJsonContains('source_tags', $tag);
+                        if ($supportsJsonContains) { $qq->orWhereJsonContains('source_tags', $tag); } else { $qq->orWhere('source_tags', 'LIKE', '%"' . $tag . '"%' ); }
                     }
                 });
             })

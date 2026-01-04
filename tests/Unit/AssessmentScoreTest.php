@@ -110,7 +110,7 @@ class AssessmentScoreTest extends TestCase
     }
 
     /** @test */
-    public function it_sets_pain_point_severity_to_10_for_always_negative_answer()
+    public function it_sets_pain_point_score_to_10_for_always_negative_answer()
     {
         // Create a specific negative question (e.g., "I feel hopeless")
         $negativeQuestion = AssessmentQuestion::factory()->create([
@@ -122,7 +122,7 @@ class AssessmentScoreTest extends TestCase
             ]
         ]);
 
-        // Create options including "Always" (score 5) which should trigger severity 10
+        // Create options including "Always" (score 5) which should trigger score 10
         $alwaysOption = AssessmentOption::factory()->create([
             'question_id' => $negativeQuestion->id,
             'score' => 5,
@@ -159,10 +159,10 @@ class AssessmentScoreTest extends TestCase
             'total_score' => 5,
         ]);
 
-        // Attach pain point with severity 10 (simulating the business logic)
-        $this->user->painPoints()->attach($painPoint->id, ['severity' => 10]);
+        // Attach pain point with score 10 (simulating the business logic)
+        $this->user->painPoints()->attach($painPoint->id, ['score' => 10]);
 
-        $this->assertEquals(10, $this->user->painPoints()->first()->pivot->severity);
+        $this->assertEquals(10, $this->user->painPoints()->first()->pivot->score);
 
         // Test Case 2: User answers "Sometimes" to negative question
         $user2 = User::factory()->create();
@@ -177,10 +177,10 @@ class AssessmentScoreTest extends TestCase
             'total_score' => 3,
         ]);
 
-        // Attach pain point with lower severity (simulating normal case)
-        $user2->painPoints()->syncWithoutDetaching([$painPoint->id => ['severity' => 5]]);
+        // Attach pain point with lower score (simulating normal case)
+        $user2->painPoints()->syncWithoutDetaching([$painPoint->id => ['score' => 5]]);
 
-        $this->assertEquals(5, $user2->painPoints()->latest()->first()->pivot->severity);
+        $this->assertEquals(5, $user2->painPoints()->latest()->first()->pivot->score);
     }
 
     /** @test */

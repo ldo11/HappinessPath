@@ -32,28 +32,33 @@ class AuthenticatedSessionController extends Controller
 
         $user = Auth::user();
 
-        $canonicalRole = $user->role;
-        $roleLower = is_string($canonicalRole) ? strtolower($canonicalRole) : $canonicalRole;
-        $effectiveRole = match ($roleLower) {
-            null, '' => 'user',
-            'member' => 'user',
-            'volunteer' => 'translator',
-            default => $roleLower,
-        };
-
-        if ($effectiveRole === 'admin') {
-            return redirect()->route('admin.dashboard');
+        // Prioritize user's preferred display language
+        $locale = $user->display_language ?? $user->language ?? $user->locale ?? app()->getLocale();
+        
+        // Ensure locale is supported
+        if (!in_array($locale, ['en', 'vi', 'de', 'kr'])) {
+            $locale = 'en';
         }
 
-        if ($effectiveRole === 'translator') {
-            return redirect()->route('user.translator.translator.dashboard');
+        // Update session to match user preference
+        session(['locale' => $locale]);
+        app()->setLocale($locale);
+
+        $role = $user->role;
+
+        if ($role === 'admin') {
+            return redirect('/' . $locale . '/admin/dashboard');
         }
 
-        if ($effectiveRole === 'consultant') {
-            return redirect()->route('consultant.dashboard');
+        if ($role === 'translator') {
+            return redirect('/' . $locale . '/translator/dashboard');
         }
 
-        return redirect()->route('dashboard');
+        if ($role === 'consultant') {
+            return redirect('/' . $locale . '/consultant/dashboard');
+        }
+
+        return redirect('/' . $locale . '/dashboard');
     }
 
     public function destroy(Request $request)
@@ -63,6 +68,11 @@ class AuthenticatedSessionController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect('/en/login');
+        $locale = (string) ($request->route('locale')
+            ?? $request->get('locale')
+            ?? session('locale')
+            ?? config('app.locale', 'en'));
+
+        return redirect('/' . $locale . '/login');
     }
 }

@@ -64,7 +64,7 @@ class ConsultationController extends Controller
         $painPoints = PainPoint::query()->orderBy('name')->get();
 
         $availableConsultants = User::query()
-            ->where('role_v2', 'consultant')
+            ->where('role', 'consultant')
             ->where('is_available', true)
             ->orderBy('name')
             ->get();
@@ -82,7 +82,7 @@ class ConsultationController extends Controller
                 'nullable',
                 'integer',
                 Rule::exists('users', 'id')->where(fn ($query) => $query
-                    ->where('role_v2', 'consultant')
+                    ->where('role', 'consultant')
                     ->where('is_available', true)
                 ),
             ],
@@ -177,7 +177,7 @@ class ConsultationController extends Controller
         }
 
         if (in_array($threadModel->status, ['closed'], true)) {
-            return redirect()->route('user.consultations.show', ['consultation_id' => $threadModel->id])
+            return redirect()->route('user.consultations.show', ['locale' => app()->getLocale(), 'consultation_id' => $threadModel->id])
                 ->with('error', 'Yêu cầu tư vấn đã được đóng.');
         }
 
@@ -201,11 +201,8 @@ class ConsultationController extends Controller
         }
 
         // Check if this is a test request (no locale in URL or specific test conditions)
-        if (!$request->hasHeader('accept') || str_contains($request->path(), 'consultations/1/reply') || app()->environment('testing')) {
-            return response()->json(['success' => true, 'message' => 'Reply created successfully']);
-        }
 
-        return redirect()->route('user.consultations.show', ['consultation_id' => $threadModel->id])
+        return redirect()->route('user.consultations.show', ['locale' => app()->getLocale(), 'consultation_id' => $threadModel->id])
             ->with('success', 'Phản hồi đã được gửi.');
     }
 
@@ -247,7 +244,7 @@ class ConsultationController extends Controller
             ]);
         }
 
-        return redirect()->route('user.consultations.show', ['consultation_id' => $threadModel->id])
+        return redirect()->route('user.consultations.show', ['locale' => app()->getLocale(), 'consultation_id' => $threadModel->id])
             ->with('success', 'Thread closed.');
     }
 }

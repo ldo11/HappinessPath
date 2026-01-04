@@ -148,27 +148,53 @@ class DailyTaskSeeder extends Seeder
                 'wisdom' => $wisdom[$wisdomIndex++],
             };
 
+            // Basic translations for "Day X"
+            $titleEn = 'Day ' . $day;
+            $titleVi = 'Ngày ' . $day;
+            $titleKr = 'Day ' . $day; // Placeholder
+            $titleDe = 'Tag ' . $day;
+
             DailyTask::create([
                 'day_number' => $day,
                 'content' => [
                     'vi' => $task['content'],
-                    'en' => '',
+                    'en' => $task['content'], // Fallback
+                    'kr' => $task['content'], // Fallback
+                    'de' => $task['content'], // Fallback
                 ],
                 'pillar_tag' => $pillar,
                 'difficulty' => $task['diff'],
                 'difficulty_level_int' => $difficultyMap[$task['diff']] ?? 1,
-                'title' => 'Day ' . $day,
-                'description' => $task['content'],
+                'title' => [
+                    'en' => $titleEn,
+                    'vi' => $titleVi,
+                    'kr' => $titleKr,
+                    'de' => $titleDe,
+                ],
+                'description' => [
+                    'vi' => $task['content'],
+                    'en' => $task['content'], // Placeholder as we don't have full translations
+                    'kr' => $task['content'],
+                    'de' => $task['content'],
+                ],
                 'type' => $typeMap[$pillar] ?? 'mindfulness',
                 'estimated_minutes' => 10,
                 'solution_id' => null,
                 'instructions' => [
-                    'content' => [
-                        'vi' => $task['content'],
-                        'en' => '',
+                    'vi' => [
+                        'content' => [$task['content']],
+                        'pillar_tag' => $pillar,
+                        'difficulty' => $task['diff'],
                     ],
-                    'pillar_tag' => $pillar,
-                    'difficulty' => $task['diff'],
+                    'en' => [
+                        'content' => [$task['content']],
+                    ],
+                    'kr' => [
+                        'content' => [$task['content']],
+                    ],
+                    'de' => [
+                        'content' => [$task['content']],
+                    ],
                 ],
                 'status' => 'active',
                 'completed_at' => null,

@@ -59,8 +59,8 @@
                                 @endif
                             </td>
                             <td class="px-6 py-4 text-sm">
-                                <a href="{{ route('consultant.videos.edit', ['locale' => app()->getLocale(), 'videoId' => $video]) }}" class="text-emerald-300 hover:text-emerald-200">Edit</a>
-                                <form method="POST" action="{{ route('consultant.videos.destroy', ['locale' => app()->getLocale(), 'videoId' => $video]) }}" class="inline">
+                                <a href="{{ route('consultant.videos.edit', ['locale' => app()->getLocale(), 'video' => $video]) }}" class="text-emerald-300 hover:text-emerald-200">Edit</a>
+                                <form method="POST" action="{{ route('consultant.videos.destroy', ['locale' => app()->getLocale(), 'video' => $video]) }}" class="inline">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="text-red-300 hover:text-red-200 ml-2" onclick="return confirm('Delete this video?')">Delete</button>

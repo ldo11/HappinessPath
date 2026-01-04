@@ -9,14 +9,14 @@
         <h2 class="text-2xl font-bold text-gray-800">Users & Journey Progress</h2>
         <p class="text-sm text-gray-600 mt-1">Track user progress through their wellness journey</p>
     </div>
-    <a href="{{ route('admin.users.create') }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg">
+    <a href="{{ route('user.admin.users.create', ['locale' => app()->getLocale()]) }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg">
         <i class="fas fa-plus mr-2"></i>Add User
     </a>
 </div>
 
 <!-- Search and Filter -->
 <div class="bg-white rounded-lg shadow mb-6 p-4">
-    <form method="GET" action="{{ route('admin.users.index') }}" class="flex flex-wrap gap-4">
+    <form method="GET" action="{{ route('user.admin.users.index', ['locale' => app()->getLocale()]) }}" class="flex flex-wrap gap-4">
         <div class="flex-1 min-w-64">
             <input type="text" name="search" placeholder="Search by name or email..." 
                    value="{{ request('search') }}" 
@@ -33,7 +33,7 @@
         <button type="submit" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg">
             <i class="fas fa-search mr-2"></i>Search
         </button>
-        <a href="{{ route('admin.users.index') }}" class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded-lg">
+        <a href="{{ route('user.admin.users.index', ['locale' => app()->getLocale()]) }}" class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded-lg">
             Clear
         </a>
     </form>
@@ -121,14 +121,14 @@
                         </div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <a href="{{ route('admin.users.edit', $user) }}" class="text-blue-600 hover:text-blue-900 mr-3">
+                        <a href="{{ route('user.admin.users.edit', ['user' => $user, 'locale' => app()->getLocale()]) }}" class="text-blue-600 hover:text-blue-900 mr-3">
                             <i class="fas fa-edit"></i> Edit
                         </a>
                         @php
                             $roleLower = is_string($user->role) ? strtolower($user->role) : $user->role;
                         @endphp
                         @if(in_array($roleLower, ['user', 'member', null, ''], true))
-                            <form method="POST" action="{{ route('admin.users.reset-assessment', $user) }}" class="inline mr-3"
+                            <form method="POST" action="{{ route('user.admin.users.reset-assessment', ['user' => $user, 'locale' => app()->getLocale()]) }}" class="inline mr-3"
                                   onsubmit="return confirm('Reset assessment for this user? They will be required to take it again on next login.')">
                                 @csrf
                                 <button type="submit" class="text-amber-600 hover:text-amber-900">
@@ -137,7 +137,7 @@
                             </form>
                         @endif
                         @if($user->id !== auth()->id())
-                            <form method="POST" action="{{ route('admin.users.destroy', $user) }}" class="inline" 
+                            <form method="POST" action="{{ route('user.admin.users.destroy', ['user' => $user, 'locale' => app()->getLocale()]) }}" class="inline" 
                                   onsubmit="return confirm('Are you sure you want to delete this user?')">
                                 @csrf
                                 @method('DELETE')

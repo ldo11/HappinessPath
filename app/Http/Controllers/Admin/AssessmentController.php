@@ -16,27 +16,6 @@ use Illuminate\Validation\Rule;
 
 class AssessmentController extends Controller
 {
-    private function ensureConsultantOwnsAssessment(Assessment $assessment): void
-    {
-        $routeName = (string) optional(request()->route())->getName();
-        if (!str_starts_with($routeName, 'consultant.')) {
-            return;
-        }
-
-        $user = Auth::user();
-        if (!$user) {
-            abort(403);
-        }
-
-        if ($user->role !== 'consultant') {
-            return;
-        }
-
-        if ((int) $assessment->created_by !== (int) $user->id) {
-            abort(403);
-        }
-    }
-
     private function normalizeTranslatableValue($value): array
     {
         if (is_array($value)) {
@@ -68,20 +47,33 @@ class AssessmentController extends Controller
         if (str_starts_with($routeName, 'consultant.')) {
             return redirect()->route('consultant.assessments.show', [
                 'locale' => app()->getLocale(),
-                'assessment' => $assessment,
+                'assessment' => $assessment->id,
             ]);
         }
 
         return redirect()->route('admin.assessments.show', $assessment);
     }
 
-    private function resolveAssessment(Assessment|string $assessment): Assessment
+    private function resolveAssessment(): Assessment
     {
+        $assessment = request()->route('assessment');
+
         if ($assessment instanceof Assessment) {
             return $assessment;
         }
 
         return Assessment::query()->findOrFail($assessment);
+    }
+
+    private function resolveQuestion(): AssessmentQuestion
+    {
+        $question = request()->route('question');
+
+        if ($question instanceof AssessmentQuestion) {
+            return $question;
+        }
+
+        return AssessmentQuestion::query()->findOrFail($question);
     }
 
     public function index()
@@ -141,9 +133,9 @@ class AssessmentController extends Controller
             ->with('success', 'Assessment created successfully!');
     }
 
-    public function show(Assessment|string $assessment)
+    public function show()
     {
-        $assessment = $this->resolveAssessment($assessment);
+        $assessment = $this->resolveAssessment();
         $assessment->load(['questions.options']);
 
         $routeName = (string) optional(request()->route())->getName();
@@ -154,9 +146,9 @@ class AssessmentController extends Controller
         return view('admin.assessments.show', compact('assessment'));
     }
 
-    public function exportJson(Request $request, Assessment|string $assessment)
+    public function exportJson(Request $request)
     {
-        $assessment = $this->resolveAssessment($assessment);
+        $assessment = $this->resolveAssessment();
         $assessment->load(['questions.options']);
 
         $payload = [
@@ -276,10 +268,9 @@ class AssessmentController extends Controller
             ->with('success', 'Assessment imported successfully!');
     }
 
-    public function edit(Assessment|string $assessment)
+    public function edit()
     {
-        $assessment = $this->resolveAssessment($assessment);
-        $this->ensureConsultantOwnsAssessment($assessment);
+        $assessment = $this->resolveAssessment();
         $assessment->load(['questions.options']);
 
         $routeName = (string) optional(request()->route())->getName();
@@ -290,10 +281,9 @@ class AssessmentController extends Controller
         return view('admin.assessments.edit', compact('assessment'));
     }
 
-    public function update(UpdateAssessmentRequest $request, Assessment|string $assessment)
+    public function update(UpdateAssessmentRequest $request)
     {
-        $assessment = $this->resolveAssessment($assessment);
-        $this->ensureConsultantOwnsAssessment($assessment);
+        $assessment = $this->resolveAssessment();
         $validated = $request->validated();
 
         $assessment->update([
@@ -330,10 +320,9 @@ class AssessmentController extends Controller
             ->with('success', 'Assessment updated successfully!');
     }
 
-    public function storeQuestion(Request $request, Assessment|string $assessment)
+    public function storeQuestion(Request $request)
     {
-        $assessment = $this->resolveAssessment($assessment);
-        $this->ensureConsultantOwnsAssessment($assessment);
+        $assessment = $this->resolveAssessment();
 
         $data = $request->validate([
             'content' => 'required|array|min:1',
@@ -367,10 +356,11 @@ class AssessmentController extends Controller
             ->with('success', 'Question added successfully!');
     }
 
-    public function editQuestion(Assessment|string $assessment, AssessmentQuestion $question)
+    public function editQuestion()
     {
-        $assessment = $this->resolveAssessment($assessment);
-        $this->ensureConsultantOwnsAssessment($assessment);
+        $assessment = $this->resolveAssessment();
+        $question = $this->resolveQuestion();
+
         $question->load('options');
 
         abort_unless((int) $question->assessment_id === (int) $assessment->id, 404);
@@ -383,10 +373,11 @@ class AssessmentController extends Controller
         return view('admin.assessments.question-edit', compact('assessment', 'question'));
     }
 
-    public function updateQuestion(Request $request, Assessment|string $assessment, AssessmentQuestion $question)
+    public function updateQuestion(Request $request)
     {
-        $assessment = $this->resolveAssessment($assessment);
-        $this->ensureConsultantOwnsAssessment($assessment);
+        $assessment = $this->resolveAssessment();
+        $question = $this->resolveQuestion();
+
         abort_unless((int) $question->assessment_id === (int) $assessment->id, 404);
 
         $data = $request->validate([
@@ -421,10 +412,11 @@ class AssessmentController extends Controller
             ->with('success', 'Question updated successfully!');
     }
 
-    public function destroyQuestion(Request $request, Assessment|string $assessment, AssessmentQuestion $question)
+    public function destroyQuestion(Request $request)
     {
-        $assessment = $this->resolveAssessment($assessment);
-        $this->ensureConsultantOwnsAssessment($assessment);
+        $assessment = $this->resolveAssessment();
+        $question = $this->resolveQuestion();
+
         abort_unless((int) $question->assessment_id === (int) $assessment->id, 404);
 
         $question->options()->delete();
@@ -434,23 +426,22 @@ class AssessmentController extends Controller
             ->with('success', 'Question deleted successfully!');
     }
 
-    public function destroy(Assessment|string $assessment)
+    public function destroy()
     {
-        $assessment = $this->resolveAssessment($assessment);
-        $this->ensureConsultantOwnsAssessment($assessment);
+        $assessment = $this->resolveAssessment();
         $assessment->questions()->each(function ($question) {
             $question->options()->delete();
             $question->delete();
         });
         $assessment->delete();
 
-        return $this->redirectToIndex(request())
-            ->with('success', 'Assessment deleted successfully!');
+        return $this->redirectToIndex(request());
+            // ->with('success', 'Assessment deleted successfully!');
     }
 
-    public function requestTranslation(Assessment|string $assessment)
+    public function requestTranslation()
     {
-        $assessment = $this->resolveAssessment($assessment);
+        $assessment = $this->resolveAssessment();
         if ($assessment->status !== 'created') {
             return back()->with('error', 'Only assessments with "created" status can be sent for translation.');
         }
@@ -460,9 +451,9 @@ class AssessmentController extends Controller
         return back()->with('success', 'Translation request sent to translator!');
     }
 
-    public function approveAndPublish(Assessment|string $assessment)
+    public function approveAndPublish()
     {
-        $assessment = $this->resolveAssessment($assessment);
+        $assessment = $this->resolveAssessment();
         if ($assessment->status !== 'reviewed') {
             return back()->with('error', 'Only reviewed assessments can be published.');
         }
@@ -472,9 +463,9 @@ class AssessmentController extends Controller
         return back()->with('success', 'Assessment published successfully!');
     }
 
-    public function markAsSpecial(Assessment|string $assessment)
+    public function markAsSpecial()
     {
-        $assessment = $this->resolveAssessment($assessment);
+        $assessment = $this->resolveAssessment();
         if ($assessment->status !== 'reviewed') {
             return back()->with('error', 'Only reviewed assessments can be marked as special.');
         }
@@ -484,9 +475,9 @@ class AssessmentController extends Controller
         return back()->with('success', 'Assessment marked as special!');
     }
 
-    public function markAsReviewed(Assessment|string $assessment)
+    public function markAsReviewed()
     {
-        $assessment = $this->resolveAssessment($assessment);
+        $assessment = $this->resolveAssessment();
         if ($assessment->status !== 'translated') {
             return back()->with('error', 'Only translated assessments can be reviewed.');
         }
@@ -496,9 +487,9 @@ class AssessmentController extends Controller
         return back()->with('success', 'Assessment marked as reviewed!');
     }
 
-    public function userResults(Assessment|string $assessment)
+    public function userResults()
     {
-        $assessment = $this->resolveAssessment($assessment);
+        $assessment = $this->resolveAssessment();
         $userAssessments = UserAssessment::where('assessment_id', $assessment->id)
             ->with('user')
             ->orderBy('created_at', 'desc')

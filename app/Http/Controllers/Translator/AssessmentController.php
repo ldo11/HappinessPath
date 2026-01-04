@@ -15,8 +15,7 @@ class AssessmentController extends Controller
             ->withCount('questions')
             ->orderBy('created_at', 'desc')
             ->whereHas('creator', function ($q) {
-                $q->where('role_v2', 'consultant')
-                    ->orWhere('role', 'consultant');
+                $q->where('role', 'consultant');
             })
             ->get();
 

@@ -16,7 +16,7 @@ class UserMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (Auth::check() && in_array(Auth::user()->role, ['user', 'member'], true)) {
+        if (Auth::check() && Auth::user()->role === 'user') {
             return $next($request);
         }
 

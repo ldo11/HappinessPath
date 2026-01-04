@@ -10,7 +10,7 @@
     </div>
 
     <div class="rounded-2xl bg-white/10 border border-white/15 backdrop-blur-xl p-6">
-        <form method="POST" action="{{ route('consultant.videos.update', ['locale' => app()->getLocale(), 'videoId' => $video]) }}" class="space-y-6">
+        <form method="POST" action="{{ route('consultant.videos.update', ['locale' => app()->getLocale(), 'video' => $video]) }}" class="space-y-6">
             @csrf
             @method('PUT')
 

@@ -1,0 +1,44 @@
+{#3290
+  +"id": "fallback_1"
+  +"day_number": 1
+  +"title": "Ngày 1 - Thực hành chánh niệm"
+  +"description": "Dành thời gian 5-10 phút để tập trung vào hơi thở và quan sát cảm xúc trong lòng. Đây là bước đầu tiên trên hành trình chữa lành."
+  +"type": "mindfulness"
+  +"difficulty": "easy"
+  +"estimated_minutes": 10
+  +"solution_id": null
+  +"completed_at": null
+  +"instructions": array:4 [
+    0 => "Tìm một không gian yên tĩnh"
+    1 => "Ngồi xuống với tư thế thoải mái"
+    2 => "Nhắm mắt và tập trung vào hơi thở"
+    3 => "Quan sát cảm xúc mà không phán xét"
+  ]
+} // app/Http/Controllers/Web/DashboardController.php:147
+
+   FAIL  Tests\Feature\MissionSetTest
+  ⨯ user sees completed state when program finished                      0.38s  
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Feature\MissionSetTest > user sees completed state when pro…   
+  Expected: <!DOCTYPE html>\n
+  <html lang="en">\n
+  <head>\n
+  ... (842 more lines)
+
+  To contain: Congratulations!
+
+  at tests/Feature/MissionSetTest.php:106
+    102▕ 
+    103▕         // 6. Assert
+    104▕         $response->assertStatus(200);
+    105▕         // The view displays 'Congratulations!' (program_completed_title)
+  ➜ 106▕         $response->assertSee('Congratulations!'); 
+    107▕     }
+    108▕ 
+    109▕     public function test_fallback_to_default_journey_if_no_mission_set()
+    110▕     {
+
+
+  Tests:    1 failed (2 assertions)
+  Duration: 0.45s
+

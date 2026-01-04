@@ -21,9 +21,9 @@ Route::prefix('{locale}/consultant')
             Route::get('/', [AdminVideoController::class, 'index'])->name('index');
             Route::get('/create', [AdminVideoController::class, 'create'])->name('create');
             Route::post('/', [AdminVideoController::class, 'store'])->name('store');
-            Route::get('/{videoId}/edit', [AdminVideoController::class, 'edit'])->name('edit');
-            Route::put('/{videoId}', [AdminVideoController::class, 'update'])->name('update');
-            Route::delete('/{videoId}', [AdminVideoController::class, 'destroy'])->name('destroy');
+            Route::get('/{video}/edit', [AdminVideoController::class, 'edit'])->name('edit');
+            Route::put('/{video}', [AdminVideoController::class, 'update'])->name('update');
+            Route::delete('/{video}', [AdminVideoController::class, 'destroy'])->name('destroy');
         });
 
         Route::prefix('assessments')->name('assessments.')->group(function () {
@@ -50,5 +50,23 @@ Route::prefix('{locale}/consultant')
             Route::get('/{dailyMission}/edit', [AdminDailyMissionController::class, 'edit'])->name('edit');
             Route::put('/{dailyMission}', [AdminDailyMissionController::class, 'update'])->name('update');
             Route::delete('/{dailyMission}', [AdminDailyMissionController::class, 'destroy'])->name('destroy');
+        });
+
+        Route::prefix('mission-sets')->name('mission-sets.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Admin\MissionSetController::class, 'index'])->name('index');
+            Route::get('/create', [\App\Http\Controllers\Admin\MissionSetController::class, 'create'])->name('create');
+            Route::post('/', [\App\Http\Controllers\Admin\MissionSetController::class, 'store'])->name('store');
+            Route::get('/{missionSet}', [\App\Http\Controllers\Admin\MissionSetController::class, 'show'])->name('show');
+            Route::post('/{missionSet}/clone-mission', [\App\Http\Controllers\Admin\MissionSetController::class, 'cloneMission'])->name('clone-mission');
+            Route::get('/{missionSet}/edit', [\App\Http\Controllers\Admin\MissionSetController::class, 'edit'])->name('edit');
+            Route::put('/{missionSet}', [\App\Http\Controllers\Admin\MissionSetController::class, 'update'])->name('update');
+            Route::delete('/{missionSet}', [\App\Http\Controllers\Admin\MissionSetController::class, 'destroy'])->name('destroy');
+        });
+
+        Route::prefix('users')->name('users.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Consultant\UserProgressController::class, 'index'])->name('index');
+            Route::get('/assign-mission', [\App\Http\Controllers\Consultant\UserProgressController::class, 'index'])->name('assign-mission');
+            Route::get('/{user}/progress', [\App\Http\Controllers\Consultant\UserProgressController::class, 'show'])->name('progress');
+            Route::post('/{user}/assign', [\App\Http\Controllers\Consultant\UserProgressController::class, 'assign'])->name('assign');
         });
     });

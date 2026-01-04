@@ -160,7 +160,7 @@
                                         <i class="fas fa-user mr-2"></i>{{ __('menu.profile') }}
                                     </a>
                                     @if(Auth::user()->role === 'admin' || Auth::user()->role === 'translator')
-                                        <a href="{{ route(Auth::user()->role === 'admin' ? 'admin.dashboard' : 'user.translator.translator.dashboard') }}" 
+                                        <a href="{{ route(Auth::user()->role === 'admin' ? 'admin.dashboard' : 'translator.dashboard') }}" 
                                            class="block px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100">
                                             <i class="fas fa-cog mr-2"></i>{{ __('ui.role_panel', ['role' => ucfirst(Auth::user()->role)]) }}
                                         </a>
@@ -292,6 +292,63 @@
         });
 
         // Locale switching is handled via Profile Settings for authenticated users.
+        
+        // Geo-Location Logic for Guests
+        document.addEventListener('DOMContentLoaded', () => {
+            const isGuest = @json(auth()->guest());
+            const geoChecked = localStorage.getItem('geo_locale_checked');
+
+            if (isGuest && !geoChecked) {
+                if ("geolocation" in navigator) {
+                    navigator.geolocation.getCurrentPosition(
+                        async (position) => {
+                            localStorage.setItem('geo_locale_checked', 'true');
+                            try {
+                                const response = await fetch('{{ route('api.detect-locale') }}', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                                    },
+                                    body: JSON.stringify({
+                                        latitude: position.coords.latitude,
+                                        longitude: position.coords.longitude
+                                    })
+                                });
+
+                                if (response.ok) {
+                                    const data = await response.json();
+                                    const detectedLocale = data.locale;
+                                    const currentLocale = '{{ app()->getLocale() }}';
+
+                                    if (detectedLocale !== currentLocale) {
+                                        // Construct new URL with detected locale
+                                        const path = window.location.pathname;
+                                        const parts = path.split('/');
+                                        // parts[0] is empty, parts[1] is locale (en, vi, etc.)
+                                        if (['en', 'vi', 'de', 'kr'].includes(parts[1])) {
+                                            parts[1] = detectedLocale;
+                                            const newPath = parts.join('/');
+                                            window.location.href = newPath + window.location.search;
+                                        } else {
+                                            window.location.reload();
+                                        }
+                                    }
+                                }
+                            } catch (error) {
+                                console.error('Geo-locale error:', error);
+                            }
+                        },
+                        (error) => {
+                            console.log('Geo-location denied or error:', error);
+                            localStorage.setItem('geo_locale_checked', 'true');
+                        }
+                    );
+                } else {
+                    localStorage.setItem('geo_locale_checked', 'true');
+                }
+            }
+        });
     </script>
     
     @yield('scripts')

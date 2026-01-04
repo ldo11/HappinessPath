@@ -56,20 +56,24 @@ class UserController extends Controller
 
         User::create($validated);
 
-        return redirect()->route('admin.users.index')
+        return redirect()->route('user.admin.users.index', ['locale' => app()->getLocale()])
             ->with('success', 'User created successfully.');
     }
 
-    public function edit(User $user)
+    public function edit()
     {
-        return view('admin.users.edit', compact('user'));
+        $userModel = $this->resolveUser();
+        $userModel->load('painPoints');
+        return view('admin.users.edit', ['user' => $userModel]);
     }
 
-    public function update(Request $request, User $user)
+    public function update(Request $request)
     {
+        $userModel = $this->resolveUser();
+        
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
+            'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($userModel->id)],
             'role' => ['required', Rule::in(['user', 'translator', 'consultant', 'admin'])],
             'city' => 'nullable|string|max:255',
             'spiritual_preference' => 'nullable|string|max:255',
@@ -83,53 +87,82 @@ class UserController extends Controller
             $validated['password'] = Hash::make($request->password);
         }
 
-        $user->update($validated);
+        $userModel->update($validated);
 
-        return redirect()->route('admin.users.index')
+        return redirect()->route('user.admin.users.index', ['locale' => app()->getLocale()])
             ->with('success', 'User updated successfully.');
     }
 
-    public function destroy(User $user)
+    public function destroy()
     {
-        if ($user->id === auth()->id()) {
-            return redirect()->route('admin.users.index')
+        $userModel = $this->resolveUser();
+
+        if ($userModel->id === auth()->id()) {
+            return redirect()->route('user.admin.users.index', ['locale' => app()->getLocale()])
                 ->with('error', 'You cannot delete your own account.');
         }
 
-        $user->delete();
+        $userModel->delete();
 
-        return redirect()->route('admin.users.index')
+        return redirect()->route('user.admin.users.index', ['locale' => app()->getLocale()])
             ->with('success', 'User deleted successfully.');
     }
 
-    public function resetAssessment(User $user)
+    public function resetAssessment()
     {
-        if ($user->role !== 'user') {
+        $userModel = $this->resolveUser();
+
+        if ($userModel->role !== 'user') {
             return redirect()->back()->with('error', 'Only users can have their assessment reset.');
         }
 
-        DB::transaction(function () use ($user) {
-            DB::table('assessment_answers')->where('user_id', $user->id)->delete();
-            DB::table('user_pain_points')->where('user_id', $user->id)->delete();
-            UserQuizResult::withTrashed()->where('user_id', $user->id)->forceDelete();
+        DB::transaction(function () use ($userModel) {
+            DB::table('assessment_answers')->where('user_id', $userModel->id)->delete();
+            DB::table('user_pain_points')->where('user_id', $userModel->id)->delete();
+            UserQuizResult::withTrashed()->where('user_id', $userModel->id)->forceDelete();
 
-            $user->onboarding_status = 'new';
-            $user->save();
+            $userModel->onboarding_status = 'new';
+            $userModel->save();
         });
 
-        app(AdminService::class)->resetAssessment($user->id);
+        app(AdminService::class)->resetAssessment($userModel->id);
 
         return redirect()->back()->with('success', 'Assessment reset successfully.');
     }
 
-    public function verify(User $user)
+    public function verify()
     {
-        if (!$user->email_verified_at) {
-            $user->email_verified_at = now();
-            $user->save();
+        $userModel = $this->resolveUser();
+
+        if (!$userModel->email_verified_at) {
+            $userModel->email_verified_at = now();
+            $userModel->save();
         }
 
-        return redirect()->route('admin.users.edit', $user)
+        return redirect()->route('user.admin.users.edit', ['user' => $userModel, 'locale' => app()->getLocale()])
             ->with('success', 'User email verified successfully.');
+    }
+
+    private function resolveUser()
+    {
+        $user = request()->route('user');
+        
+        if ($user instanceof User) {
+            return $user;
+        }
+        
+        if ($user) {
+            return User::withTrashed()->findOrFail($user);
+        }
+        
+        // Fallback: Check parameters array for any numeric value (likely the ID)
+        $params = request()->route()->parameters();
+        foreach ($params as $key => $value) {
+            if ($key !== 'locale' && is_numeric($value)) {
+                return User::withTrashed()->findOrFail($value);
+            }
+        }
+        
+        abort(404, 'User parameter not found.');
     }
 }

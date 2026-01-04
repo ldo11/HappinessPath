@@ -62,7 +62,7 @@
             </div>
 
             <div class="flex items-center justify-end gap-3">
-                <a href="{{ route('consultations.index') }}" class="px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white/80 hover:bg-white/10">Hủy</a>
+                <a href="{{ route('user.consultations.index') }}" class="px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white/80 hover:bg-white/10">Hủy</a>
                 <button type="submit" class="px-5 py-2.5 rounded-xl bg-white text-gray-900 hover:bg-gray-100">Gửi</button>
             </div>
         </form>

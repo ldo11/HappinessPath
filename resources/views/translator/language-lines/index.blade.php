@@ -8,6 +8,7 @@
     <div class="mb-6 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
         <div>
             <h1 class="text-2xl font-bold text-gray-800">Translation Matrix</h1>
+            <p class="text-sm text-gray-600">Key | VI | EN | DE | KR</p>
             <p class="text-sm text-gray-600">Edit Vietnamese UI text based on English source</p>
         </div>
         <form method="GET" action="{{ route('translator.ui-matrix.index') }}" class="flex items-center gap-2">

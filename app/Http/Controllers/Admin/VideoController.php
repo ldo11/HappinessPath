@@ -83,8 +83,10 @@ class VideoController extends Controller
             ->with('success', 'Video created successfully.');
     }
 
-    public function edit(Video $video)
+    public function edit()
     {
+        $video = $this->resolveVideo();
+
         $routeName = (string) optional(request()->route())->getName();
         if (str_starts_with($routeName, 'consultant.')) {
             return view('consultant.videos.edit', compact('video'));
@@ -93,8 +95,10 @@ class VideoController extends Controller
         return view('admin.videos.edit', compact('video'));
     }
 
-    public function update(Request $request, Video $video)
+    public function update(Request $request)
     {
+        $video = $this->resolveVideo();
+
         $data = $request->validate([
             'title' => ['required', 'string', 'max:255'],
             'url' => ['required', 'string', 'max:2048'],
@@ -131,7 +135,7 @@ class VideoController extends Controller
 
         $routeName = (string) optional($request->route())->getName();
         if (str_starts_with($routeName, 'consultant.')) {
-            return redirect()->route('consultant.videos.edit', ['locale' => app()->getLocale(), 'videoId' => $video])
+            return redirect()->route('consultant.videos.edit', ['locale' => app()->getLocale(), 'video' => $video->id])
                 ->with('success', 'Video updated successfully.');
         }
 
@@ -139,11 +143,23 @@ class VideoController extends Controller
             ->with('success', 'Video updated successfully.');
     }
 
-    public function destroy(Video $video)
+    public function destroy()
     {
+        $video = $this->resolveVideo();
         $video->delete();
 
         return $this->redirectToIndex(request())
             ->with('success', 'Video deleted successfully.');
+    }
+
+    private function resolveVideo()
+    {
+        $id = request()->route('video');
+        
+        if ($id instanceof Video) {
+            return $id;
+        }
+        
+        return Video::findOrFail($id);
     }
 }

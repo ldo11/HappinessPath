@@ -9,6 +9,7 @@ use App\Models\UserJourney;
 use App\Models\Donation;
 use App\Models\UserDailyTask;
 use App\Models\DailyMission;
+use App\Models\MissionSet;
 use App\Services\JourneyService;
 use App\Services\CommunityService;
 use Illuminate\Http\Request;
@@ -26,13 +27,76 @@ class DashboardController extends Controller
 
     public function index()
     {
+        /** @var User $user */
         $user = Auth::user();
 
-        // Get user data
-        $userJourney = $user->userJourney ?? $this->createDefaultJourney($user);
+        // Eager load painPoints with pivot score
+        $user->load(['painPoints', 'userJourney', 'activeMissionSet']);
 
-        // Get today's task using JourneyService
-        $todayTask = $this->journeyService->getTodayTask($user);
+        // Check for Active Mission Set (Priority)
+        $todayTask = null;
+        $missionSet = $user->activeMissionSet;
+        
+        if ($missionSet && $user->mission_started_at) {
+            $startDate = $user->mission_started_at instanceof \Carbon\Carbon 
+                ? $user->mission_started_at 
+                : \Carbon\Carbon::parse($user->mission_started_at);
+                
+            // Use startOfDay to compare calendar dates, ignoring time
+            $daysSinceStart = $startDate->startOfDay()->diffInDays(now()->startOfDay()); 
+            $currentDay = $daysSinceStart + 1;
+            
+            // Find mission for this day
+            $mission = DailyMission::where('mission_set_id', $missionSet->id)
+                ->where('day_number', $currentDay)
+                ->first();
+
+            if ($mission) {
+                // Adapt DailyMission to view-compatible structure
+                $todayTask = (object) [
+                    'id' => $mission->id,
+                    'title' => $mission->title, 
+                    'description' => $mission->description,
+                    'type' => $mission->is_body ? 'physical' : ($mission->is_wisdom ? 'wisdom' : 'mindfulness'),
+                    'difficulty' => 'medium', // Default
+                    'estimated_minutes' => $mission->estimated_minutes ?? 15, // Default
+                    'instructions' => [], // DailyMission doesn't have instructions column yet
+                    'solution_id' => null,
+                ];
+            } else {
+                // Check if program is finished (Day > Max Day)
+                $maxDay = DailyMission::where('mission_set_id', $missionSet->id)->max('day_number');
+                
+                if ($currentDay > $maxDay) {
+                     $todayTask = (object) [
+                        'id' => null, // No task
+                        'title' => __('dashboard.program_completed_title'),
+                        'description' => __('dashboard.program_completed_desc'),
+                        'is_completed_program' => true,
+                        'type' => 'wisdom',
+                        'difficulty' => 'easy',
+                        'estimated_minutes' => 0,
+                        'instructions' => [],
+                        'solution_id' => null,
+                     ];
+                }
+            }
+        }
+
+        // Fallback to Standard 90-Day Journey ONLY if no Mission Set task found AND not finished
+        // If todayTask is set (either mission or completed object), skip fallback
+        $userJourney = $user->userJourney ?? $this->createDefaultJourney($user);
+        
+        if (! $todayTask) {
+            $todayTask = $this->journeyService->getTodayTask($user);
+        } else {
+            // Override current day for display if using Mission Set
+            if (isset($todayTask->is_completed_program) && $todayTask->is_completed_program) {
+                 $userJourney->current_day = $maxDay ?? 30; // Show last day or max
+            } else {
+                 $userJourney->current_day = $todayTask->day_number ?? ($daysSinceStart + 1 ?? 1);
+            }
+        }
 
         $dailyMissionCompleted = false;
         if (isset($todayTask->id) && $todayTask->id) {
@@ -49,24 +113,15 @@ class DashboardController extends Controller
         // Get tree status using JourneyService
         $treeStatus = $this->journeyService->getTreeStatus($user);
 
-        $painPoints = collect();
-        $userPainPoints = [];
-        $topPainPoints = collect();
-        if (Schema::hasTable('pain_points') && Schema::hasTable('user_pain_points')) {
-            $painPoints = PainPoint::query()->orderBy('name')->get();
-            $userPainPoints = $user->painPoints()->get()->keyBy('id')->map(function ($painPoint) {
-                return (int) $painPoint->pivot->severity;
-            })->all();
+        // Pain Points Logic
+        // We pass the user's active pain points to the view.
+        // We also pass all available pain points if needed for the update modal/page, 
+        // but the view 'dashboard' might only need the user's current ones.
+        // The request asks for "My Pain Points" list.
+        $myPainPoints = $user->painPoints->sortByDesc(function ($pp) {
+            return (int) $pp->pivot->score;
+        });
 
-            $topPainPoints = $painPoints
-                ->filter(function ($painPoint) use ($userPainPoints) {
-                    return array_key_exists($painPoint->id, $userPainPoints) && ((int) $userPainPoints[$painPoint->id]) > 0;
-                })
-                ->sortByDesc(function ($painPoint) use ($userPainPoints) {
-                    return (int) ($userPainPoints[$painPoint->id] ?? 0);
-                })
-                ->take(3);
-        }
         $hasQuizResult = (bool) $user->quizResult;
 
         $dailyMissions = collect();
@@ -74,17 +129,35 @@ class DashboardController extends Controller
             $dailyMissions = DailyMission::query()->latest('id')->limit(10)->get();
         }
 
+        // Calculate Levels (Simple Logic: Level = Floor(XP / 100) + 1)
+        $levels = [
+            'body' => intval($user->xp_body / 100) + 1,
+            'mind' => intval($user->xp_mind / 100) + 1,
+            'wisdom' => intval($user->xp_wisdom / 100) + 1,
+        ];
+        
+        // Calculate Progress % within current level (XP % 100)
+        $progress = [
+            'body' => $user->xp_body % 100,
+            'mind' => $user->xp_mind % 100,
+            'wisdom' => $user->xp_wisdom % 100,
+        ];
+
+        // Debugging for Test - Exception to prove execution
+        // throw new \Exception("DEBUG: Controller Index Reached. TodayTask: " . json_encode($todayTask));
+
         return view('dashboard', compact(
             'user',
             'userJourney',
             'todayTask',
             'dailyMissionCompleted',
             'treeStatus',
-            'painPoints',
-            'userPainPoints',
-            'topPainPoints',
+            'myPainPoints',
             'hasQuizResult',
-            'dailyMissions'
+            'dailyMissions',
+            'levels',
+            'progress',
+            'missionSet'
         ));
     }
 

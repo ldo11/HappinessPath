@@ -139,6 +139,20 @@ class TestUsersSeeder extends Seeder
             'onboarding_status' => 'test_completed',
         ]);
 
+        User::updateOrCreate(['email' => 'user_en@happiness.test'], [
+            'name' => 'English User',
+            'email' => 'user_en@happiness.test',
+            'password' => Hash::make($defaultPassword),
+            'role' => 'user',
+            'language' => 'en',
+            'city' => 'New York',
+            'spiritual_preference' => 'secular',
+            'start_pain_level' => 5,
+            'geo_privacy' => false,
+            'email_verified_at' => now(),
+            'onboarding_status' => 'test_completed',
+        ]);
+
         if ($this->command) {
             $this->command->info('Test users created successfully!');
             $this->command->info('Login credentials:');
@@ -151,6 +165,7 @@ class TestUsersSeeder extends Seeder
             $this->command->info('User VI: user_vi@happiness.test / ' . $defaultPassword);
             $this->command->info('User DE: user_de@happiness.test / ' . $defaultPassword);
             $this->command->info('User KR: user_kr@happiness.test / ' . $defaultPassword);
+            $this->command->info('User EN: user_en@happiness.test / ' . $defaultPassword);
         }
     }
 }

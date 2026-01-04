@@ -8,6 +8,17 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        return redirect()->route('translator.ui-matrix.index');
+        $assessments = \App\Models\Assessment::whereIn('status', ['created', 'translated'])
+            ->with('creator')
+            ->withCount('questions')
+            ->orderBy('created_at', 'desc')
+            ->whereHas('creator', function ($q) {
+                $q->where('role', 'consultant');
+            })
+            ->get();
+
+        $languageLinesCount = \App\Models\LanguageLine::query()->count();
+
+        return view('translator.dashboard', compact('assessments', 'languageLinesCount'));
     }
 }

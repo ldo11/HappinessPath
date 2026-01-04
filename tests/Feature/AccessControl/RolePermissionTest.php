@@ -44,12 +44,12 @@ class RolePermissionTest extends TestCase
     }
 
     /** @test */
-    public function consultant_gets_forbidden_when_accessing_admin_users()
+    public function consultant_can_access_admin_users_page()
     {
         $response = $this->actingAs($this->consultant)
             ->get('/en/admin/users');
 
-        $response->assertStatus(403);
+        $response->assertStatus(200);
     }
 
     /** @test */

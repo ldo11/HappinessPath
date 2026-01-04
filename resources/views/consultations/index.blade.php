@@ -11,11 +11,11 @@
     </div>
 
     <div class="flex items-center gap-2 mb-4">
-        <a href="{{ route('consultations.index', ['tab' => 'open']) }}"
+        <a href="{{ route('user.consultations.index', ['tab' => 'open']) }}"
            class="px-4 py-2 rounded-xl border border-white/15 text-sm {{ ($tab ?? 'open') === 'open' ? 'bg-white text-gray-900' : 'bg-white/10 text-white hover:bg-white/15' }}">
             Open
         </a>
-        <a href="{{ route('consultations.index', ['tab' => 'closed']) }}"
+        <a href="{{ route('user.consultations.index', ['tab' => 'closed']) }}"
            class="px-4 py-2 rounded-xl border border-white/15 text-sm {{ ($tab ?? 'open') === 'closed' ? 'bg-white text-gray-900' : 'bg-white/10 text-white hover:bg-white/15' }}">
             Closed
         </a>
