@@ -9,7 +9,7 @@
             <h2 class="text-2xl font-bold text-white">Users</h2>
             <p class="text-sm text-white/60 mt-1">Manage user progress and mission assignments.</p>
         </div>
-        <form method="GET" action="{{ route('consultant.users.index', ['locale' => app()->getLocale()]) }}" class="relative">
+        <form method="GET" action="{{ route('consultant.users.index', [app()->getLocale()]) }}" class="relative">
             <input type="text" name="search" value="{{ request('search') }}" placeholder="Search users..." class="bg-white/10 border border-white/10 rounded-xl px-4 py-2 pl-10 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/50">
             <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-white/40"></i>
         </form>
@@ -30,8 +30,8 @@
                 <tbody class="divide-y divide-white/10">
                     @foreach($users as $user)
                         <tr class="hover:bg-white/5 transition">
-                            <td class="px-6 py-4 cursor-pointer" onclick="window.location='{{ route('consultant.users.progress', ['locale' => app()->getLocale(), 'user' => $user]) }}'">
-                                <div class="flex items-center">
+                            <td class="px-6 py-4">
+                                <a href="{{ route('consultant.users.progress', [app()->getLocale(), $user->id]) }}" class="flex items-center hover:bg-white/5 -mx-2 -my-2 px-2 py-2 rounded transition">
                                     <div class="h-8 w-8 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400 font-bold text-xs mr-3">
                                         {{ substr($user->name, 0, 1) }}
                                     </div>
@@ -39,12 +39,14 @@
                                         <div class="text-white font-medium hover:text-emerald-400 transition">{{ $user->name }}</div>
                                         <div class="text-xs text-white/50">{{ $user->email }}</div>
                                     </div>
-                                </div>
+                                </a>
                             </td>
-                            <td class="px-6 py-4 cursor-pointer" onclick="window.location='{{ route('consultant.users.progress', ['locale' => app()->getLocale(), 'user' => $user]) }}'">
-                                <span class="px-2 py-1 rounded-full text-xs border border-white/10 bg-white/5 text-white/70">
-                                    {{ ucfirst($user->role) }}
-                                </span>
+                            <td class="px-6 py-4">
+                                <a href="{{ route('consultant.users.progress', [app()->getLocale(), $user->id]) }}" class="inline-block hover:bg-white/5 -mx-2 -my-2 px-2 py-2 rounded transition">
+                                    <span class="px-2 py-1 rounded-full text-xs border border-white/10 bg-white/5 text-white/70">
+                                        {{ ucfirst($user->role) }}
+                                    </span>
+                                </a>
                             </td>
                             <td class="px-6 py-4">
                                 <select id="mission-set-{{ $user->id }}" class="bg-white/10 border border-white/10 rounded-lg px-3 py-1.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50 w-full max-w-xs">
@@ -56,20 +58,22 @@
                                     @endforeach
                                 </select>
                             </td>
-                            <td class="px-6 py-4 cursor-pointer" onclick="window.location='{{ route('consultant.users.progress', ['locale' => app()->getLocale(), 'user' => $user]) }}'">
-                                @if($user->mission_started_at)
-                                    @php
-                                        $day = $user->mission_started_at->diffInDays(now()) + 1;
-                                    @endphp
-                                    <div class="text-white/80 text-sm">Day {{ $day }}</div>
-                                @else
-                                    <div class="text-white/30 text-sm">-</div>
-                                @endif
+                            <td class="px-6 py-4">
+                                <a href="{{ route('consultant.users.progress', [app()->getLocale(), $user->id]) }}" class="block hover:bg-white/5 -mx-2 -my-2 px-2 py-2 rounded transition">
+                                    @if($user->mission_started_at)
+                                        @php
+                                            $day = $user->mission_started_at->diffInDays(now()) + 1;
+                                        @endphp
+                                        <div class="text-white/80 text-sm">Day {{ $day }}</div>
+                                    @else
+                                        <div class="text-white/30 text-sm">-</div>
+                                    @endif
+                                </a>
                             </td>
                             <td class="px-6 py-4 text-right">
                                 <button type="button" 
                                     class="bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 hover:text-emerald-300 px-3 py-1.5 rounded-lg text-xs font-medium transition border border-emerald-500/20"
-                                    onclick="assignMissionSet('{{ $user->id }}', '{{ route('consultant.users.assign', ['locale' => app()->getLocale(), 'user' => $user]) }}')"
+                                    onclick="assignMissionSet('{{ $user->id }}', '{{ route('consultant.users.assign', [app()->getLocale(), $user->id]) }}')"
                                 >
                                     Save
                                 </button>

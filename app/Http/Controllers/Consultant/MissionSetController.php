@@ -60,7 +60,7 @@ class MissionSetController extends Controller
     {
         $missionSet->load(['missions' => function ($query) {
             $query->orderBy('day_number');
-        }]);
+        }, 'activeUsers']);
         
         return view('consultant.mission_sets.show', compact('missionSet'));
     }
@@ -108,21 +108,36 @@ class MissionSetController extends Controller
      */
     public function assign(Request $request, string $locale, $missionSetId)
     {
-        // Manual resolution
-        $missionSet = $missionSetId instanceof MissionSet ? $missionSetId : MissionSet::findOrFail($missionSetId);
+        try {
+            // Manual resolution
+            $missionSet = $missionSetId instanceof MissionSet ? $missionSetId : MissionSet::findOrFail($missionSetId);
 
-        $validated = $request->validate([
-            'user_id' => 'required|exists:users,id',
-            'start_date' => 'required|date',
-        ]);
+            $validated = $request->validate([
+                'user_id' => 'required|exists:users,id',
+                'start_date' => 'required|date',
+            ]);
 
-        $user = User::findOrFail($validated['user_id']);
-        
-        $user->update([
-            'active_mission_set_id' => $missionSet->id,
-            'mission_started_at' => $validated['start_date'],
-        ]);
+            $user = User::findOrFail($validated['user_id']);
+            
+            // Check if user already has an active mission set
+            if ($user->active_mission_set_id && $user->active_mission_set_id !== $missionSet->id) {
+                return back()->withErrors(['user_id' => 'User already has an active mission set. Please complete or reassign the current one first.']);
+            }
+            
+            $user->update([
+                'active_mission_set_id' => $missionSet->id,
+                'mission_started_at' => $validated['start_date'],
+            ]);
 
-        return back()->with('success', "Mission Set assigned to {$user->name} starting from {$validated['start_date']}.");
+            return back()->with('success', "Mission Set assigned to {$user->name} starting from {$validated['start_date']}.");
+            
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return back()
+                ->withErrors($e->errors())
+                ->withInput();
+        } catch (\Exception $e) {
+            \Log::error('Mission assignment error: ' . $e->getMessage());
+            return back()->withErrors(['general' => 'An error occurred while assigning the mission set: ' . $e->getMessage()]);
+        }
     }
 }

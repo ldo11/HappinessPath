@@ -3,7 +3,13 @@
 @section('content')
 <div class="container mx-auto px-4 py-8">
     <div class="mb-6">
-        <a href="{{ route('admin.mission-sets.index') }}" class="text-gray-500 hover:text-gray-700 mb-2 inline-block">
+        @if(session('success'))
+            <div class="mb-4 p-4 bg-emerald-100 border border-emerald-400 text-emerald-700 rounded">
+                {{ session('success') }}
+            </div>
+        @endif
+        
+        <a href="{{ route('consultant.mission-sets.index') }}" class="text-gray-500 hover:text-gray-700 mb-2 inline-block">
             &larr; Back to List
         </a>
         <h1 class="text-3xl font-bold">{{ $missionSet->name }}</h1>
@@ -50,7 +56,7 @@
             <!-- Add Mission Form -->
             <div class="bg-white shadow rounded-lg p-6">
                 <h3 class="font-bold text-lg mb-4">Add Mission</h3>
-                <form action="{{ route('admin.mission-sets.missions.store', $missionSet) }}" method="POST">
+                <form action="{{ route('consultant.mission-sets.missions.store', $missionSet) }}" method="POST">
                     @csrf
                     <div class="grid grid-cols-2 gap-4 mb-4">
                         <div>
@@ -100,7 +106,18 @@
         <div class="md:col-span-1">
             <div class="bg-white shadow rounded-lg p-6">
                 <h2 class="text-xl font-bold mb-4">Assign to User</h2>
-                <form action="{{ route('admin.mission-sets.assign', $missionSet) }}" method="POST">
+                
+                @if($errors->any())
+                    <div class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
+                        <ul class="list-disc list-inside">
+                            @foreach($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+                
+                <form action="{{ route('consultant.mission-sets.assign', $missionSet) }}" method="POST">
                     @csrf
                     <div class="mb-4">
                         <label class="block text-sm font-medium text-gray-700">User ID</label>

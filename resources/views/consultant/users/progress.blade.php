@@ -4,8 +4,30 @@
 
 @section('content')
 <div class="max-w-6xl mx-auto">
+    @if(session('success'))
+        <div class="mb-4 p-4 bg-emerald-100 border border-emerald-400 text-emerald-700 rounded">
+            {{ session('success') }}
+        </div>
+    @endif
+    
+    @if(session('error'))
+        <div class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
+            {{ session('error') }}
+        </div>
+    @endif
+    
+    @if($errors->any())
+        <div class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
+            <ul class="list-disc list-inside">
+                @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+    
     <div class="mb-6">
-        <a href="{{ route('consultant.users.index', ['locale' => app()->getLocale()]) }}" class="text-white/60 hover:text-white text-sm flex items-center gap-1 mb-2">
+        <a href="{{ route('consultant.users.index', [app()->getLocale()]) }}" class="text-white/60 hover:text-white text-sm flex items-center gap-1 mb-2">
             <i class="fas fa-arrow-left"></i> Back to Users
         </a>
         <h2 class="text-2xl font-bold text-white flex items-center gap-3">
@@ -46,7 +68,7 @@
 
                 <hr class="border-white/10 my-4">
 
-                <form method="POST" action="{{ route('consultant.users.assign', ['locale' => app()->getLocale(), 'user' => $user]) }}">
+                <form method="POST" action="{{ route('consultant.users.assign', [app()->getLocale(), $user->id]) }}">
                     @csrf
                     <div class="space-y-3">
                         <div>
@@ -72,6 +94,9 @@
                         <button type="submit" class="w-full bg-emerald-500 hover:bg-emerald-400 text-white font-medium py-2 rounded-lg transition text-sm">
                             {{ $user->activeMissionSet ? 'Update Program' : 'Assign Program' }}
                         </button>
+                        
+                        <!-- Test: Show form action for debugging -->
+                        <p class="text-xs text-white/30 mt-2">Form action: {{ route('consultant.users.assign', [app()->getLocale(), $user->id]) }}</p>
                     </div>
                 </form>
             </div>

@@ -61,6 +61,8 @@ Route::prefix('{locale}/consultant')
             Route::get('/{missionSet}/edit', [\App\Http\Controllers\Admin\MissionSetController::class, 'edit'])->name('edit');
             Route::put('/{missionSet}', [\App\Http\Controllers\Admin\MissionSetController::class, 'update'])->name('update');
             Route::delete('/{missionSet}', [\App\Http\Controllers\Admin\MissionSetController::class, 'destroy'])->name('destroy');
+            Route::post('/{missionSet}/assign', [\App\Http\Controllers\Consultant\MissionSetController::class, 'assign'])->name('assign');
+            Route::post('/{missionSet}/missions', [\App\Http\Controllers\Consultant\MissionSetController::class, 'storeMission'])->name('missions.store');
         });
 
         Route::prefix('users')->name('users.')->group(function () {
