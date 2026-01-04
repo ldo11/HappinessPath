@@ -58,10 +58,10 @@ class TranslationTest extends TestCase
             'order' => 1,
         ]);
 
-        $view = $this->actingAs($translator)->get("/translator/assessments/{$assessment->id}/translate");
+        $view = $this->actingAs($translator)->get("/en/translator/assessments/{$assessment->id}/translate");
         $view->assertOk();
 
-        $submit = $this->actingAs($translator)->post("/translator/assessments/{$assessment->id}/submit-translation", [
+        $submit = $this->actingAs($translator)->post("/en/translator/assessments/{$assessment->id}/submit-translation", [
             'title' => [
                 'vi' => 'Chất lượng giấc ngủ',
             ],

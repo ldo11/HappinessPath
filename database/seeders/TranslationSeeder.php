@@ -14,11 +14,58 @@ class TranslationSeeder extends Seeder
 
     public function run(): void
     {
+        $this->importJsonTranslations();
         $this->seedLanguageLines();
         $consultantId = $this->ensureConsultant();
 
         $this->seedScenarioAssessments($consultantId);
         $this->seedDailyMissions($consultantId);
+    }
+
+    /**
+     * Import all JSON translations from lang/ directory into database
+     */
+    private function importJsonTranslations(): void
+    {
+        $langPath = database_path('../lang');
+        $allTranslations = [];
+
+        // Read all JSON files and collect translations
+        foreach ($this->locales as $locale) {
+            $jsonFile = $langPath . '/' . $locale . '.json';
+            if (file_exists($jsonFile)) {
+                $translations = json_decode(file_get_contents($jsonFile), true);
+                if (is_array($translations)) {
+                    $this->flattenTranslations($translations, $locale, $allTranslations);
+                }
+            }
+        }
+
+        // Insert into database
+        foreach ($allTranslations as $key => $translations) {
+            LanguageLine::query()->updateOrCreate(
+                ['group' => 'json', 'key' => $key],
+                ['text' => $translations]
+            );
+        }
+
+        $this->command->info('Imported ' . count($allTranslations) . ' translation keys from JSON files.');
+    }
+
+    /**
+     * Flatten nested translation arrays with dot notation
+     */
+    private function flattenTranslations(array $translations, string $locale, array &$allTranslations, string $prefix = ''): void
+    {
+        foreach ($translations as $key => $value) {
+            $fullKey = $prefix ? $prefix . '.' . $key : $key;
+            
+            if (is_array($value)) {
+                $this->flattenTranslations($value, $locale, $allTranslations, $fullKey);
+            } else {
+                $allTranslations[$fullKey][$locale] = $value;
+            }
+        }
     }
 
     private function seedLanguageLines(): void
@@ -81,9 +128,18 @@ class TranslationSeeder extends Seeder
      */
     private function seedScenarioAssessments(int $consultantId): void
     {
-        DB::table('assessment_options')->delete();
-        DB::table('assessment_questions')->delete();
-        DB::table('assessments')->delete();
+        // Make seeding idempotent - clear only assessments created by this consultant
+        DB::table('assessment_options')->where('question_id', function($query) use ($consultantId) {
+            $query->select('id')->from('assessment_questions')->where('assessment_id', function($subQuery) use ($consultantId) {
+                $subQuery->select('id')->from('assessments')->where('created_by', $consultantId);
+            });
+        })->delete();
+        
+        DB::table('assessment_questions')->where('assessment_id', function($query) use ($consultantId) {
+            $query->select('id')->from('assessments')->where('created_by', $consultantId);
+        })->delete();
+        
+        DB::table('assessments')->where('created_by', $consultantId)->delete();
 
         $scenarios = [
             [

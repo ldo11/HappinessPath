@@ -41,8 +41,8 @@ class CoreLogicTest extends TestCase
         $this->assertDatabaseHas('users', [
             'id' => $user->id,
             'email' => 'created@test.com',
-            // Legacy storage maps canonical 'user' to 'member'.
-            'role' => 'member',
+            // Role is now standardized to 'user'
+            'role' => 'user',
         ]);
 
         $fresh = User::query()->findOrFail($user->id);

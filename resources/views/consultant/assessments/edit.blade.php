@@ -21,9 +21,9 @@
                 <div>
                     <label class="block text-sm font-medium text-white/80 mb-2">Title *</label>
                     <div class="grid grid-cols-1 gap-3">
-                        <input type="text" name="title[vi]" value="{{ old('title.vi', $assessment->getRawOriginal('title')['vi'] ?? '') }}" placeholder="Vietnamese title"
+                        <input type="text" name="title[vi]" value="{{ old('title.vi', $assessment->getTranslation('title', 'vi')) }}" placeholder="Vietnamese title"
                                class="w-full rounded-xl bg-white/10 border border-white/15 text-white px-4 py-3 focus:outline-none focus:ring-2 focus:ring-white/30">
-                        <input type="text" name="title[en]" value="{{ old('title.en', $assessment->getRawOriginal('title')['en'] ?? '') }}" placeholder="English title"
+                        <input type="text" name="title[en]" value="{{ old('title.en', $assessment->getTranslation('title', 'en')) }}" placeholder="English title"
                                class="w-full rounded-xl bg-white/10 border border-white/15 text-white px-4 py-3 focus:outline-none focus:ring-2 focus:ring-white/30">
                     </div>
                 </div>
@@ -32,9 +32,9 @@
                     <label class="block text-sm font-medium text-white/80 mb-2">Description *</label>
                     <div class="grid grid-cols-1 gap-3">
                         <textarea name="description[vi]" rows="3" placeholder="Vietnamese description"
-                                  class="w-full rounded-xl bg-white/10 border border-white/15 text-white px-4 py-3 focus:outline-none focus:ring-2 focus:ring-white/30">{{ old('description.vi', $assessment->getRawOriginal('description')['vi'] ?? '') }}</textarea>
+                                  class="w-full rounded-xl bg-white/10 border border-white/15 text-white px-4 py-3 focus:outline-none focus:ring-2 focus:ring-white/30">{{ old('description.vi', $assessment->getTranslation('description', 'vi')) }}</textarea>
                         <textarea name="description[en]" rows="3" placeholder="English description"
-                                  class="w-full rounded-xl bg-white/10 border border-white/15 text-white px-4 py-3 focus:outline-none focus:ring-2 focus:ring-white/30">{{ old('description.en', $assessment->getRawOriginal('description')['en'] ?? '') }}</textarea>
+                                  class="w-full rounded-xl bg-white/10 border border-white/15 text-white px-4 py-3 focus:outline-none focus:ring-2 focus:ring-white/30">{{ old('description.en', $assessment->getTranslation('description', 'en')) }}</textarea>
                     </div>
                 </div>
 
@@ -68,7 +68,13 @@
 <script>
 let questionIndex = 0;
 const questionsContainer = document.getElementById('questionsContainer');
-const existingQuestions = @json($assessment->questions->load('options')->toArray());
+
+// Load existing questions properly
+@php
+    $assessment->load('questions.options');
+    $existingQuestions = $assessment->questions->toArray();
+@endphp
+const existingQuestions = @json($existingQuestions);
 
 function addQuestionBlock(questionData = null, qIndex = null) {
     const index = qIndex !== null ? qIndex : questionIndex++;
@@ -153,6 +159,7 @@ function removeOption(questionIdx, optionIdx) {
 
 document.getElementById('addQuestion').addEventListener('click', () => addQuestionBlock());
 
+// Initialize with existing questions
 if (existingQuestions && existingQuestions.length) {
     questionIndex = existingQuestions.length;
     existingQuestions.forEach((q, idx) => addQuestionBlock(q, idx));

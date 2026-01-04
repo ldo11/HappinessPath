@@ -13,6 +13,7 @@ use App\Http\Controllers\Web\DailyMissionController;
 use App\Http\Controllers\Web\UserAssessmentController;
 use App\Http\Controllers\Web\TranslatorController;
 use App\Http\Controllers\Web\AdminAssessmentController as WebAdminAssessmentController;
+use App\Http\Controllers\Web\MissionSetController as WebMissionSetController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\VideoController as AdminVideoController;
@@ -90,7 +91,7 @@ Route::match(['GET', 'POST'], '/login', function () {
 
     $preferredLocale = in_array($preferredLocale, ['en', 'vi', 'de', 'kr'], true) ? $preferredLocale : 'en';
 
-    return redirect()->route('login', ['locale' => $preferredLocale]);
+    return redirect()->route('user.login', ['locale' => $preferredLocale]);
 })->name('login');
 
 Route::get('/register', function () {
@@ -227,36 +228,6 @@ Route::prefix('{locale}')
             // to avoid route name collisions.
         });
 
-/*
-        Route::get('/translator/dashboard', function () {
-            $assessments = \App\Models\Assessment::whereIn('status', ['created', 'translated'])
-                ->with('creator')
-                ->withCount('questions')
-                ->orderBy('created_at', 'desc')
-                ->whereHas('creator', function ($q) {
-                    $q->where('role_v2', 'consultant')
-                        ->orWhere('role', 'consultant');
-                })
-                ->get();
-
-            $languageLinesCount = \App\Models\LanguageLine::query()->count();
-
-            return view('translator.dashboard', compact('assessments', 'languageLinesCount'));
-        })->middleware(['auth', 'role:translator|admin'])->name('translator.dashboard');
-
-        Route::get('/translator/language-lines', [\App\Http\Controllers\Translator\LanguageLineController::class, 'index'])
-            ->middleware(['auth', 'role:translator|admin'])
-            ->name('translator.language-lines');
-
-        Route::get('/translator/pain-points', [\App\Http\Controllers\Translator\PainPointController::class, 'index'])
-            ->middleware(['auth', 'role:translator|admin'])
-            ->name('translator.pain-points.index');
-        
-        Route::patch('/translator/pain-points/{id}', [\App\Http\Controllers\Translator\PainPointController::class, 'update'])
-            ->middleware(['auth', 'role:translator|admin'])
-            ->name('translator.pain-points.update');
-*/
-
         // Onboarding Routes
         Route::middleware('guest')->group(function () {
             Route::get('/onboarding/step1', [OnboardingController::class, 'step1'])->name('onboarding.step1');
@@ -296,6 +267,11 @@ Route::prefix('{locale}')
             Route::post('/meditate/complete', [MeditationController::class, 'completeSession'])->name('meditate.complete');
             Route::post('/meditate/cancel', [MeditationController::class, 'cancelSession'])->name('meditate.cancel');
             Route::get('/meditate/status', [MeditationController::class, 'getSessionStatus'])->name('meditate.status');
+            
+            // Mission Sets (User)
+            Route::get('/mission-sets', [WebMissionSetController::class, 'index'])->name('mission-sets.index');
+            Route::get('/mission-sets/{missionSet}', [WebMissionSetController::class, 'show'])->name('mission-sets.show');
+            Route::post('/mission-sets/{missionSet}/assign', [WebMissionSetController::class, 'assign'])->name('mission-sets.assign');
         });
 
         Route::get('/videos', [VideoController::class, 'index'])->name('videos.index');
@@ -325,13 +301,6 @@ Route::prefix('{locale}')
     ->whereIn('locale', ['en', 'vi', 'de', 'kr'])
     ->middleware(['localization'])
     ->group(function () {
-        Route::get('/login', [AuthenticatedSessionController::class, 'create']);
-        Route::post('/login', [AuthenticatedSessionController::class, 'store']);
-        Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->middleware('auth');
-
-        Route::get('/register', [RegisteredUserController::class, 'create']);
-        Route::post('/register', [RegisteredUserController::class, 'store']);
-
         Route::get('/dashboard', [DashboardController::class, 'index'])->middleware(['auth'])->name('dashboard');
 
         Route::get('/assessment', function () {

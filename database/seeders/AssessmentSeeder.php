@@ -15,14 +15,7 @@ class AssessmentSeeder extends Seeder
 {
     public function run(): void
     {
-        // 1. Cleanup
-        Schema::disableForeignKeyConstraints();
-        DB::table('assessment_options')->truncate();
-        DB::table('assessment_questions')->truncate();
-        DB::table('assessments')->truncate();
-        Schema::enableForeignKeyConstraints();
-
-        // 2. Create Admin User if needed
+        // 1. Cleanup - Make seeding idempotent by checking existing assessment first
         $user = User::firstOrCreate(
             ['email' => 'admin@happiness.test'],
             [
@@ -32,6 +25,29 @@ class AssessmentSeeder extends Seeder
                 'email_verified_at' => now(),
             ]
         );
+
+        // Check if assessment already exists to prevent duplicates
+        $existingAssessment = Assessment::where('created_by', $user->id)
+            ->whereJsonContains('title->en', 'Deep Self-Discovery')
+            ->first();
+
+        if ($existingAssessment) {
+            // Assessment already exists, skip seeding to maintain idempotency
+            return;
+        }
+
+        // Only clean up if we're creating new assessment
+        Schema::disableForeignKeyConstraints();
+        DB::table('assessment_options')->where('question_id', function($query) use ($user) {
+            $query->select('id')->from('assessment_questions')->where('assessment_id', function($subQuery) use ($user) {
+                $subQuery->select('id')->from('assessments')->where('created_by', $user->id);
+            });
+        })->delete();
+        DB::table('assessment_questions')->where('assessment_id', function($query) use ($user) {
+            $query->select('id')->from('assessments')->where('created_by', $user->id);
+        })->delete();
+        DB::table('assessments')->where('created_by', $user->id)->delete();
+        Schema::enableForeignKeyConstraints();
 
         // 3. Create Assessment
         $assessment = Assessment::create([

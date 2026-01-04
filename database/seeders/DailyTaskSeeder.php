@@ -112,10 +112,6 @@ class DailyTaskSeeder extends Seeder
             ['content' => 'Tổng kết tuần: Mình đã trưởng thành hơn ở điểm nào?', 'tag' => 'wisdom', 'diff' => 'medium'],
         ];
 
-        $heart = array_values(array_filter($tasks, fn ($t) => $t['tag'] === 'heart'));
-        $grit = array_values(array_filter($tasks, fn ($t) => $t['tag'] === 'grit'));
-        $wisdom = array_values(array_filter($tasks, fn ($t) => $t['tag'] === 'wisdom'));
-
         $difficultyMap = [
             'easy' => 1,
             'medium' => 2,
@@ -128,77 +124,55 @@ class DailyTaskSeeder extends Seeder
             'wisdom' => 'mindfulness',
         ];
 
-        // Reset table for deterministic seeding
-        DB::table('daily_tasks')->delete();
-
-        $heartIndex = 0;
-        $gritIndex = 0;
-        $wisdomIndex = 0;
-
-        for ($day = 1; $day <= 90; $day++) {
-            $pillar = match (($day - 1) % 3) {
-                0 => 'heart',
-                1 => 'grit',
-                2 => 'wisdom',
-            };
-
-            $task = match ($pillar) {
-                'heart' => $heart[$heartIndex++],
-                'grit' => $grit[$gritIndex++],
-                'wisdom' => $wisdom[$wisdomIndex++],
-            };
-
-            // Basic translations for "Day X"
-            $titleEn = 'Day ' . $day;
-            $titleVi = 'Ngày ' . $day;
-            $titleKr = 'Day ' . $day; // Placeholder
-            $titleDe = 'Tag ' . $day;
-
-            DailyTask::create([
-                'day_number' => $day,
-                'content' => [
-                    'vi' => $task['content'],
-                    'en' => $task['content'], // Fallback
-                    'kr' => $task['content'], // Fallback
-                    'de' => $task['content'], // Fallback
-                ],
-                'pillar_tag' => $pillar,
-                'difficulty' => $task['diff'],
-                'difficulty_level_int' => $difficultyMap[$task['diff']] ?? 1,
-                'title' => [
-                    'en' => $titleEn,
-                    'vi' => $titleVi,
-                    'kr' => $titleKr,
-                    'de' => $titleDe,
-                ],
-                'description' => [
-                    'vi' => $task['content'],
-                    'en' => $task['content'], // Placeholder as we don't have full translations
-                    'kr' => $task['content'],
-                    'de' => $task['content'],
-                ],
-                'type' => $typeMap[$pillar] ?? 'mindfulness',
-                'estimated_minutes' => 10,
-                'solution_id' => null,
-                'instructions' => [
-                    'vi' => [
-                        'content' => [$task['content']],
-                        'pillar_tag' => $pillar,
-                        'difficulty' => $task['diff'],
+        // Make seeding idempotent - use firstOrCreate to prevent duplicates
+        foreach ($tasks as $index => $task) {
+            DailyTask::firstOrCreate(
+                ['day_number' => $index + 1],
+                [
+                    'content' => [
+                        'vi' => $task['content'],
+                        'en' => $task['content'], // Fallback
+                        'kr' => $task['content'], // Fallback
+                        'de' => $task['content'], // Fallback
                     ],
-                    'en' => [
-                        'content' => [$task['content']],
+                    'pillar_tag' => $task['tag'],
+                    'difficulty' => $task['diff'],
+                    'difficulty_level_int' => $difficultyMap[$task['diff']] ?? 1,
+                    'title' => [
+                        'en' => 'Day ' . ($index + 1),
+                        'vi' => 'Ngày ' . ($index + 1),
+                        'kr' => 'Day ' . ($index + 1), // Placeholder
+                        'de' => 'Tag ' . ($index + 1),
                     ],
-                    'kr' => [
-                        'content' => [$task['content']],
+                    'description' => [
+                        'vi' => $task['content'],
+                        'en' => $task['content'], // Placeholder as we don't have full translations
+                        'kr' => $task['content'],
+                        'de' => $task['content'],
                     ],
-                    'de' => [
-                        'content' => [$task['content']],
+                    'type' => $typeMap[$task['tag']] ?? 'mindfulness',
+                    'estimated_minutes' => 10,
+                    'solution_id' => null,
+                    'instructions' => [
+                        'vi' => [
+                            'content' => [$task['content']],
+                            'pillar_tag' => $task['tag'],
+                            'difficulty' => $task['diff'],
+                        ],
+                        'en' => [
+                            'content' => [$task['content']],
+                        ],
+                        'kr' => [
+                            'content' => [$task['content']],
+                        ],
+                        'de' => [
+                            'content' => [$task['content']],
+                        ],
                     ],
-                ],
-                'status' => 'active',
-                'completed_at' => null,
-            ]);
+                    'status' => 'active',
+                    'completed_at' => null,
+                ]
+            );
         }
     }
 }

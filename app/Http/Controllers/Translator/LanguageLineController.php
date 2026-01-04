@@ -11,8 +11,13 @@ class LanguageLineController extends Controller
     public function index(Request $request)
     {
         $search = trim((string) $request->get('search', ''));
+        $groupFilter = $request->get('group', 'json'); // Default to 'json' group
 
         $query = LanguageLine::query()->orderBy('group')->orderBy('key');
+
+        if ($groupFilter !== '') {
+            $query->where('group', $groupFilter);
+        }
 
         if ($search !== '') {
             $query->where(function ($q) use ($search) {
@@ -23,12 +28,15 @@ class LanguageLineController extends Controller
         }
 
         $lines = $query->paginate(50)->withQueryString();
+        $groups = LanguageLine::distinct()->orderBy('group')->pluck('group');
 
-        return view('translator.language-lines.index', compact('lines', 'search'));
+        return view('translator.language-lines.index', compact('lines', 'search', 'groups'));
     }
 
-    public function update(Request $request, LanguageLine $languageLine)
+    public function update(Request $request, $locale, $languageLineId)
     {
+        $languageLine = LanguageLine::findOrFail($languageLineId);
+
         $data = $request->validate([
             'vi' => ['nullable', 'string'],
             'en' => ['nullable', 'string'],

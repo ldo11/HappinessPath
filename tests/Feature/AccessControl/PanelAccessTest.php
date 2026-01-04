@@ -15,7 +15,7 @@ class PanelAccessTest extends TestCase
         $admin = User::factory()->admin()->create();
 
         // Admin can access admin panel
-        $response = $this->actingAs($admin)->get('/admin/dashboard');
+        $response = $this->actingAs($admin)->get('/en/admin/dashboard');
         $response->assertStatus(200);
         $response->assertSeeText('Admin Dashboard');
 
@@ -43,7 +43,7 @@ class PanelAccessTest extends TestCase
     {
         $consultant = User::factory()->consultant()->create();
 
-        $response = $this->actingAs($consultant)->get('/admin/dashboard');
+        $response = $this->actingAs($consultant)->get('/en/admin/dashboard');
         $response->assertForbidden(); // 403
     }
 
@@ -68,7 +68,7 @@ class PanelAccessTest extends TestCase
     {
         $translator = User::factory()->translator()->create();
 
-        $response = $this->actingAs($translator)->get('/admin/dashboard');
+        $response = $this->actingAs($translator)->get('/en/admin/dashboard');
         $response->assertForbidden(); // 403
     }
 
@@ -93,7 +93,7 @@ class PanelAccessTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $response = $this->actingAs($user)->get('/admin/dashboard');
+        $response = $this->actingAs($user)->get('/en/admin/dashboard');
         $response->assertForbidden(); // 403
     }
 
@@ -116,20 +116,20 @@ class PanelAccessTest extends TestCase
     public function test_guest_cannot_access_any_panel(): void
     {
         // Guest cannot access admin panel
-        $response = $this->get('/admin/dashboard');
-        $response->assertRedirect('/login?locale=en');
+        $response = $this->get('/en/admin/dashboard');
+        $response->assertRedirect('/en/login');
 
         // Guest cannot access consultant panel
         $response = $this->get('/en/consultant/dashboard');
-        $response->assertRedirect('/login?locale=en');
+        $response->assertRedirect('/en/login');
 
         // Guest cannot access translator panel
         $response = $this->get('/en/translator/dashboard');
-        $response->assertRedirect('/login?locale=en');
+        $response->assertRedirect('/en/login');
 
         // Guest cannot access user dashboard
         $response = $this->get('/en/dashboard');
-        $response->assertRedirect('/login?locale=en');
+        $response->assertRedirect('/en/login');
     }
 
     public function test_admin_can_access_admin_management_pages(): void
@@ -193,7 +193,7 @@ class PanelAccessTest extends TestCase
         $translator = User::factory()->translator()->create();
 
         $response = $this->actingAs($translator)
-            ->get('/en/translator/language-lines');
+            ->get('/en/translator/ui-matrix');
 
         $response->assertStatus(200);
         $response->assertSeeText('Translation Matrix');

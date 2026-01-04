@@ -95,7 +95,7 @@ class PainPointManagementTest extends TestCase
 
         // Act as Translator -> Visit Translation Matrix/List
         $response = $this->actingAs($translator)
-            ->get(route('user.translator.pain-points.index', ['locale' => 'en']));
+            ->get(route('translator.pain-points.index', ['locale' => 'en']));
 
         $response->assertOk();
         $response->assertSee('Active Pain');

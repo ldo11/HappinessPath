@@ -219,6 +219,12 @@
                                         {{ $todayTask->difficulty === 'easy' ? __('dashboard.easy') : 
                                            ($todayTask->difficulty === 'medium' ? __('dashboard.medium') : __('dashboard.hard')) }}
                                     </span>
+                                    @if(isset($todayTask->points))
+                                        <span class="px-2 py-1 bg-white rounded-md border border-gray-100 shadow-sm">
+                                            <i class="fas fa-star mr-1 text-gray-400"></i>
+                                            {{ $todayTask->points }} {{ __('dashboard.points') }}
+                                        </span>
+                                    @endif
                                     @if($todayTask->solution_id)
                                         <span class="px-2 py-1 bg-white rounded-md border border-gray-100 shadow-sm">
                                             <i class="fas fa-video mr-1 text-gray-400"></i>
@@ -230,6 +236,7 @@
                                 @php
                                     $taskId = $todayTask->id ?? 0;
                                     $isProgramCompleted = $todayTask->is_completed_program ?? false;
+                                    $hasMissionSet = isset($missionSet) && $missionSet;
                                     $canStartMission = !empty($taskId) && !$isProgramCompleted; 
                                 @endphp
 
@@ -238,6 +245,11 @@
                                         <i class="fas fa-trophy mr-2"></i>
                                         {{ __('dashboard.program_completed_title') }}
                                     </div>
+                                @elseif(!$hasMissionSet)
+                                    <a href="{{ route('user.mission-sets.index', ['locale' => app()->getLocale()]) }}" class="emerald-gradient text-white px-6 py-2.5 rounded-lg hover:shadow-lg transition-all duration-200 transform hover:scale-105 font-medium inline-flex items-center">
+                                        <i class="fas fa-compass mr-2"></i>
+                                        {{ __('dashboard.browse_programs') }}
+                                    </a>
                                 @elseif($dailyMissionCompleted)
                                     <div class="text-emerald-600 font-bold bg-emerald-50 px-4 py-2 rounded-lg border border-emerald-100" id="dailyMissionCompletedState">
                                         <i class="fas fa-check-circle mr-2"></i>

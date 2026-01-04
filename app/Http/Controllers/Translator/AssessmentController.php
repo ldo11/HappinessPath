@@ -22,8 +22,10 @@ class AssessmentController extends Controller
         return view('translator.assessments.index', compact('assessments'));
     }
 
-    public function translate(Assessment $assessment)
+    public function translate($locale, $assessmentId)
     {
+        $assessment = Assessment::findOrFail($assessmentId);
+
         if (!in_array($assessment->status, ['created', 'translated'])) {
             return back()->with('error', 'This assessment cannot be translated.');
         }
@@ -33,8 +35,10 @@ class AssessmentController extends Controller
         return view('translator.assessments.translate', compact('assessment'));
     }
 
-    public function submitTranslation(Request $request, Assessment $assessment)
+    public function submitTranslation(Request $request, $locale, $assessmentId)
     {
+        $assessment = Assessment::findOrFail($assessmentId);
+
         if ($assessment->status !== 'created' && $assessment->status !== 'translated') {
             return back()->with('error', 'This assessment cannot be translated.');
         }

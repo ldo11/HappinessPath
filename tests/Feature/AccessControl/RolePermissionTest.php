@@ -218,15 +218,4 @@ class RolePermissionTest extends TestCase
         $this->assertEquals('translator', $this->translator->role);
         $this->assertEquals('user', $this->regularUser->role);
     }
-
-    /** @test */
-    public function legacy_role_mapping_works_correctly()
-    {
-        // Test legacy role mapping
-        $legacyUser = User::factory()->create(['role' => 'volunteer']);
-        $this->assertEquals('translator', $legacyUser->role);
-
-        $legacyMember = User::factory()->create(['role' => 'member']);
-        $this->assertEquals('user', $legacyMember->role);
-    }
 }

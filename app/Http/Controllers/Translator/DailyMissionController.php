@@ -18,15 +18,19 @@ class DailyMissionController extends Controller
         return view('translator.daily-missions.index', compact('missions'));
     }
 
-    public function show(DailyMission $dailyMission)
+    public function show($locale, $dailyMissionId)
     {
+        $dailyMission = DailyMission::findOrFail($dailyMissionId);
+
         return view('translator.daily-missions.show', [
             'mission' => $dailyMission,
         ]);
     }
 
-    public function update(Request $request, DailyMission $dailyMission)
+    public function update(Request $request, $locale, $dailyMissionId)
     {
+        $dailyMission = DailyMission::findOrFail($dailyMissionId);
+
         $data = $request->validate([
             'title' => ['nullable', 'array'],
             'title.en' => ['nullable', 'string', 'max:255'],

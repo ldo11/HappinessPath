@@ -11,7 +11,7 @@
             <div class="space-y-3">
                 @foreach($assessments as $assessment)
                     <div class="border rounded p-4">
-                        <h3 class="font-semibold">{{ $assessment->title[app()->getLocale()] ?? $assessment->title['en'] }}</h3>
+                        <h3 class="font-semibold">{{ $assessment->getTranslation('title', app()->getLocale()) }}</h3>
                         <p class="text-sm text-gray-600">Status: {{ $assessment->status }}</p>
                         <a href="{{ route('translator.assessments.translate', $assessment) }}" class="inline-block mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
                             Translate

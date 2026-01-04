@@ -81,17 +81,21 @@ class DailyMissionSeeder extends Seeder
             $isMind = rand(0, 1) == 1;
             $isWisdom = (!$isBody && !$isMind) ? true : (rand(0, 1) == 1);
 
-            DailyMission::create([
-                'mission_set_id' => $missionSet->id,
-                'day_number' => $day,
-                'title' => $data['title'],
-                'description' => $data['desc'],
-                'points' => 50,
-                'is_body' => $isBody,
-                'is_mind' => $isMind,
-                'is_wisdom' => $isWisdom,
-                'created_by_id' => $admin->id,
-            ]);
+            DailyMission::firstOrCreate(
+                [
+                    'mission_set_id' => $missionSet->id,
+                    'day_number' => $day,
+                ],
+                [
+                    'title' => $data['title'],
+                    'description' => $data['desc'],
+                    'points' => 50,
+                    'is_body' => $isBody,
+                    'is_mind' => $isMind,
+                    'is_wisdom' => $isWisdom,
+                    'created_by_id' => $admin->id,
+                ]
+            );
         }
         
         // Task 3: Assign to Test Users

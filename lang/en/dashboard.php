@@ -28,6 +28,8 @@ return [
     'grit' => 'Grit',
     'wisdom' => 'Wisdom',
     'not_selected' => 'Not Selected',
+    'browse_programs' => 'Browse Programs',
+    'points' => 'points',
     'not_started' => 'Not Started',
     'active' => 'Active',
     'paused' => 'Paused',

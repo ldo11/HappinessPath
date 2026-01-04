@@ -275,7 +275,8 @@ class AssessmentController extends Controller
 
         $routeName = (string) optional(request()->route())->getName();
         if (str_starts_with($routeName, 'consultant.')) {
-            return view('consultant.assessments.edit', compact('assessment'));
+            // Use simplified edit view for consultants (no question editing)
+            return view('consultant.assessments.edit-simple', compact('assessment'));
         }
 
         return view('admin.assessments.edit', compact('assessment'));
@@ -284,6 +285,20 @@ class AssessmentController extends Controller
     public function update(UpdateAssessmentRequest $request)
     {
         $assessment = $this->resolveAssessment();
+
+        $routeName = (string) optional($request->route())->getName();
+        
+        // Check if trying to update questions (more restrictive)
+        if (isset($request->validated()['questions']) && !empty($request->validated()['questions'])) {
+            // Only allow question editing by assessment creators or admins
+            if (str_starts_with($routeName, 'consultant.') && (int) $assessment->created_by !== (int) Auth::id()) {
+                abort(403, 'Only assessment creators or administrators can edit questions.');
+            }
+        } else {
+            // Basic info editing (title, description, status) - allow all consultants
+            // No additional authorization needed beyond being authenticated consultant
+        }
+
         $validated = $request->validated();
 
         $assessment->update([
@@ -292,27 +307,30 @@ class AssessmentController extends Controller
             'status' => $validated['status'] ?? $assessment->status,
         ]);
 
-        // Delete existing questions and options
-        $assessment->questions()->each(function ($question) {
-            $question->options()->delete();
-            $question->delete();
-        });
+        // Only update questions if they are provided in the request
+        if (isset($validated['questions']) && !empty($validated['questions'])) {
+            // Delete existing questions and options
+            $assessment->questions()->each(function ($question) {
+                $question->options()->delete();
+                $question->delete();
+            });
 
-        // Create new questions and options
-        foreach ($validated['questions'] as $questionData) {
-            $question = AssessmentQuestion::create([
-                'assessment_id' => $assessment->id,
-                'content' => $questionData['content'],
-                'type' => $questionData['type'],
-                'order' => $questionData['order'],
-            ]);
-
-            foreach ($questionData['options'] as $optionData) {
-                AssessmentOption::create([
-                    'question_id' => $question->id,
-                    'content' => $optionData['content'],
-                    'score' => $optionData['score'],
+            // Create new questions and options
+            foreach ($validated['questions'] as $questionData) {
+                $question = AssessmentQuestion::create([
+                    'assessment_id' => $assessment->id,
+                    'content' => $questionData['content'],
+                    'type' => $questionData['type'],
+                    'order' => $questionData['order'],
                 ]);
+
+                foreach ($questionData['options'] as $optionData) {
+                    AssessmentOption::create([
+                        'question_id' => $question->id,
+                        'content' => $optionData['content'],
+                        'score' => $optionData['score'],
+                    ]);
+                }
             }
         }
 
@@ -426,9 +444,17 @@ class AssessmentController extends Controller
             ->with('success', 'Question deleted successfully!');
     }
 
-    public function destroy()
+    public function destroy(Request $request)
     {
         $assessment = $this->resolveAssessment();
+
+        $routeName = (string) optional($request->route())->getName();
+        
+        // Only admins can delete assessments
+        if (Auth::user()->role !== 'admin') {
+            abort(403, 'Only administrators can delete assessments.');
+        }
+
         $assessment->questions()->each(function ($question) {
             $question->options()->delete();
             $question->delete();

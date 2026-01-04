@@ -134,9 +134,14 @@ class ContentCrudTest extends TestCase
             ->put("/en/consultant/assessments/{$otherAssessment->id}", $updateOtherPayload)
             ->assertForbidden();
 
-        $this->actingAs($consultant)
-            ->delete("/en/consultant/assessments/{$otherAssessment->id}")
-            ->assertForbidden();
+        $res = $this->actingAs($consultant)
+            ->delete("/en/consultant/assessments/{$otherAssessment->id}");
+            
+        if ($res->status() === 302) {
+            dump("Redirecting to: " . $res->headers->get('Location'));
+        }
+        
+        $res->assertForbidden();
     }
 
     public function test_consultant_can_crud_daily_missions_with_tags_and_cannot_delete_others(): void

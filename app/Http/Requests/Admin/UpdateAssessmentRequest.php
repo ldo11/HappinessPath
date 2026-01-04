@@ -29,18 +29,18 @@ class UpdateAssessmentRequest extends FormRequest
 
             'status' => ['nullable', Rule::in(['created', 'active'])],
             
-            'questions' => 'required|array|min:1',
-            'questions.*.content' => 'required|array|min:1',
-            'questions.*.content.vi' => 'nullable|string|required_without:questions.*.content.en',
-            'questions.*.content.en' => 'nullable|string|required_without:questions.*.content.vi',
-            'questions.*.type' => ['required', Rule::in(['single_choice', 'multi_choice'])],
-            'questions.*.order' => 'required|integer|min:1',
-            'questions.*.options' => 'required|array|min:2',
-            'questions.*.options.*.content' => 'required|array|min:1',
-            'questions.*.options.*.content.vi' => 'nullable|string|required_without:questions.*.options.*.content.en',
-            'questions.*.options.*.content.en' => 'nullable|string|required_without:questions.*.options.*.content.vi',
-            'questions.*.options.*.content.en' => 'nullable|string|required_without:questions.*.options.*.content.vi',
-            'questions.*.options.*.score' => 'required|integer|min:1|max:5',
+            // Make questions optional - only validate if they're provided
+            'questions' => 'nullable|array|min:1',
+            'questions.*.content' => 'required_with:questions|array|min:1',
+            'questions.*.content.vi' => 'nullable|required_with:questions|string|required_without:questions.*.content.en',
+            'questions.*.content.en' => 'nullable|required_with:questions|string|required_without:questions.*.content.vi',
+            'questions.*.type' => 'required_with:questions|' . Rule::in(['single_choice', 'multi_choice']),
+            'questions.*.order' => 'required_with:questions|integer|min:1',
+            'questions.*.options' => 'required_with:questions|array|min:2',
+            'questions.*.options.*.content' => 'required_with:questions|array|min:1',
+            'questions.*.options.*.content.vi' => 'nullable|required_with:questions|string|required_without:questions.*.options.*.content.en',
+            'questions.*.options.*.content.en' => 'nullable|required_with:questions|string|required_without:questions.*.options.*.content.vi',
+            'questions.*.options.*.score' => 'required_with:questions|integer|min:1|max:5',
         ];
     }
 

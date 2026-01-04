@@ -17,6 +17,6 @@ class Authenticate extends Middleware
             ?? session('locale') 
             ?? config('app.locale', 'en');
         
-        return route('login', ['locale' => $locale]);
+        return route('user.login', ['locale' => $locale]);
     }
 }

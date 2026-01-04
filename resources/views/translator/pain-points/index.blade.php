@@ -22,7 +22,7 @@
         <ul class="divide-y divide-gray-200">
             @foreach($painPoints as $painPoint)
             <li class="p-4 hover:bg-gray-50">
-                <form action="{{ route('user.translator.pain-points.update', $painPoint->id) }}" method="POST">
+                <form action="{{ route('translator.pain-points.update', $painPoint->id) }}" method="POST">
                     @csrf
                     @method('PATCH')
                     

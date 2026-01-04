@@ -127,12 +127,21 @@ class MissionSetController extends Controller
 
         $sourceMission = DailyMission::findOrFail($data['source_mission_id']);
         
-        // Replicate the mission
-        $newMission = $sourceMission->replicate();
-        $newMission->mission_set_id = $missionSet->id;
-        $newMission->day_number = $data['day_number'];
-        $newMission->created_by_id = Auth::id();
-        $newMission->push(); // Save the replicated model
+        // Check if this day already has a mission in this set
+        $existingMission = $missionSet->missions()
+            ->where('day_number', $data['day_number'])
+            ->first();
+            
+        if ($existingMission) {
+            return $this->redirectToShow($request, $missionSet)
+                ->with('error', 'Day ' . $data['day_number'] . ' already has a mission assigned!');
+        }
+        
+        // Move the existing mission to this mission set (don't create a duplicate)
+        $sourceMission->update([
+            'mission_set_id' => $missionSet->id,
+            'day_number' => $data['day_number'],
+        ]);
 
         return $this->redirectToShow($request, $missionSet)
             ->with('success', 'Mission added successfully!');

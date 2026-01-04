@@ -36,15 +36,18 @@ class DashboardController extends Controller
         // Check for Active Mission Set (Priority)
         $todayTask = null;
         $missionSet = $user->activeMissionSet;
+        $hasMissionSet = false;
         
-        if ($missionSet && $user->mission_started_at) {
-            $startDate = $user->mission_started_at instanceof \Carbon\Carbon 
-                ? $user->mission_started_at 
-                : \Carbon\Carbon::parse($user->mission_started_at);
-                
-            // Use startOfDay to compare calendar dates, ignoring time
-            $daysSinceStart = $startDate->startOfDay()->diffInDays(now()->startOfDay()); 
-            $currentDay = $daysSinceStart + 1;
+        if ($missionSet) {
+            $hasMissionSet = true;
+            // Calculate current day based on completed missions count + 1
+            $completedMissionsCount = $user->completedMissions()
+                ->whereHas('missionSet', function ($query) use ($missionSet) {
+                    $query->where('id', $missionSet->id);
+                })
+                ->count();
+            
+            $currentDay = $completedMissionsCount + 1;
             
             // Find mission for this day
             $mission = DailyMission::where('mission_set_id', $missionSet->id)
@@ -55,13 +58,14 @@ class DashboardController extends Controller
                 // Adapt DailyMission to view-compatible structure
                 $todayTask = (object) [
                     'id' => $mission->id,
-                    'title' => $mission->title, 
-                    'description' => $mission->description,
+                    'title' => $mission->getTranslation('title', app()->getLocale()), 
+                    'description' => $mission->getTranslation('description', app()->getLocale()),
                     'type' => $mission->is_body ? 'physical' : ($mission->is_wisdom ? 'wisdom' : 'mindfulness'),
                     'difficulty' => 'medium', // Default
                     'estimated_minutes' => $mission->estimated_minutes ?? 15, // Default
                     'instructions' => [], // DailyMission doesn't have instructions column yet
                     'solution_id' => null,
+                    'points' => $mission->points ?? 10, // Add points from mission
                 ];
             } else {
                 // Check if program is finished (Day > Max Day)
@@ -94,7 +98,7 @@ class DashboardController extends Controller
             if (isset($todayTask->is_completed_program) && $todayTask->is_completed_program) {
                  $userJourney->current_day = $maxDay ?? 30; // Show last day or max
             } else {
-                 $userJourney->current_day = $todayTask->day_number ?? ($daysSinceStart + 1 ?? 1);
+                 $userJourney->current_day = $currentDay ?? 1;
             }
         }
 
@@ -102,10 +106,8 @@ class DashboardController extends Controller
         if (isset($todayTask->id) && $todayTask->id) {
             // Only check completion for real database tasks (numeric IDs)
             if (is_numeric($todayTask->id)) {
-                $dailyMissionCompleted = UserDailyTask::query()
-                    ->where('user_id', $user->id)
-                    ->where('daily_task_id', (int) $todayTask->id)
-                    ->whereNotNull('completed_at')
+                $dailyMissionCompleted = $user->completedMissions()
+                    ->where('daily_mission_id', (int) $todayTask->id)
                     ->exists();
             }
         }
@@ -157,7 +159,8 @@ class DashboardController extends Controller
             'dailyMissions',
             'levels',
             'progress',
-            'missionSet'
+            'missionSet',
+            'hasMissionSet'
         ));
     }
 
@@ -176,19 +179,77 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
         
-        // Use JourneyService to complete task
-        $success = $this->journeyService->completeTodayTask($user);
+        // Check if user has an active mission set
+        $missionSet = $user->activeMissionSet;
         
-        if ($success) {
+        if ($missionSet) {
+            // Handle mission set completion
+            $missionId = $request->input('mission_id');
+            
+            if (!$missionId) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No mission specified.'
+                ]);
+            }
+            
+            $mission = DailyMission::where('mission_set_id', $missionSet->id)
+                ->where('id', $missionId)
+                ->first();
+                
+            if (!$mission) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Mission not found.'
+                ]);
+            }
+            
+            // Check if already completed
+            $alreadyCompleted = $user->completedMissions()
+                ->where('daily_mission_id', $mission->id)
+                ->exists();
+                
+            if ($alreadyCompleted) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Mission already completed.'
+                ]);
+            }
+            
+            // Complete the mission
+            $user->completedMissions()->attach($mission->id, [
+                'completed_at' => now(),
+                'xp_earned' => $mission->points ?? 10,
+            ]);
+            
+            // Award XP based on mission type
+            if ($mission->is_body) {
+                $user->increment('xp_body', $mission->points ?? 10);
+            } elseif ($mission->is_mind) {
+                $user->increment('xp_mind', $mission->points ?? 10);
+            } elseif ($mission->is_wisdom) {
+                $user->increment('xp_wisdom', $mission->points ?? 10);
+            }
+            
             return response()->json([
                 'success' => true,
-                'message' => 'Tuyệt vời! Bạn đã hoàn thành nhiệm vụ hôm nay và nhận được 10 EXP!'
+                'message' => 'Mission completed! You earned ' . ($mission->points ?? 10) . ' XP!'
             ]);
         } else {
-            return response()->json([
-                'success' => false,
-                'message' => 'Bạn đã hoàn thành tất cả 30 ngày của hành trình!'
-            ]);
+            // Use JourneyService for standard 90-day journey
+            $success = $this->journeyService->completeTodayTask($user);
+            
+            if ($success) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Tuyệt vời! Bạn đã hoàn thành nhiệm vụ hôm nay và nhận được 10 EXP!'
+                ]);
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Bạn đã hoàn thành tất cả 30 ngày của hành trình!'
+                ]);
+            }
         }
     }
 

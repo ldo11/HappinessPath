@@ -40,11 +40,13 @@
                             <td class="px-6 py-4">
                                 <a href="{{ route('consultant.assessments.show', ['locale' => app()->getLocale(), 'assessment' => $assessment]) }}" class="text-white/80 hover:text-white">View</a>
                                 <a href="{{ route('consultant.assessments.edit', ['locale' => app()->getLocale(), 'assessment' => $assessment]) }}" class="text-emerald-300 hover:text-emerald-200">Edit</a>
+                                @if(auth()->user()->role === 'admin')
                                 <form method="POST" action="{{ route('consultant.assessments.destroy', ['locale' => app()->getLocale(), 'assessment' => $assessment]) }}" class="inline" onsubmit="return confirm('Delete this assessment?')">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="ml-2 text-red-300 hover:text-red-200">Delete</button>
                                 </form>
+                                @endif
                             </td>
                         </tr>
                     @endforeach

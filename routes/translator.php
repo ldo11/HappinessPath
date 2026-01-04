@@ -23,4 +23,7 @@ Route::prefix('{locale}/translator')
         Route::get('/daily-missions', [DailyMissionController::class, 'index'])->name('daily-missions.index');
         Route::get('/daily-missions/{dailyMission}', [DailyMissionController::class, 'show'])->name('daily-missions.show');
         Route::post('/daily-missions/{dailyMission}', [DailyMissionController::class, 'update'])->name('daily-missions.update');
+
+        Route::get('/pain-points', [\App\Http\Controllers\Translator\PainPointController::class, 'index'])->name('pain-points.index');
+        Route::patch('/pain-points/{id}', [\App\Http\Controllers\Translator\PainPointController::class, 'update'])->name('pain-points.update');
     });

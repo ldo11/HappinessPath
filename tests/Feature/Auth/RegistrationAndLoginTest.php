@@ -114,7 +114,7 @@ class RegistrationAndLoginTest extends TestCase
     {
         $response = $this->get('/en/dashboard');
 
-        $response->assertRedirect('/login?locale=en');
+        $response->assertRedirect('/en/login');
     }
 
     public function test_user_redirected_to_correct_dashboard_after_login(): void

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\DailyMission;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class DailyMissionController extends Controller
 {
@@ -100,6 +101,11 @@ class DailyMissionController extends Controller
     {
         $dailyMission = $this->resolveDailyMission();
         
+        $routeName = (string) optional($request->route())->getName();
+        if (str_starts_with($routeName, 'consultant.') && (int) $dailyMission->created_by_id !== Auth::id()) {
+            abort(403, 'Unauthorized action.');
+        }
+
         $data = $request->validate([
             'title' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
@@ -133,9 +139,15 @@ class DailyMissionController extends Controller
         return $this->redirectToIndex($request);
     }
 
-    public function destroy()
+    public function destroy(Request $request)
     {
         $dailyMission = $this->resolveDailyMission();
+        
+        $routeName = (string) optional($request->route())->getName();
+        if (str_starts_with($routeName, 'consultant.') && (int) $dailyMission->created_by_id !== (int) Auth::id()) {
+            abort(403, 'Unauthorized action.');
+        }
+
         $missionSetId = $dailyMission->mission_set_id;
         
         $dailyMission->delete();
